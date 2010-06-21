@@ -5,3 +5,4 @@ qrc_*.cpp
 *.swp
 *.cache
 *.db
+*.so
