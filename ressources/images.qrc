@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+	<qresource>
+		<file>images/accueil.png</file>
+		<file>images/activated_accueil.png</file>
+		<file>images/fond_visionneur_images.png</file>
+	</qresource>
+ </RCC>

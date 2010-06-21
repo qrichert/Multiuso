@@ -1,0 +1,9 @@
+Le design du Speed dial ne vous plaît pas ? Ce n'est pas grave, vous pouvez le changer !
+
+Rendez vous dans le dossier de Multiuso puis dans "navigateurWeb" → "speedDial". Ici vous trouverez un fichier nommé "speedDial.html", ouvrez-le pour édition.
+
+Le CSS se trouve tout en haut, entre les balises <style></style>.
+
+"${PATH}" représente le chemin vers le dossier de Multiuso.
+
+Les images se trouvent un dossier plus loin, dans "pictures".

@@ -1,0 +1,6 @@
+Vous pouvez changer le fond de l'accueil.
+Il y a bien sûr la possibilité d'utiliser une capture d'écran comme fond, mais vous pouvez aussi mettre une image personnalisée.
+
+Pour ce faire, rendez vous dans le dossier "extensions" puis "images" et placez y une image nommée "fond_accueil.png" (sans les guillemets, ".png" étant le format de l'image). Vous observerez que le fond de l'accueil a changé.
+
+Notez que si Multiuso est ouvert lorsque vous placez l'image dans le dossier, le fond ne sera pas modifié, il faudra attendre le prochain démarrage de Multiuso.

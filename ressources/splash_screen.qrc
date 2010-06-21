@@ -1,0 +1,17 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+	<qresource>
+		<file alias="splash_0.png">splashs/splash_0.png</file>
+		<file alias="splash_5.png">splashs/splash_5.png</file>
+		<file alias="splash_10.png">splashs/splash_10.png</file>
+		<file alias="splash_20.png">splashs/splash_20.png</file>
+		<file alias="splash_30.png">splashs/splash_30.png</file>
+		<file alias="splash_40.png">splashs/splash_40.png</file>
+		<file alias="splash_50.png">splashs/splash_50.png</file>
+		<file alias="splash_60.png">splashs/splash_60.png</file>
+		<file alias="splash_70.png">splashs/splash_70.png</file>
+		<file alias="splash_80.png">splashs/splash_80.png</file>
+		<file alias="splash_90.png">splashs/splash_90.png</file>
+		<file alias="splash_100.png">splashs/splash_100.png</file>
+	</qresource>
+ </RCC>

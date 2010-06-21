@@ -1,0 +1,9 @@
+Les effets de déplacement sont des raccourcis activables en déplaçant la fenêtre principale d'une certaine manière (une par raccourci).
+
+Notez que les effets de déplacement sont désactivés par défaut, rendez-vous dans les préférences pour les activer.
+
+En déplaçant la fenêtre principale :
+Sur la bordure du haut : agrandir la fenêtre
+Sur la bordure gauche : minimiser la fenêtre dans le system tray
+Sur la bordure droite : passer en mode plein écran
+Sur la bordure du bas : quitter

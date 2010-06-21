@@ -1,0 +1,8 @@
+Vous pouvez utiliser JavaScript directement dans la barre d'adresse du navigateur Web.
+
+Il vous suffit de faire précéder votre code de la mention « javascript: » (sans les guillemets).
+
+Ex : Rendez vous sur le site Web de Multiuso puis entrez ce code dans la barre d'adresse avant de valider :
+→ javascript:document.getElementById('menu').style.display='none';
+
+Notez qu'à l'aide du "Compresseur de code" vous pouvez réduire tout le code JavaScript (ou autre) sur une seule ligne (et optionnellement y ajouter la mention « javascript: » au début).

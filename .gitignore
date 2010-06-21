@@ -1,0 +1,7 @@
+Multiuso
+moc_*.cpp
+qrc_*.cpp
+*.o
+*.swp
+*.cache
+*.db

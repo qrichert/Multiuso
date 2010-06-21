@@ -1,0 +1,7 @@
+Vous pouvez utiliser des styles externes pour Multiuso.
+
+Téléchargez un design ou créez le vous même (d'extension ".mltsstyle"), puis déplacez ce fichier dans le dossier "extensions/images".
+
+Rendez-vous ensuite dans le menu "Édition" puis choisissez "Préférences". Dans la partie "Style", sélectionnez "Utiliser un style externe". Cliquez sur "Parcourir...", sélectionnez votre feuille de style puis cliquez sur "Ouvrir".
+
+Enregistrez les préférences (bouton "Enregistrer", en bas), le nouveau style est directement appliqué.

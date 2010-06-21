@@ -1,0 +1,27 @@
+Vous pouvez exécuter Multiuso avec des arguments, les voici :
+
+"-h" ou "--home" : Lancer sur : Accueil
+
+"-fb" ou "--filebrowser" : Lancer sur : Navigateur de fichiers
+
+"-w" ou "--widgets" : Lancer sur : Widgets
+
+"-pw" ou "--pictureviewer" : Lancer sur : Visionneur d'images
+                        
+"-te" ou "--textedit" : Lancer sur : Éditeur de texte
+
+"-ce" ou "--codeedit" : Lancer sur : Éditeur de code
+                        
+"-ftp" ou "--ftp" : Lancer sur : Client FTP
+
+"-wb" ou "--webbrowser" : Lancer sur : Navigateur Web
+
+"-v" ou "--version" : Afficher la version de Multiuso
+
+"-st" ou "--showtips" : Lancer en affichant les astuces
+
+"-sti" ou "--systemtrayicon" : Lancer dans le system tray
+
+"lien" : Ouvrir le lien dans le Navigateur Web
+
+"fichier" : Ouvrir le fichier avec la fonctionnalité par défaut
