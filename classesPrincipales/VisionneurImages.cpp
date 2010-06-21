@@ -21,66 +21,96 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 {
-	actionOuvrir = new QAction("Ouvrir", this);
-		actionOuvrir->setIcon(QIcon(":/icones/visionneur_images/actionOuvrir"));
-		actionOuvrir->setShortcut(QKeySequence("Ctrl+O"));
-		connect(actionOuvrir, SIGNAL(triggered()), this, SLOT(slotOuvrir()));
+	actionAddTab = new QAction("Ajouter un onglet", this);
+		actionAddTab->setIcon(QIcon(":/icones/visionneur_images/actionAddTab.png"));
+		actionAddTab->setShortcut(QKeySequence("Ctrl+T"));
+		connect(actionAddTab, SIGNAL(triggered()), this, SLOT(slotNouvelOnglet()));
+
+	actionRemoveTab = new QAction("Supprimer un onglet", this);
+		actionRemoveTab->setIcon(QIcon(":/icones/visionneur_images/actionRemoveTab.png"));
+		actionRemoveTab->setShortcut(QKeySequence("Ctrl+W"));
+		connect(actionRemoveTab, SIGNAL(triggered()), this, SLOT(slotRemoveTab()));
 
 	actionFermer = new QAction("Fermer", this);
-		actionFermer->setIcon(QIcon(":/icones/visionneur_images/actionFermer"));
+		actionFermer->setIcon(QIcon(":/icones/visionneur_images/actionFermer.png"));
 		actionFermer->setShortcut(QKeySequence("Ctrl+X"));
 		connect(actionFermer, SIGNAL(triggered()), this, SLOT(slotFermer()));
 
+	actionOuvrir = new QAction("Ouvrir", this);
+		actionOuvrir->setIcon(QIcon(":/icones/visionneur_images/actionOuvrir.png"));
+		actionOuvrir->setShortcut(QKeySequence("Ctrl+O"));
+		connect(actionOuvrir, SIGNAL(triggered()), this, SLOT(slotOuvrir()));
+
 	actionZoomPlus = new QAction("Zoom : +", this);
-		actionZoomPlus->setIcon(QIcon(":/icones/visionneur_images/actionZoomPlus"));
+		actionZoomPlus->setIcon(QIcon(":/icones/visionneur_images/actionZoomPlus.png"));
 		actionZoomPlus->setShortcut(QKeySequence("Ctrl++"));
 		connect(actionZoomPlus, SIGNAL(triggered()), this, SLOT(slotZoomPlus()));
 
 	actionZoomNormal = new QAction("Zoom : =", this);
-		actionZoomNormal->setIcon(QIcon(":/icones/visionneur_images/actionZoomNormal"));
+		actionZoomNormal->setIcon(QIcon(":/icones/visionneur_images/actionZoomNormal.png"));
 		actionZoomNormal->setShortcut(QKeySequence("Ctrl+0"));
 		connect(actionZoomNormal, SIGNAL(triggered()), this, SLOT(slotZoomNormal()));
 
 	actionZoomMoins = new QAction("Zoom : -", this);
-		actionZoomMoins->setIcon(QIcon(":/icones/visionneur_images/actionZoomMoins"));
+		actionZoomMoins->setIcon(QIcon(":/icones/visionneur_images/actionZoomMoins.png"));
 		actionZoomMoins->setShortcut(QKeySequence("Ctrl+-"));
 		connect(actionZoomMoins, SIGNAL(triggered()), this, SLOT(slotZoomMoins()));
-
-	actionDiaporama = new QAction("Diaporama", this);
-		actionDiaporama->setIcon(QIcon(":/icones/visionneur_images/actionDiaporama"));
-		connect(actionDiaporama, SIGNAL(triggered()), this, SLOT(slotDiaporama()));
-
+	
 	QToolBar *toolBar = addToolBar("Options");
-		toolBar->addAction(actionOuvrir);
 		toolBar->addAction(actionFermer);
+		toolBar->addAction(actionOuvrir);
 		toolBar->addSeparator();
 		toolBar->addAction(actionZoomPlus);
 		toolBar->addAction(actionZoomNormal);
 		toolBar->addAction(actionZoomMoins);
-		toolBar->addSeparator();
-		toolBar->addAction(actionDiaporama);
 		toolBar->setObjectName("Options");
 		toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		
+	QToolButton *buttonAddTab = new QToolButton;
+		buttonAddTab->setDefaultAction(actionAddTab);
+		buttonAddTab->setAutoRaise(true);
+		
+	QToolButton *buttonRemoveTab = new QToolButton;
+		buttonRemoveTab->setDefaultAction(actionRemoveTab);
+		buttonRemoveTab->setAutoRaise(true);
 
-	labelImage = new QLabel;
-		labelImage->setBackgroundRole(QPalette::Base);
-		labelImage->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-		labelImage->setScaledContents(true);
+	onglets = new QTabWidget;
+		onglets->setMovable(true);
+		onglets->setDocumentMode(true);
+		onglets->setCornerWidget(buttonAddTab, Qt::BottomLeftCorner);
+		onglets->setCornerWidget(buttonRemoveTab, Qt::BottomRightCorner);
+		connect(onglets, SIGNAL(tabCloseRequested(int)), this, SLOT(slotRemoveTab(int)));
+			slotNouvelOnglet();
 
-	area = new QScrollArea;
-		area->setBackgroundRole(QPalette::Base);
-		area->setWidget(labelImage);
-		area->setAlignment(Qt::AlignCenter);
-
-	setCentralWidget(area);
+	setCentralWidget(onglets);
 
 	QSettings reglages(Multiuso::appDirPath() + "/reglages/visionneur_images.ini", QSettings::IniFormat);
 		restoreState(reglages.value("etat_fenetre").toByteArray());
+}
 
-	slotOuvrirFichier(":/images/fond_visionneur_images");
+bool VisionneurImages::needNewTab()
+{
+	bool newTab = true;
 
-	timer = new QTimer(this);
-		connect(timer, SIGNAL(timeout()), this, SLOT(changerDiapo()));
+	if (onglets->tabText(onglets->count() - 1) == "(aucune image)")
+		newTab = false;
+
+	return newTab;
+}
+
+void VisionneurImages::switchToLastIndex()
+{
+	onglets->setCurrentIndex(onglets->count() - 1);
+}
+
+QLabel *VisionneurImages::currentLabel()
+{
+	return onglets->currentWidget()->findChild<QLabel *>();
+}
+
+QScrollArea *VisionneurImages::currentScrollArea()
+{
+	return onglets->currentWidget()->findChild<QScrollArea *>();
 }
 
 void VisionneurImages::slotOuvrir()
@@ -97,7 +127,7 @@ void VisionneurImages::slotOuvrir()
 
 void VisionneurImages::slotFermer()
 {
-	slotOuvrirFichier(":/images/fond_visionneur_images");
+	slotOuvrirFichier(":/images/fond_visionneur_images.png");
 }
 
 void VisionneurImages::slotZoomPlus()
@@ -107,7 +137,7 @@ void VisionneurImages::slotZoomPlus()
 
 void VisionneurImages::slotZoomNormal()
 {
-	labelImage->adjustSize();
+	currentLabel()->adjustSize();
 
 	zoom = 1.0;
 }
@@ -117,48 +147,6 @@ void VisionneurImages::slotZoomMoins()
 	zoomer(0.8);
 }
 
-void VisionneurImages::slotDiaporama()
-{
-	if (actionDiaporama->text() == "Diaporama")
-	{
-		dossierDiaporama = QFileDialog::getExistingDirectory(this, "Multiuso", Multiuso::lastPath());
-		
-		Multiuso::setLastPath(dossierDiaporama);
-
-		if (dossierDiaporama.isEmpty())
-			return;
-
-		QDir dir(dossierDiaporama);
-
-		diapos = dir.entryList();
-			diapos.removeOne(".");
-			diapos.removeOne("..");
-
-		diapoNumeroX = 0;
-
-		int delai = QInputDialog::getInt(this, "Multiuso", "Délai entre les images (en secondes) :", 7, 1, 3600, 1);
-
-		changerDiapo();
-
-		timer->start(delai * 1000);
-
-		actionDiaporama->setText("Arrêter le diaporama");
-		actionDiaporama->setIcon(QIcon(":/icones/visionneur_images/actionDiaporamaStop"));
-	}
-
-	else
-	{
-		timer->stop();
-
-		diapos.clear();
-
-		actionDiaporama->setText("Diaporama");
-		actionDiaporama->setIcon(QIcon(":/icones/visionneur_images/actionDiaporama"));
-
-		slotOuvrirFichier(":/images/fond_visionneur_images");
-	}
-}
-
 void VisionneurImages::slotOuvrirFichier(QString fichier)
 {
 	QImage image(fichier);
@@ -166,8 +154,19 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 	if (image.isNull())
 		return;
 
-	labelImage->setPixmap(QPixmap::fromImage(image));
-	labelImage->adjustSize();
+	currentLabel()->setPixmap(QPixmap::fromImage(image));
+	currentLabel()->adjustSize();
+
+	QString name = QFileInfo(fichier).fileName();
+
+	if (fichier == ":/images/fond_visionneur_images.png")
+		name = "(aucune image)";
+
+	if (name.length() > 20)
+		name = name.left(17) + "...";
+
+	onglets->setTabText(onglets->currentIndex(), name);
+	onglets->setTabIcon(onglets->currentIndex(), QIcon(fichier));
 
 	zoom = 1.0;
 }
@@ -176,22 +175,10 @@ void VisionneurImages::zoomer(double facteurZoom)
 {
 	zoom *= facteurZoom;
 
-	labelImage->resize(zoom * labelImage->pixmap()->size());
+	currentLabel()->resize(zoom * currentLabel()->pixmap()->size());
 
-	ajusterScrollBar(area->horizontalScrollBar(), facteurZoom);
-	ajusterScrollBar(area->verticalScrollBar(), facteurZoom);
-}
-
-void VisionneurImages::changerDiapo()
-{
-	QString imageAAfficher = dossierDiaporama + "/" + diapos.value(diapoNumeroX);
-
-	slotOuvrirFichier(imageAAfficher);
-
-	diapoNumeroX++;
-
-	if (diapoNumeroX > diapos.size() - 1)
-		diapoNumeroX = 0;
+	ajusterScrollBar(currentScrollArea()->horizontalScrollBar(), facteurZoom);
+	ajusterScrollBar(currentScrollArea()->verticalScrollBar(), facteurZoom);
 }
 
 void VisionneurImages::ajusterScrollBar(QScrollBar *scrollBar, double facteurZoom)
@@ -203,4 +190,69 @@ void VisionneurImages::sauvegarderEtat()
 {
 	QSettings reglages(Multiuso::appDirPath() + "/reglages/visionneur_images.ini", QSettings::IniFormat);
 		reglages.setValue("etat_fenetre", saveState());
+}
+
+QWidget *VisionneurImages::newTab()
+{
+	QLabel *labelImage = new QLabel;
+		labelImage->setBackgroundRole(QPalette::Base);
+		labelImage->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+		labelImage->setScaledContents(true);
+
+	QScrollArea *area = new QScrollArea;
+		area->setBackgroundRole(QPalette::Base);
+		area->setWidget(labelImage);
+		area->setAlignment(Qt::AlignCenter);
+
+	QVBoxLayout *layout = new QVBoxLayout;
+		layout->addWidget(area);
+		layout->setContentsMargins(0, 0, 0, 0);
+
+	QWidget *widget = new QWidget;
+		widget->setLayout(layout);
+
+	return widget;
+}
+
+void VisionneurImages::slotNouvelOnglet()
+{
+	onglets->addTab(newTab(), "");
+	onglets->setCurrentIndex(onglets->count() - 1);
+
+	slotOuvrirFichier(":/images/fond_visionneur_images.png");
+
+	if (onglets->count() > 1)
+	{
+		onglets->setTabsClosable(true);
+		actionRemoveTab->setEnabled(true);
+	}
+
+	else
+	{
+		onglets->setTabsClosable(false);
+		actionRemoveTab->setEnabled(false);
+	}
+}
+
+void VisionneurImages::slotRemoveTab()
+{
+	slotRemoveTab(onglets->currentIndex());
+}
+
+void VisionneurImages::slotRemoveTab(int index)
+{
+	onglets->widget(index)->deleteLater();
+	onglets->removeTab(index);
+	
+	if (onglets->count() > 1)
+	{
+		onglets->setTabsClosable(true);
+		actionRemoveTab->setEnabled(true);
+	}
+
+	else
+	{
+		onglets->setTabsClosable(false);
+		actionRemoveTab->setEnabled(false);
+	}
 }

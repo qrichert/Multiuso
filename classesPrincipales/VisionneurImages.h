@@ -28,40 +28,43 @@ class VisionneurImages : public QMainWindow
 
 	public:
 		VisionneurImages(QWidget *parent);
+		
+		bool needNewTab();
+		void switchToLastIndex();
 
+		QLabel *currentLabel();
+		QScrollArea *currentScrollArea();
+	
 	public slots:
 		void slotOuvrir();
 		void slotFermer();
 		void slotZoomPlus();
 		void slotZoomNormal();
 		void slotZoomMoins();
-		void slotDiaporama();
 
-	public slots:
 		void slotOuvrirFichier(QString fichier);
 		void zoomer(double facteurZoom);
-		void changerDiapo();
 		void ajusterScrollBar(QScrollBar *scrollBar, double facteurZoom);
 		void sauvegarderEtat();
 
-	signals:
+		QWidget *newTab();
+		void slotNouvelOnglet();
+		void slotRemoveTab();
+		void slotRemoveTab(int index);
 
 	private:
-		QScrollArea *area;
-		QLabel *labelImage;
+		QTabWidget *onglets;
+
 		double zoom;
-		QString dossierDiaporama;
-		QStringList diapos;
-		int diapoNumeroX;
-		QTimer *timer;
 
-	private:
+		QAction *actionAddTab;
+		QAction *actionRemoveTab;
+
 		QAction *actionOuvrir;
 		QAction *actionFermer;
 		QAction *actionZoomPlus;
 		QAction *actionZoomNormal;
 		QAction *actionZoomMoins;
-		QAction *actionDiaporama;
 };
 
 #endif

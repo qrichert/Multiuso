@@ -1185,6 +1185,12 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 
 	else if (images.contains(suffixe.toLower()))
 	{
+		if (visionneurImages->needNewTab())
+			visionneurImages->slotNouvelOnglet();
+
+		else
+			visionneurImages->switchToLastIndex();
+
 		visionneurImages->slotOuvrirFichier(fichier);
 		
 		if (!Multiuso::openTabsList(pagesDuProgramme).contains("Visionneur d'images"))

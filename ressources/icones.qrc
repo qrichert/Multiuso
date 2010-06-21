@@ -214,10 +214,12 @@
 
 		<file>icones/telechargements/annuler.png</file>
 
+		<file>icones/visionneur_images/actionAddTab.png</file>
 		<file>icones/visionneur_images/actionDiaporama.png</file>
 		<file>icones/visionneur_images/actionDiaporamaStop.png</file>
 		<file>icones/visionneur_images/actionFermer.png</file>
 		<file>icones/visionneur_images/actionOuvrir.png</file>
+		<file>icones/visionneur_images/actionRemoveTab.png</file>
 		<file>icones/visionneur_images/actionZoomMoins.png</file>
 		<file>icones/visionneur_images/actionZoomNormal.png</file>
 		<file>icones/visionneur_images/actionZoomPlus.png</file>
