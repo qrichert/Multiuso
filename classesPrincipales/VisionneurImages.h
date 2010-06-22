@@ -22,6 +22,74 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../CurrentIncludes.h"
 
+class Picture : public QLabel
+{
+	Q_OBJECT
+
+	public:
+		Picture(QWidget * parent = 0) : QLabel(parent)
+		{
+			setAcceptDrops(true);
+		}
+
+		void dragEnterEvent(QDragEnterEvent *event)
+		{
+			if (event->mimeData()->hasFormat("text/uri-list"))
+				event->acceptProposedAction();
+		}
+
+		void dropEvent(QDropEvent *event)
+		{
+			const QMimeData *dropData = event->mimeData();
+
+			if (!dropData->hasImage())
+				QLabel::dropEvent(event);
+	
+			if (dropData->hasUrls())
+			{
+				foreach (QUrl url, dropData->urls())
+					emit openFileFromDrop(url);
+			}
+		}
+
+	signals:
+		void openFileFromDrop(QUrl url);
+};
+
+class ScrollArea : public QScrollArea
+{
+	Q_OBJECT
+
+	public:
+		ScrollArea(QWidget * parent = 0) : QScrollArea(parent)
+		{
+			setAcceptDrops(true);
+		}
+		
+		void dragEnterEvent(QDragEnterEvent *event)
+		{
+			if (event->mimeData()->hasFormat("text/uri-list"))
+				event->acceptProposedAction();
+		}
+
+		void dropEvent(QDropEvent *event)
+		{
+			const QMimeData *dropData = event->mimeData();
+			
+			if (!dropData->hasImage())
+				QScrollArea::dropEvent(event);
+
+			if (dropData->hasUrls())
+			{
+				foreach (QUrl url, dropData->urls())
+					emit openFileFromDrop(url);
+			}
+		}
+
+	signals:
+		void openFileFromDrop(QUrl url);
+};
+
 class VisionneurImages : public QMainWindow
 {
 	Q_OBJECT
@@ -43,6 +111,7 @@ class VisionneurImages : public QMainWindow
 		void slotZoomMoins();
 
 		void slotOuvrirFichier(QString fichier);
+		void slotOpenFileFromDrop(QUrl url);
 		void zoomer(double facteurZoom);
 		void ajusterScrollBar(QScrollBar *scrollBar, double facteurZoom);
 		void sauvegarderEtat();

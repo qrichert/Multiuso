@@ -171,6 +171,25 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 	zoom = 1.0;
 }
 
+void VisionneurImages::slotOpenFileFromDrop(QUrl url)
+{
+	QString urlPath = url.path();
+	
+	if (Multiuso::currentOS() == "windows")
+		urlPath = urlPath.right(urlPath.length() - 1);
+
+	if (QFileInfo(urlPath).exists())
+	{
+		if (needNewTab())
+			slotNouvelOnglet();
+
+		else
+			switchToLastIndex();
+
+		slotOuvrirFichier(urlPath);
+	}
+}
+
 void VisionneurImages::zoomer(double facteurZoom)
 {
 	zoom *= facteurZoom;
@@ -194,15 +213,17 @@ void VisionneurImages::sauvegarderEtat()
 
 QWidget *VisionneurImages::newTab()
 {
-	QLabel *labelImage = new QLabel;
+	Picture *labelImage = new Picture;
 		labelImage->setBackgroundRole(QPalette::Base);
 		labelImage->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 		labelImage->setScaledContents(true);
+		connect(labelImage, SIGNAL(openFileFromDrop(QUrl)), this, SLOT(slotOpenFileFromDrop(QUrl)));
 
-	QScrollArea *area = new QScrollArea;
+	ScrollArea *area = new ScrollArea;
 		area->setBackgroundRole(QPalette::Base);
 		area->setWidget(labelImage);
 		area->setAlignment(Qt::AlignCenter);
+		connect(area, SIGNAL(openFileFromDrop(QUrl)), this, SLOT(slotOpenFileFromDrop(QUrl)));
 
 	QVBoxLayout *layout = new QVBoxLayout;
 		layout->addWidget(area);
