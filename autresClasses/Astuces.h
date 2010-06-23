@@ -36,8 +36,7 @@ class Astuces : public QDialog
 		void selectionnerAstuce();
 		void slotPrecedent();
 		void slotSuivant();
-
-	signals:
+		void slotCloseTips();
 
 	private:
 		QLabel *page;

@@ -44,14 +44,26 @@ Astuces::Astuces(QWidget *parent) : QDialog(parent)
 	QSettings reglages(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
 
 	afficherAuDemarrage = new QCheckBox("Afficher les astuces au démarrage de Multiuso");
-
+	
 		if (reglages.value("ouverture/astuces").toBool())
 			afficherAuDemarrage->setCheckState(Qt::Checked);
+		
+	QPushButton *closeTips = new QPushButton;
+		closeTips->setIcon(QIcon(":/icones/astuces/close.png"));
+		closeTips->setFlat(true);
+		closeTips->setFixedWidth(34);
+		connect(closeTips, SIGNAL(clicked()), this, SLOT(slotCloseTips()));
 
 	QGridLayout *entete = new QGridLayout;
 		entete->addWidget(logo, 0, 0, 2, 1);
 		entete->addWidget(label, 0, 1, 1, 1);
 		entete->addWidget(page, 1, 1, 1, 1);
+
+	QHBoxLayout *bottom = new QHBoxLayout;
+		bottom->addWidget(afficherAuDemarrage);
+		bottom->addStretch();
+		bottom->addWidget(closeTips);
+		bottom->setContentsMargins(0, 0, 0, 0);
 
 	QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -64,9 +76,12 @@ Astuces::Astuces(QWidget *parent) : QDialog(parent)
 		layoutAstuces->addItem(spacer, 0, 1, 1, 1);
 		layoutAstuces->addWidget(astuce, 1, 0, 1, 2);
 		layoutAstuces->addLayout(navigation, 2, 0, 1, 2);
-		layoutAstuces->addWidget(afficherAuDemarrage, 3, 0, 1, 2);
+		layoutAstuces->addLayout(bottom, 3, 0, 1, 2);
 
 	selectionnerAstuce();
+
+	QShortcut *shortcutClose = new QShortcut(Qt::Key_Escape, this);
+		connect(shortcutClose, SIGNAL(activated()), this, SLOT(slotCloseTips()));
 }
 
 void Astuces::selectionnerAstuce()
@@ -153,6 +168,14 @@ void Astuces::slotSuivant()
 	}
 
 	page->setText("Page " + QString::number(astuceActuelle) + "/" + QString::number(nombreDeFichiers));
+}
+
+void Astuces::slotCloseTips()
+{
+	QSettings reglages(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+		reglages.setValue("ouverture/astuces", afficherAuDemarrage->isChecked());
+
+	accept();
 }
 
 void Astuces::closeEvent(QCloseEvent *event)
