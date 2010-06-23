@@ -71,7 +71,7 @@ void SpeedDial::loadSpeedDial()
 					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/empty.png");	
 			
 				else if (infos.value(2) == "${WAIT}")
-					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/wait.png");	
+					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/wait.gif");	
 			
 				else
 					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/" + infos.value(2));
