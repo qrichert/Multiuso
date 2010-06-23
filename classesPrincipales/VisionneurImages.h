@@ -96,9 +96,6 @@ class Picture : public QLabel
 		{
 			const QMimeData *dropData = event->mimeData();
 
-			if (!dropData->hasImage())
-				QLabel::dropEvent(event);
-	
 			if (dropData->hasUrls())
 			{
 				foreach (QUrl url, dropData->urls())

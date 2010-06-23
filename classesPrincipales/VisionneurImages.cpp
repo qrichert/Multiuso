@@ -52,7 +52,7 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		connect(actionZoomNormal, SIGNAL(triggered()), this, SLOT(slotZoomNormal()));
 		
 	actionZoomIdeal = new QAction("Taille idéale", this);
-		actionZoomIdeal->setIcon(QIcon(":/icones/visionneur_images/actionZoomNormal.png"));
+		actionZoomIdeal->setIcon(QIcon(":/icones/visionneur_images/actionZoomIdeal.png"));
 		actionZoomIdeal->setShortcut(QKeySequence("F"));
 		connect(actionZoomIdeal, SIGNAL(triggered()), this, SLOT(slotZoomIdeal()));
 
