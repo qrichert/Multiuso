@@ -29,7 +29,61 @@ class Picture : public QLabel
 	public:
 		Picture(QWidget * parent = 0) : QLabel(parent)
 		{
+			m_imgPath = "";
+			m_zoom = 1.0;
+
 			setAcceptDrops(true);
+		}
+
+		QString imgPath()
+		{
+			return m_imgPath;
+		}
+
+		double zoom()
+		{
+			return m_zoom;
+		}
+
+		void setZoom(double zoom)
+		{
+			m_zoom = zoom;
+		}
+
+	protected:
+		void mousePressEvent(QMouseEvent *event)
+		{
+			QString slashToAdd = "";
+
+			if (Multiuso::currentOS() == "windows")
+				slashToAdd = "/";
+
+			if (m_imgPath == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+				return;
+
+			if (event->button() == Qt::LeftButton)
+			{
+				QList<QUrl> urls;
+			       		urls << QUrl(m_imgPath);
+
+				QMimeData *mimeData = new QMimeData;
+					mimeData->setUrls(urls);
+
+				QPixmap tempPixmap = *pixmap();
+
+				if (tempPixmap.width() > tempPixmap.height() && tempPixmap.width() > 150)
+					tempPixmap = tempPixmap.scaledToWidth(150);
+
+				else if (tempPixmap.height() > tempPixmap.width() && tempPixmap.height() > 150)
+					tempPixmap = tempPixmap.scaledToHeight(150);
+
+				const QPixmap dragPixmap = tempPixmap;
+				
+				QDrag *drag = new QDrag(this);
+					drag->setMimeData(mimeData);
+					drag->setPixmap(dragPixmap);
+					drag->exec(Qt::CopyAction, Qt::CopyAction);
+			}
 		}
 
 		void dragEnterEvent(QDragEnterEvent *event)
@@ -52,8 +106,25 @@ class Picture : public QLabel
 			}
 		}
 
+	public slots:
+		void setImage(QString imgPath)
+		{
+			setPixmap(QPixmap(imgPath));
+
+			QString slashToAdd = "";
+
+			if (Multiuso::currentOS() == "windows")
+				slashToAdd = "/";
+
+			m_imgPath = "file://" + slashToAdd + imgPath;
+		}
+
 	signals:
 		void openFileFromDrop(QUrl url);
+
+	private:
+		QString m_imgPath;
+		double m_zoom;
 };
 
 class ScrollArea : public QScrollArea
@@ -65,7 +136,8 @@ class ScrollArea : public QScrollArea
 		{
 			setAcceptDrops(true);
 		}
-		
+
+	protected:
 		void dragEnterEvent(QDragEnterEvent *event)
 		{
 			if (event->mimeData()->hasFormat("text/uri-list"))
@@ -100,14 +172,15 @@ class VisionneurImages : public QMainWindow
 		bool needNewTab();
 		void switchToLastIndex();
 
-		QLabel *currentLabel();
-		QScrollArea *currentScrollArea();
+		Picture *currentLabel();
+		ScrollArea *currentScrollArea();
 	
 	public slots:
 		void slotOuvrir();
 		void slotFermer();
 		void slotZoomPlus();
 		void slotZoomNormal();
+		void slotZoomIdeal();
 		void slotZoomMoins();
 
 		void slotOuvrirFichier(QString fichier);
@@ -124,8 +197,6 @@ class VisionneurImages : public QMainWindow
 	private:
 		QTabWidget *onglets;
 
-		double zoom;
-
 		QAction *actionAddTab;
 		QAction *actionRemoveTab;
 
@@ -133,6 +204,7 @@ class VisionneurImages : public QMainWindow
 		QAction *actionFermer;
 		QAction *actionZoomPlus;
 		QAction *actionZoomNormal;
+		QAction *actionZoomIdeal;
 		QAction *actionZoomMoins;
 };
 

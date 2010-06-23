@@ -41,17 +41,22 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		actionOuvrir->setShortcut(QKeySequence("Ctrl+O"));
 		connect(actionOuvrir, SIGNAL(triggered()), this, SLOT(slotOuvrir()));
 
-	actionZoomPlus = new QAction("Zoom : +", this);
+	actionZoomPlus = new QAction("Zoom avant", this);
 		actionZoomPlus->setIcon(QIcon(":/icones/visionneur_images/actionZoomPlus.png"));
 		actionZoomPlus->setShortcut(QKeySequence("Ctrl++"));
 		connect(actionZoomPlus, SIGNAL(triggered()), this, SLOT(slotZoomPlus()));
 
-	actionZoomNormal = new QAction("Zoom : =", this);
+	actionZoomNormal = new QAction("Taille normale", this);
 		actionZoomNormal->setIcon(QIcon(":/icones/visionneur_images/actionZoomNormal.png"));
 		actionZoomNormal->setShortcut(QKeySequence("Ctrl+0"));
 		connect(actionZoomNormal, SIGNAL(triggered()), this, SLOT(slotZoomNormal()));
+		
+	actionZoomIdeal = new QAction("Taille idéale", this);
+		actionZoomIdeal->setIcon(QIcon(":/icones/visionneur_images/actionZoomNormal.png"));
+		actionZoomIdeal->setShortcut(QKeySequence("F"));
+		connect(actionZoomIdeal, SIGNAL(triggered()), this, SLOT(slotZoomIdeal()));
 
-	actionZoomMoins = new QAction("Zoom : -", this);
+	actionZoomMoins = new QAction("Zoom arrière", this);
 		actionZoomMoins->setIcon(QIcon(":/icones/visionneur_images/actionZoomMoins.png"));
 		actionZoomMoins->setShortcut(QKeySequence("Ctrl+-"));
 		connect(actionZoomMoins, SIGNAL(triggered()), this, SLOT(slotZoomMoins()));
@@ -62,6 +67,7 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		toolBar->addSeparator();
 		toolBar->addAction(actionZoomPlus);
 		toolBar->addAction(actionZoomNormal);
+		toolBar->addAction(actionZoomIdeal);
 		toolBar->addAction(actionZoomMoins);
 		toolBar->setObjectName("Options");
 		toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -69,7 +75,7 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 	QToolButton *buttonAddTab = new QToolButton;
 		buttonAddTab->setDefaultAction(actionAddTab);
 		buttonAddTab->setAutoRaise(true);
-		
+	
 	QToolButton *buttonRemoveTab = new QToolButton;
 		buttonRemoveTab->setDefaultAction(actionRemoveTab);
 		buttonRemoveTab->setAutoRaise(true);
@@ -103,14 +109,14 @@ void VisionneurImages::switchToLastIndex()
 	onglets->setCurrentIndex(onglets->count() - 1);
 }
 
-QLabel *VisionneurImages::currentLabel()
+Picture *VisionneurImages::currentLabel()
 {
-	return onglets->currentWidget()->findChild<QLabel *>();
+	return onglets->currentWidget()->findChild<Picture *>();
 }
 
-QScrollArea *VisionneurImages::currentScrollArea()
+ScrollArea *VisionneurImages::currentScrollArea()
 {
-	return onglets->currentWidget()->findChild<QScrollArea *>();
+	return onglets->currentWidget()->findChild<ScrollArea *>();
 }
 
 void VisionneurImages::slotOuvrir()
@@ -132,31 +138,87 @@ void VisionneurImages::slotFermer()
 
 void VisionneurImages::slotZoomPlus()
 {
-	zoomer(1.25);
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+
+	zoomer(1.2); // 120%
 }
 
 void VisionneurImages::slotZoomNormal()
 {
-	currentLabel()->adjustSize();
+	QString slashToAdd = "";
 
-	zoom = 1.0;
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+
+	currentLabel()->adjustSize();
+}
+
+void VisionneurImages::slotZoomIdeal()
+{
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+
+	slotZoomNormal();
+
+	if (currentLabel()->width() < currentScrollArea()->width()
+		&& currentLabel()->width() < currentScrollArea()->width())
+	{
+		currentLabel()->setZoom(1.0);
+		
+		return;
+	}
+
+	QSize size = currentLabel()->size();
+		size.scale(currentScrollArea()->size(), Qt::KeepAspectRatio);
+		size *= 0.95; // 95%
+
+	currentLabel()->resize(size);
+
+	currentLabel()->setZoom(1.0);
 }
 
 void VisionneurImages::slotZoomMoins()
 {
-	zoomer(0.8);
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+
+	zoomer(0.8); // 80%
 }
 
 void VisionneurImages::slotOuvrirFichier(QString fichier)
 {
-	QImage image(fichier);
+	if (currentLabel()->imgPath() == fichier)
+		return;
+
+	QIcon image(fichier); // Only used for the tab icon.
 
 	if (image.isNull())
 		return;
 
-	currentLabel()->setPixmap(QPixmap::fromImage(image));
+	currentLabel()->setImage(fichier);
 	currentLabel()->adjustSize();
 
+	slotZoomIdeal();
+	
 	QString name = QFileInfo(fichier).fileName();
 
 	if (fichier == ":/images/fond_visionneur_images.png")
@@ -166,13 +228,14 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 		name = name.left(17) + "...";
 
 	onglets->setTabText(onglets->currentIndex(), name);
-	onglets->setTabIcon(onglets->currentIndex(), QIcon(fichier));
-
-	zoom = 1.0;
+	onglets->setTabIcon(onglets->currentIndex(), image);
 }
 
 void VisionneurImages::slotOpenFileFromDrop(QUrl url)
 {
+	if (currentLabel()->imgPath() == url.toString())
+		return;
+
 	QString urlPath = url.path();
 	
 	if (Multiuso::currentOS() == "windows")
@@ -192,9 +255,9 @@ void VisionneurImages::slotOpenFileFromDrop(QUrl url)
 
 void VisionneurImages::zoomer(double facteurZoom)
 {
-	zoom *= facteurZoom;
+	currentLabel()->setZoom(currentLabel()->zoom() * facteurZoom);
 
-	currentLabel()->resize(zoom * currentLabel()->pixmap()->size());
+	currentLabel()->resize(currentLabel()->zoom() * currentLabel()->pixmap()->size());
 
 	ajusterScrollBar(currentScrollArea()->horizontalScrollBar(), facteurZoom);
 	ajusterScrollBar(currentScrollArea()->verticalScrollBar(), facteurZoom);
