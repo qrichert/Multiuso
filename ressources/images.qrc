@@ -3,6 +3,7 @@
 	<qresource>
 		<file>images/accueil.png</file>
 		<file>images/activated_accueil.png</file>
+		<file>images/fond_erreur_ouverture.png</file>
 		<file>images/fond_visionneur_images.png</file>
 	</qresource>
  </RCC>

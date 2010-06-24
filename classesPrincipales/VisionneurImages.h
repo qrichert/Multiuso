@@ -60,6 +60,10 @@ class Picture : public QLabel
 
 			if (m_imgPath == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 				return;
+			
+			if (m_imgPath == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+				return;
+
 
 			if (event->button() == Qt::LeftButton)
 			{
@@ -144,10 +148,7 @@ class ScrollArea : public QScrollArea
 		void dropEvent(QDropEvent *event)
 		{
 			const QMimeData *dropData = event->mimeData();
-			
-			if (!dropData->hasImage())
-				QScrollArea::dropEvent(event);
-
+				
 			if (dropData->hasUrls())
 			{
 				foreach (QUrl url, dropData->urls())

@@ -98,7 +98,20 @@ bool VisionneurImages::needNewTab()
 {
 	bool newTab = true;
 
-	if (onglets->tabText(onglets->count() - 1) == "(aucune image)")
+	Picture *picture = onglets->widget(onglets->count() - 1)->findChild<Picture *>();
+
+	if (picture == 0)
+		return newTab;
+	
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (picture->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		newTab = false;
+	
+	if (picture->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		newTab = false;
 
 	return newTab;
@@ -122,8 +135,7 @@ ScrollArea *VisionneurImages::currentScrollArea()
 void VisionneurImages::slotOuvrir()
 {
 	QString image = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(),
-			"Image (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *.ppm *.xbm *.xpm *.svg"
-				"*.PNG *.JPG *.JPEG *.BMP *.GIF *.PBM *.PGM *.PPM *.XBM *.XPM *.SVG");
+			"Image (*.*)");
 				
 	Multiuso::setLastPath(image);
 
@@ -145,6 +157,9 @@ void VisionneurImages::slotZoomPlus()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+		return;
 
 	zoomer(1.2); // 120%
 }
@@ -158,6 +173,9 @@ void VisionneurImages::slotZoomNormal()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+		return;
 
 	currentLabel()->adjustSize();
 }
@@ -170,6 +188,9 @@ void VisionneurImages::slotZoomIdeal()
 		slashToAdd = "/";
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
 	slotZoomNormal();
@@ -200,14 +221,24 @@ void VisionneurImages::slotZoomMoins()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+		return;
 
 	zoomer(0.8); // 80%
 }
 
 void VisionneurImages::slotOuvrirFichier(QString fichier)
 {
-	if (currentLabel()->imgPath() == fichier)
+	if (currentLabel()->imgPath() == fichier) // If the open-requested file is the current shown file
 		return;
+	
+	QStringList suffixes;
+		suffixes << "png" << "jpg" << "jpeg" << "bmp" << "gif"<< "pbm"
+			<< "pgm" << "ppm" << "xbm" << "xpm" << "svg";
+
+	if (!suffixes.contains(QFileInfo(fichier).suffix().toLower())) // If the file to show isn't a valid picture...
+		fichier = ":/images/fond_erreur_ouverture.png"; // ...we show an error
 
 	QIcon image(fichier); // Only used for the tab icon.
 
@@ -223,6 +254,9 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 
 	if (fichier == ":/images/fond_visionneur_images.png")
 		name = "(aucune image)";
+
+	else if (fichier == ":/images/fond_erreur_ouverture.png")
+		name = "(erreur)";
 
 	if (name.length() > 20)
 		name = name.left(17) + "...";
