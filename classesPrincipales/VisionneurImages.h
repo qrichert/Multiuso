@@ -64,7 +64,6 @@ class Picture : public QLabel
 			if (m_imgPath == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 				return;
 
-
 			if (event->button() == Qt::LeftButton)
 			{
 				QList<QUrl> urls;
@@ -172,6 +171,16 @@ class VisionneurImages : public QMainWindow
 
 		Picture *currentLabel();
 		ScrollArea *currentScrollArea();
+
+	protected:
+		void wheelEvent(QWheelEvent *event)
+		{
+			if (event->delta() > 0)
+				slotZoomPlus();
+
+			else if (event->delta() < 0)
+				slotZoomMoins();
+		}
 	
 	public slots:
 		void slotOuvrir();
