@@ -80,7 +80,24 @@ class Picture : public QLabel
 				else if (tempPixmap.height() > tempPixmap.width() && tempPixmap.height() > 150)
 					tempPixmap = tempPixmap.scaledToHeight(150);
 
-				const QPixmap dragPixmap = tempPixmap;
+				QPixmap pixmapToShow(tempPixmap.width() + 4, tempPixmap.height() + 4); // 2px of all sides.
+
+				QPainter painter;
+					painter.begin(&pixmapToShow);
+						painter.setPen(Qt::white);
+						painter.setBrush(Qt::white);
+						painter.fillRect(0, 0, pixmapToShow.width(), pixmapToShow.height(), Qt::white);
+						painter.drawPixmap(2, 2, tempPixmap);
+					painter.end();
+					painter.begin(&pixmapToShow);
+						painter.setPen(Qt::white);
+						painter.setBrush(Qt::white);
+						painter.setOpacity(0.4);
+						painter.drawEllipse(-(pixmapToShow.width()), -(pixmapToShow.height() + (pixmapToShow.height() / 3)),
+							pixmapToShow.width() * 2, pixmapToShow.height() * 2);
+					painter.end();
+
+				const QPixmap dragPixmap = pixmapToShow;
 				
 				QDrag *drag = new QDrag(this);
 					drag->setMimeData(mimeData);
