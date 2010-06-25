@@ -86,9 +86,20 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		onglets->setCornerWidget(buttonAddTab, Qt::BottomLeftCorner);
 		onglets->setCornerWidget(buttonRemoveTab, Qt::BottomRightCorner);
 		connect(onglets, SIGNAL(tabCloseRequested(int)), this, SLOT(slotRemoveTab(int)));
+		connect(onglets, SIGNAL(currentChanged(int)), this, SLOT(slotTabIndexChanged(int)));
 			slotNouvelOnglet();
 
 	setCentralWidget(onglets);
+
+	filterWidget = new FilterWidget;
+		connect(filterWidget, SIGNAL(newPictureAvailable(QPixmap)), this, SLOT(slotApplyEffects(QPixmap)));
+		connect(filterWidget, SIGNAL(openFileRequested(QString)), this, SLOT(slotOuvrirFichier(QString)));
+		slotTabIndexChanged(0);
+
+	dockFilters = new QDockWidget("Filtres", this);
+		dockFilters->setObjectName("Filtres");
+		dockFilters->setWidget(filterWidget);
+		addDockWidget(Qt::LeftDockWidgetArea, dockFilters);
 
 	QSettings reglages(Multiuso::appDirPath() + "/reglages/visionneur_images.ini", QSettings::IniFormat);
 		restoreState(reglages.value("etat_fenetre").toByteArray());
@@ -263,6 +274,7 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 
 	onglets->setTabText(onglets->currentIndex(), name);
 	onglets->setTabIcon(onglets->currentIndex(), image);
+	slotTabIndexChanged(0);
 }
 
 void VisionneurImages::slotOpenFileFromDrop(QUrl url)
@@ -285,6 +297,12 @@ void VisionneurImages::slotOpenFileFromDrop(QUrl url)
 
 		slotOuvrirFichier(urlPath);
 	}
+}
+
+void VisionneurImages::slotApplyEffects(QPixmap pixmap)
+{
+	currentLabel()->setPixmap(pixmap);
+	slotZoomIdeal();
 }
 
 void VisionneurImages::zoomer(double facteurZoom)
@@ -311,13 +329,13 @@ void VisionneurImages::sauvegarderEtat()
 QWidget *VisionneurImages::newTab()
 {
 	Picture *labelImage = new Picture;
-		labelImage->setBackgroundRole(QPalette::Base);
+		labelImage->setBackgroundRole(QPalette::Midlight);
 		labelImage->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 		labelImage->setScaledContents(true);
 		connect(labelImage, SIGNAL(openFileFromDrop(QUrl)), this, SLOT(slotOpenFileFromDrop(QUrl)));
 
 	ScrollArea *area = new ScrollArea;
-		area->setBackgroundRole(QPalette::Base);
+		area->setBackgroundRole(QPalette::Midlight);
 		area->setWidget(labelImage);
 		area->setAlignment(Qt::AlignCenter);
 		connect(area, SIGNAL(openFileFromDrop(QUrl)), this, SLOT(slotOpenFileFromDrop(QUrl)));
@@ -350,6 +368,31 @@ void VisionneurImages::slotNouvelOnglet()
 		onglets->setTabsClosable(false);
 		actionRemoveTab->setEnabled(false);
 	}
+}
+
+void VisionneurImages::slotTabIndexChanged(int)
+{
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+	{
+		filterWidget->setPixmap(0);
+
+		return;
+	}
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+	{
+		filterWidget->setPixmap(0);
+
+		return;
+	}
+
+	if (filterWidget && !QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)).isNull())
+		filterWidget->setPixmap(QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)));
 }
 
 void VisionneurImages::slotRemoveTab()

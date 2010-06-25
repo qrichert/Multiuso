@@ -176,6 +176,98 @@ class ScrollArea : public QScrollArea
 		void openFileFromDrop(QUrl url);
 };
 
+class FilterWidget : public QWidget
+{
+	Q_OBJECT
+
+	public:
+		FilterWidget()
+		{
+			m_pixmap = 0;
+
+			QPushButton *buttonPhotoFilter = new QPushButton("Effet photo");
+				connect(buttonPhotoFilter, SIGNAL(clicked()), this, SLOT(slotPhotoFilter()));
+
+			QPushButton *buttonSaveAs = new QPushButton("Enregistrer l'image sous...");
+				connect(buttonSaveAs, SIGNAL(clicked()), this, SLOT(slotSaveAs()));
+
+			QVBoxLayout *mainLayout = new QVBoxLayout(this);
+				mainLayout->addWidget(buttonPhotoFilter);
+				mainLayout->addWidget(new QLabel("<hr />"));
+				mainLayout->addWidget(buttonSaveAs);
+				mainLayout->setAlignment(Qt::AlignTop);
+		}
+
+		void setPixmap(QPixmap pixmap)
+		{
+			if (m_pixmap.paintingActive())
+				return;
+
+			if (!pixmap.isNull())
+				m_pixmap = pixmap;
+
+			else
+				m_pixmap = 0;
+		}
+
+	public slots:
+		void slotPhotoFilter()
+		{
+			if (m_pixmap.isNull())
+				return;
+
+			int borderWidth = 0;
+			
+			if (m_pixmap.width() > m_pixmap.height())
+				borderWidth = m_pixmap.height() / 20;
+			
+			else
+				borderWidth = m_pixmap.width() / 20;
+
+			QPixmap newPixmap(m_pixmap.width() + (borderWidth * 2), m_pixmap.height() + (borderWidth * 2));
+
+			QPainter painter;
+				painter.begin(&newPixmap);
+					painter.setPen(Qt::white);
+					painter.setBrush(Qt::white);
+					painter.fillRect(0, 0, newPixmap.width(), newPixmap.height(), Qt::white);
+					painter.drawPixmap(borderWidth, borderWidth, m_pixmap);
+				painter.end();
+				painter.begin(&newPixmap);
+					painter.setPen(Qt::white);
+					painter.setBrush(Qt::white);
+					painter.setOpacity(0.4);
+					painter.drawEllipse(-(newPixmap.width()), -(newPixmap.height() + (newPixmap.height() / 3)),
+							newPixmap.width() * 2, newPixmap.height() * 2);
+				painter.end();
+
+			m_pixmap = newPixmap;
+
+			emit newPictureAvailable(newPixmap);
+		}
+
+		void slotSaveAs()
+		{
+			if (m_pixmap.isNull())
+				return;
+
+			QString file = QFileDialog::getSaveFileName(this, "Multiuso",
+					Multiuso::lastPath() + "/Nouvelle image.png", "Image (*.*)");
+
+			Multiuso::setLastPath(file);
+
+			if (!file.isEmpty() && m_pixmap.save(file))
+				emit openFileRequested(file);
+		}
+
+	signals:
+		void newPictureAvailable(QPixmap pixmap);
+		void openFileRequested(QString file);
+
+	private:
+		QPixmap m_pixmap;
+};
+
 class VisionneurImages : public QMainWindow
 {
 	Q_OBJECT
@@ -209,17 +301,21 @@ class VisionneurImages : public QMainWindow
 
 		void slotOuvrirFichier(QString fichier);
 		void slotOpenFileFromDrop(QUrl url);
+		void slotApplyEffects(QPixmap pixmap);
 		void zoomer(double facteurZoom);
 		void ajusterScrollBar(QScrollBar *scrollBar, double facteurZoom);
 		void sauvegarderEtat();
 
 		QWidget *newTab();
 		void slotNouvelOnglet();
+		void slotTabIndexChanged(int);
 		void slotRemoveTab();
 		void slotRemoveTab(int index);
 
 	private:
 		QTabWidget *onglets;
+		FilterWidget *filterWidget;
+		QDockWidget *dockFilters;
 
 		QAction *actionAddTab;
 		QAction *actionRemoveTab;
