@@ -188,11 +188,27 @@ class FilterWidget : public QWidget
 			QPushButton *buttonPhotoFilter = new QPushButton("Effet photo");
 				connect(buttonPhotoFilter, SIGNAL(clicked()), this, SLOT(slotPhotoFilter()));
 
+			QPushButton *buttonColorFilter = new QPushButton("Filtre de couleur");
+				connect(buttonColorFilter, SIGNAL(clicked()), this, SLOT(slotColorFilter()));
+
+			QPushButton *buttonInvertColorsFilter = new QPushButton("Inverser les couleurs");
+				connect(buttonInvertColorsFilter, SIGNAL(clicked()), this, SLOT(slotInvertColorsFilter()));
+
+			QPushButton *buttonMirrorHorizontalFilter = new QPushButton("Miroir horizontal");
+				connect(buttonMirrorHorizontalFilter, SIGNAL(clicked()), this, SLOT(slotMirrorHorizontalFilter()));
+				
+			QPushButton *buttonMirrorVerticalFilter = new QPushButton("Miroir vertical");
+				connect(buttonMirrorVerticalFilter, SIGNAL(clicked()), this, SLOT(slotMirrorVerticalFilter()));
+
 			QPushButton *buttonSaveAs = new QPushButton("Enregistrer l'image sous...");
 				connect(buttonSaveAs, SIGNAL(clicked()), this, SLOT(slotSaveAs()));
 
 			QVBoxLayout *mainLayout = new QVBoxLayout(this);
 				mainLayout->addWidget(buttonPhotoFilter);
+				mainLayout->addWidget(buttonColorFilter);
+				mainLayout->addWidget(buttonInvertColorsFilter);
+				mainLayout->addWidget(buttonMirrorHorizontalFilter);
+				mainLayout->addWidget(buttonMirrorVerticalFilter);
 				mainLayout->addWidget(new QLabel("<hr />"));
 				mainLayout->addWidget(buttonSaveAs);
 				mainLayout->setAlignment(Qt::AlignTop);
@@ -244,6 +260,74 @@ class FilterWidget : public QWidget
 			m_pixmap = newPixmap;
 
 			emit newPictureAvailable(newPixmap);
+		}
+
+		void slotColorFilter()
+		{
+			if (m_pixmap.isNull())
+				return;
+
+			QColor color = QColorDialog::getColor(Qt::blue, NULL, "Multiuso");
+
+			if (!color.isValid())
+				return;
+
+			bool ok;
+
+			double opacity = QInputDialog::getDouble(new QWidget, "Multiuso",
+				"Opacité du filtre :<br /><i>(0 : transparent, 100 : opaque)</i>", 40.0, 0.0, 100.0, 2, &ok);
+
+			if (!ok || opacity == 0)
+				return;
+
+			opacity /= 100;
+
+			QPainter painter;
+				painter.begin(&m_pixmap);
+				painter.setOpacity(opacity);
+				painter.fillRect(0, 0, m_pixmap.width(), m_pixmap.height(), color);
+				painter.end();
+			
+			emit newPictureAvailable(m_pixmap);
+		}
+
+		void slotInvertColorsFilter()
+		{
+			if (m_pixmap.isNull())
+				return;
+
+			QImage image(m_pixmap.toImage());
+				image.invertPixels();
+
+			m_pixmap = QPixmap::fromImage(image);
+			
+			emit newPictureAvailable(m_pixmap);
+		}
+		
+		void slotMirrorHorizontalFilter()
+		{
+			if (m_pixmap.isNull())
+				return;
+
+			QImage image(m_pixmap.toImage());
+				image = image.mirrored(true, false);
+
+			m_pixmap = QPixmap::fromImage(image);
+			
+			emit newPictureAvailable(m_pixmap);
+		}
+
+		void slotMirrorVerticalFilter()
+		{
+			if (m_pixmap.isNull())
+				return;
+
+			QImage image(m_pixmap.toImage());
+				image = image.mirrored(false, true);
+
+			m_pixmap = QPixmap::fromImage(image);
+			
+			emit newPictureAvailable(m_pixmap);
 		}
 
 		void slotSaveAs()
@@ -298,6 +382,8 @@ class VisionneurImages : public QMainWindow
 		void slotZoomNormal();
 		void slotZoomIdeal();
 		void slotZoomMoins();
+		void slotRotateLeft();
+		void slotRotateRight();
 
 		void slotOuvrirFichier(QString fichier);
 		void slotOpenFileFromDrop(QUrl url);
@@ -326,6 +412,8 @@ class VisionneurImages : public QMainWindow
 		QAction *actionZoomNormal;
 		QAction *actionZoomIdeal;
 		QAction *actionZoomMoins;
+		QAction *actionRotateLeft;
+		QAction *actionRotateRight;
 };
 
 #endif

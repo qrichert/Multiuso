@@ -60,7 +60,15 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		actionZoomMoins->setIcon(QIcon(":/icones/visionneur_images/actionZoomMoins.png"));
 		actionZoomMoins->setShortcut(QKeySequence("Ctrl+-"));
 		connect(actionZoomMoins, SIGNAL(triggered()), this, SLOT(slotZoomMoins()));
-	
+
+	actionRotateLeft = new QAction("Faire pivoter à gauche", this);
+		actionRotateLeft->setIcon(QIcon(":/icones/visionneur_images/actionRotateLeft.png"));
+		connect(actionRotateLeft, SIGNAL(triggered()), this, SLOT(slotRotateLeft()));
+
+	actionRotateRight = new QAction("Faire pivoter à droite", this);
+		actionRotateRight->setIcon(QIcon(":/icones/visionneur_images/actionRotateRight.png"));
+		connect(actionRotateRight, SIGNAL(triggered()), this, SLOT(slotRotateRight()));
+
 	QToolBar *toolBar = addToolBar("Options");
 		toolBar->addAction(actionFermer);
 		toolBar->addAction(actionOuvrir);
@@ -69,6 +77,9 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		toolBar->addAction(actionZoomNormal);
 		toolBar->addAction(actionZoomIdeal);
 		toolBar->addAction(actionZoomMoins);
+		toolBar->addSeparator();
+		toolBar->addAction(actionRotateLeft);
+		toolBar->addAction(actionRotateRight);
 		toolBar->setObjectName("Options");
 		toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		
@@ -237,6 +248,54 @@ void VisionneurImages::slotZoomMoins()
 		return;
 
 	zoomer(0.8); // 80%
+}
+
+void VisionneurImages::slotRotateLeft()
+{
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+		return;
+
+	QTransform transform;
+		transform.rotate(-90);
+
+	QPixmap newPixmap = *currentLabel()->pixmap();
+		newPixmap = newPixmap.transformed(transform);
+
+	currentLabel()->setPixmap(newPixmap);
+
+	slotZoomIdeal();
+}
+
+void VisionneurImages::slotRotateRight()
+{
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+		return;
+
+	QTransform transform;
+		transform.rotate(90);
+
+	QPixmap newPixmap = *currentLabel()->pixmap();
+		newPixmap = newPixmap.transformed(transform);
+
+	currentLabel()->setPixmap(newPixmap);
+	
+	slotZoomIdeal();
 }
 
 void VisionneurImages::slotOuvrirFichier(QString fichier)
