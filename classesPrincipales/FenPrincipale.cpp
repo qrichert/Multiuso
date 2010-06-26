@@ -839,6 +839,9 @@ void FenPrincipale::slotGestionnaireDesPlugins()
 
 void FenPrincipale::slotQuitter()
 {
+	if (!loaded)
+		return;
+
 	if (!editeurDeTexte->tousLesDocumentsEnregistres() || !editeurDeCode->tousLesDocumentsEnregistres())
 	{
 		int reponse = QMessageBox::warning(this, "Multiuso", "Un ou plusieurs documents texte ne sont pas enregitrés,<br />"

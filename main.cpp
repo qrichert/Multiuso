@@ -109,6 +109,6 @@ int main(int argc, char *argv[])
 		Astuces astuces(&fenetre);
 			astuces.exec();
 	}
-
+	
 	return app.exec();
 }

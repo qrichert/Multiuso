@@ -90,7 +90,17 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 	QToolButton *buttonRemoveTab = new QToolButton;
 		buttonRemoveTab->setDefaultAction(actionRemoveTab);
 		buttonRemoveTab->setAutoRaise(true);
+	
+	filterWidget = new FilterWidget;
+		connect(filterWidget, SIGNAL(newPictureAvailable(QPixmap)), this, SLOT(slotApplyEffects(QPixmap)));
+		connect(filterWidget, SIGNAL(savePictureRequested(QPixmap)), this, SLOT(slotSavePicture(QPixmap)));
+		connect(filterWidget, SIGNAL(openFileRequested(QString)), this, SLOT(slotOuvrirFichier(QString)));
 
+	dockFilters = new QDockWidget("Filtres", this);
+		dockFilters->setObjectName("Filtres");
+		dockFilters->setWidget(filterWidget);
+		addDockWidget(Qt::LeftDockWidgetArea, dockFilters);
+		
 	onglets = new QTabWidget;
 		onglets->setMovable(true);
 		onglets->setDocumentMode(true);
@@ -101,16 +111,6 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 			slotNouvelOnglet();
 
 	setCentralWidget(onglets);
-
-	filterWidget = new FilterWidget;
-		connect(filterWidget, SIGNAL(newPictureAvailable(QPixmap)), this, SLOT(slotApplyEffects(QPixmap)));
-		connect(filterWidget, SIGNAL(openFileRequested(QString)), this, SLOT(slotOuvrirFichier(QString)));
-		slotTabIndexChanged(0);
-
-	dockFilters = new QDockWidget("Filtres", this);
-		dockFilters->setObjectName("Filtres");
-		dockFilters->setWidget(filterWidget);
-		addDockWidget(Qt::LeftDockWidgetArea, dockFilters);
 
 	QSettings reglages(Multiuso::appDirPath() + "/reglages/visionneur_images.ini", QSettings::IniFormat);
 		restoreState(reglages.value("etat_fenetre").toByteArray());
@@ -333,6 +333,7 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 
 	onglets->setTabText(onglets->currentIndex(), name);
 	onglets->setTabIcon(onglets->currentIndex(), image);
+
 	slotTabIndexChanged(0);
 }
 
@@ -361,7 +362,25 @@ void VisionneurImages::slotOpenFileFromDrop(QUrl url)
 void VisionneurImages::slotApplyEffects(QPixmap pixmap)
 {
 	currentLabel()->setPixmap(pixmap);
+	onglets->setTabIcon(onglets->currentIndex(), pixmap);
+
 	slotZoomIdeal();
+}
+
+void VisionneurImages::slotSavePicture(QPixmap pixmap)
+{
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+		return;
+
+	pixmap.save(currentLabel()->imgPath().remove("file://" + slashToAdd));
 }
 
 void VisionneurImages::zoomer(double facteurZoom)
@@ -431,6 +450,9 @@ void VisionneurImages::slotNouvelOnglet()
 
 void VisionneurImages::slotTabIndexChanged(int)
 {
+	if (currentLabel()->imgPath().isEmpty())
+		return;
+	
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -439,21 +461,19 @@ void VisionneurImages::slotTabIndexChanged(int)
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 	{
 		if (filterWidget)
-			filterWidget->setPixmap(0);
-
-		return;
+			filterWidget->setPixmap(*new QPixmap);
 	}
 	
-	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+	else if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 	{
 		if (filterWidget)
-			filterWidget->setPixmap(0);
-
-		return;
+			filterWidget->setPixmap(*new QPixmap);
 	}
-
-	if (filterWidget && !QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)).isNull())
+	
+	else if (filterWidget && !QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)).isNull())
+	{
 		filterWidget->setPixmap(QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)));
+	}
 }
 
 void VisionneurImages::slotRemoveTab()

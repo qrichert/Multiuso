@@ -183,7 +183,7 @@ class FilterWidget : public QWidget
 	public:
 		FilterWidget()
 		{
-			m_pixmap = 0;
+			m_pixmap = *new QPixmap;
 
 			QPushButton *buttonPhotoFilter = new QPushButton("Effet photo");
 				connect(buttonPhotoFilter, SIGNAL(clicked()), this, SLOT(slotPhotoFilter()));
@@ -200,6 +200,9 @@ class FilterWidget : public QWidget
 			QPushButton *buttonMirrorVerticalFilter = new QPushButton("Miroir vertical");
 				connect(buttonMirrorVerticalFilter, SIGNAL(clicked()), this, SLOT(slotMirrorVerticalFilter()));
 
+			QPushButton *buttonSave = new QPushButton("Enregistrer l'image");
+				connect(buttonSave, SIGNAL(clicked()), this, SLOT(slotSave()));
+
 			QPushButton *buttonSaveAs = new QPushButton("Enregistrer l'image sous...");
 				connect(buttonSaveAs, SIGNAL(clicked()), this, SLOT(slotSaveAs()));
 
@@ -210,6 +213,7 @@ class FilterWidget : public QWidget
 				mainLayout->addWidget(buttonMirrorHorizontalFilter);
 				mainLayout->addWidget(buttonMirrorVerticalFilter);
 				mainLayout->addWidget(new QLabel("<hr />"));
+				mainLayout->addWidget(buttonSave);
 				mainLayout->addWidget(buttonSaveAs);
 				mainLayout->setAlignment(Qt::AlignTop);
 		}
@@ -223,7 +227,7 @@ class FilterWidget : public QWidget
 				m_pixmap = pixmap;
 
 			else
-				m_pixmap = 0;
+				m_pixmap = *new QPixmap;
 		}
 
 	public slots:
@@ -330,6 +334,14 @@ class FilterWidget : public QWidget
 			emit newPictureAvailable(m_pixmap);
 		}
 
+		void slotSave()
+		{
+			if (m_pixmap.isNull())
+				return;
+
+			emit savePictureRequested(m_pixmap);
+		}
+
 		void slotSaveAs()
 		{
 			if (m_pixmap.isNull())
@@ -346,6 +358,7 @@ class FilterWidget : public QWidget
 
 	signals:
 		void newPictureAvailable(QPixmap pixmap);
+		void savePictureRequested(QPixmap pixmap);
 		void openFileRequested(QString file);
 
 	private:
@@ -388,6 +401,7 @@ class VisionneurImages : public QMainWindow
 		void slotOuvrirFichier(QString fichier);
 		void slotOpenFileFromDrop(QUrl url);
 		void slotApplyEffects(QPixmap pixmap);
+		void slotSavePicture(QPixmap pixmap);
 		void zoomer(double facteurZoom);
 		void ajusterScrollBar(QScrollBar *scrollBar, double facteurZoom);
 		void sauvegarderEtat();
