@@ -438,14 +438,16 @@ void VisionneurImages::slotTabIndexChanged(int)
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 	{
-		filterWidget->setPixmap(0);
+		if (filterWidget)
+			filterWidget->setPixmap(0);
 
 		return;
 	}
 	
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 	{
-		filterWidget->setPixmap(0);
+		if (filterWidget)
+			filterWidget->setPixmap(0);
 
 		return;
 	}

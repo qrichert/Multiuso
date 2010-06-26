@@ -448,6 +448,9 @@ void Preferences::slotRemettreAZero()
 			reglagesNavigateurFichiers.setValue("etat_fenetre", "");
 			reglagesNavigateurFichiers.setValue("dossier_accueil", "");
 			
+		QSettings reglagesVisionneurImages(Multiuso::appDirPath() + "/reglages/visionneur_images.ini", QSettings::IniFormat);
+			reglagesVisionneurImages.setValue("etat_fenetre", "");
+			
 		// <Stalker (www.siteduzero.com)>
 			QSettings reglagesProxy(Multiuso::appDirPath() + "/reglages/proxy.ini", QSettings::IniFormat);
 				reglagesProxy.setValue("activer",false);
