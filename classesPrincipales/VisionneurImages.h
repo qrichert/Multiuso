@@ -84,7 +84,7 @@ class Picture : public QLabel
 
 				QPainter painter;
 					painter.begin(&pixmapToShow);
-						painter.setPen(Qt::white);
+						painter.setPen(Qt::transparent);
 						painter.setBrush(Qt::white);
 						painter.fillRect(0, 0, pixmapToShow.width(), pixmapToShow.height(), Qt::white);
 						painter.drawPixmap(2, 2, tempPixmap);
@@ -206,6 +206,9 @@ class FilterWidget : public QWidget
 			QPushButton *buttonSaveAs = new QPushButton("Enregistrer l'image sous...");
 				connect(buttonSaveAs, SIGNAL(clicked()), this, SLOT(slotSaveAs()));
 
+			QPushButton *buttonCancelChanges = new QPushButton("Annuler les modifications");
+				connect(buttonCancelChanges, SIGNAL(clicked()), this, SIGNAL(cancelChanges()));
+
 			QVBoxLayout *mainLayout = new QVBoxLayout(this);
 				mainLayout->addWidget(buttonPhotoFilter);
 				mainLayout->addWidget(buttonColorFilter);
@@ -215,6 +218,8 @@ class FilterWidget : public QWidget
 				mainLayout->addWidget(new QLabel("<hr />"));
 				mainLayout->addWidget(buttonSave);
 				mainLayout->addWidget(buttonSaveAs);
+				mainLayout->addWidget(new QLabel("<hr />"));
+				mainLayout->addWidget(buttonCancelChanges);
 				mainLayout->setAlignment(Qt::AlignTop);
 		}
 
@@ -279,7 +284,7 @@ class FilterWidget : public QWidget
 			bool ok;
 
 			double opacity = QInputDialog::getDouble(new QWidget, "Multiuso",
-				"Opacité du filtre :<br /><i>(0 : transparent, 100 : opaque)</i>", 40.0, 0.0, 100.0, 2, &ok);
+				"Opacité du filtre :<br /><em>(0 : transparent, 100 : opaque)</em>", 40.0, 0.0, 100.0, 2, &ok);
 
 			if (!ok || opacity == 0)
 				return;
@@ -294,7 +299,7 @@ class FilterWidget : public QWidget
 			
 			emit newPictureAvailable(m_pixmap);
 		}
-
+	
 		void slotInvertColorsFilter()
 		{
 			if (m_pixmap.isNull())
@@ -360,6 +365,7 @@ class FilterWidget : public QWidget
 		void newPictureAvailable(QPixmap pixmap);
 		void savePictureRequested(QPixmap pixmap);
 		void openFileRequested(QString file);
+		void cancelChanges();
 
 	private:
 		QPixmap m_pixmap;
@@ -402,6 +408,7 @@ class VisionneurImages : public QMainWindow
 		void slotOpenFileFromDrop(QUrl url);
 		void slotApplyEffects(QPixmap pixmap);
 		void slotSavePicture(QPixmap pixmap);
+		void slotCancelChanges();
 		void zoomer(double facteurZoom);
 		void ajusterScrollBar(QScrollBar *scrollBar, double facteurZoom);
 		void sauvegarderEtat();

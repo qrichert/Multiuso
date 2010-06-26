@@ -95,6 +95,7 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		connect(filterWidget, SIGNAL(newPictureAvailable(QPixmap)), this, SLOT(slotApplyEffects(QPixmap)));
 		connect(filterWidget, SIGNAL(savePictureRequested(QPixmap)), this, SLOT(slotSavePicture(QPixmap)));
 		connect(filterWidget, SIGNAL(openFileRequested(QString)), this, SLOT(slotOuvrirFichier(QString)));
+		connect(filterWidget, SIGNAL(cancelChanges()), this, SLOT(slotCancelChanges()));
 
 	dockFilters = new QDockWidget("Filtres", this);
 		dockFilters->setObjectName("Filtres");
@@ -381,6 +382,22 @@ void VisionneurImages::slotSavePicture(QPixmap pixmap)
 		return;
 
 	pixmap.save(currentLabel()->imgPath().remove("file://" + slashToAdd));
+}
+
+void VisionneurImages::slotCancelChanges()
+{
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+	
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+		return;
+
+	slotOuvrirFichier(currentLabel()->imgPath().remove("file://" + slashToAdd));
 }
 
 void VisionneurImages::zoomer(double facteurZoom)
