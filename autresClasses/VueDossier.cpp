@@ -99,10 +99,10 @@ void VueDossier::lister()
 		QString taille = "";
 
 		if (type != "Dossier")
-		       	taille = QString::number(infosFichier.size()) + " octets";
+		       	taille = Multiuso::toSize(infosFichier.size());
 
 		else
-			taille = QString::number(folderSize(QDir(infosFichier.canonicalFilePath()))) + " octets";
+			taille = Multiuso::toSize(folderSize(QDir(infosFichier.canonicalFilePath())));
 
 		QStandardItem *itemTaille = new QStandardItem(taille);
 			itemTaille->setEditable(false);

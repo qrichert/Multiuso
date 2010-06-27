@@ -104,7 +104,7 @@ void CompteurDeLignes::selectionFichiers()
 					QStandardItem *n_nom = new QStandardItem(infosFichier.fileName());
 						n_nom->setEditable(false);
 
-					QStandardItem *n_taille = new QStandardItem(QString::number(infosFichier.size()) + " octets");
+					QStandardItem *n_taille = new QStandardItem(Multiuso::toSize(infosFichier.size()));
 						n_taille->setEditable(false);
 
 					QStandardItem *n_lignes = new QStandardItem(QString::number(nombreDeLignes));

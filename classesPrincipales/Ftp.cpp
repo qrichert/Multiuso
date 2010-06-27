@@ -408,7 +408,7 @@ void Ftp::listComputerFiles(QDir dir)
 		QString fileSize = "";
 
 		if (infos.isFile())
-			fileSize = QString::number(infos.size()) + " octets";
+			fileSize = Multiuso::toSize(infos.size());
 
 		QString fileType = "Dossier";
 
@@ -476,7 +476,7 @@ void Ftp::connectOrDisconnect()
 
 		tableDownloads->clear();
 		tableDownloads->setRowCount(0);
-		tableDownloads->setHorizontalHeaderLabels(filesViewsHeaderLabels);
+		tableDownloads->setHorizontalHeaderLabels(downloadsHeaderLabels);
 
 		addSuccessful("Déconnexion réussie !");
 	}
@@ -874,7 +874,7 @@ void Ftp::addToList(QUrlInfo infos)
 	QString fileSize = "";
 
 	if (infos.isFile())
-		fileSize = QString::number(infos.size()) + " octets";
+		fileSize = Multiuso::toSize(infos.size());
 
 	QString fileType = "Dossier";
 

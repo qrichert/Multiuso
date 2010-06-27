@@ -426,6 +426,34 @@ class Multiuso
 				
 			return str;
 		}
+
+		static QString toSize(double size)
+		{
+			QString type = "Mio";
+			size = (size / 1024) / 1024;
+
+			if (size < 1)
+			{
+				type = "Kio";
+				size *= 1024;
+				
+				if (size > 0 && size < 1)
+				{
+					type = "octets";
+					size *= 1024;
+
+					if (size > 0 && size < 1)
+						type = "octet";
+				}
+			}
+
+			QString stringSize = QString::number(size);
+
+			if (stringSize.contains("."))
+				stringSize = stringSize.left(stringSize.indexOf(".") + 2);
+
+			return QString(stringSize + " " + type);
+		}
 };
 
 #endif
