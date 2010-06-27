@@ -84,13 +84,15 @@ class Picture : public QLabel
 
 				QPainter painter;
 					painter.begin(&pixmapToShow);
+						painter.setRenderHint(QPainter::Antialiasing, true);
 						painter.setPen(Qt::transparent);
 						painter.setBrush(Qt::white);
 						painter.fillRect(0, 0, pixmapToShow.width(), pixmapToShow.height(), Qt::white);
 						painter.drawPixmap(2, 2, tempPixmap);
 					painter.end();
 					painter.begin(&pixmapToShow);
-						painter.setPen(Qt::white);
+						painter.setRenderHint(QPainter::Antialiasing, true);
+						painter.setPen(Qt::NoPen);
 						painter.setBrush(Qt::white);
 						painter.setOpacity(0.4);
 						painter.drawEllipse(-(pixmapToShow.width()), -(pixmapToShow.height() + (pixmapToShow.height() / 3)),
@@ -200,6 +202,9 @@ class FilterWidget : public QWidget
 			QPushButton *buttonMirrorVerticalFilter = new QPushButton("Miroir vertical");
 				connect(buttonMirrorVerticalFilter, SIGNAL(clicked()), this, SLOT(slotMirrorVerticalFilter()));
 
+			QPushButton *buttonReflectionFilter = new QPushButton("Reflet");
+				connect(buttonReflectionFilter, SIGNAL(clicked()), this, SLOT(slotReflectionFilter()));
+
 			QPushButton *buttonSave = new QPushButton("Enregistrer l'image");
 				connect(buttonSave, SIGNAL(clicked()), this, SLOT(slotSave()));
 
@@ -215,6 +220,7 @@ class FilterWidget : public QWidget
 				mainLayout->addWidget(buttonInvertColorsFilter);
 				mainLayout->addWidget(buttonMirrorHorizontalFilter);
 				mainLayout->addWidget(buttonMirrorVerticalFilter);
+				mainLayout->addWidget(buttonReflectionFilter);
 				mainLayout->addWidget(new QLabel("<hr />"));
 				mainLayout->addWidget(buttonSave);
 				mainLayout->addWidget(buttonSaveAs);
@@ -253,20 +259,23 @@ class FilterWidget : public QWidget
 
 			QPainter painter;
 				painter.begin(&newPixmap);
+					painter.setRenderHint(QPainter::Antialiasing, true);
 					painter.setPen(Qt::white);
 					painter.setBrush(Qt::white);
 					painter.fillRect(0, 0, newPixmap.width(), newPixmap.height(), Qt::white);
 					painter.drawPixmap(borderWidth, borderWidth, m_pixmap);
 				painter.end();
 				painter.begin(&newPixmap);
-					painter.setPen(Qt::white);
+					painter.setRenderHint(QPainter::Antialiasing, true);
+					painter.setPen(Qt::NoPen);
 					painter.setBrush(Qt::white);
 					painter.setOpacity(0.4);
-					painter.drawEllipse(-(newPixmap.width()), -(newPixmap.height() + (newPixmap.height() / 3)),
-							newPixmap.width() * 2, newPixmap.height() * 2);
+					painter.drawEllipse(-(newPixmap.width() - (newPixmap.width() / 6)),
+								-(newPixmap.height() + (newPixmap.height() / 3)),
+									newPixmap.width() * 2, newPixmap.height() * 2);
 				painter.end();
 
-			m_pixmap = newPixmap;
+			m_pixmap = QPixmap(newPixmap);
 
 			emit newPictureAvailable(newPixmap);
 		}
@@ -336,6 +345,47 @@ class FilterWidget : public QWidget
 
 			m_pixmap = QPixmap::fromImage(image);
 			
+			emit newPictureAvailable(m_pixmap);
+		}
+
+		void slotReflectionFilter()
+		{
+			if (m_pixmap.isNull())
+				return;
+			
+			QColor color = QColorDialog::getColor(Qt::white, NULL, "Choisissez la couleur de fond");
+
+			if (!color.isValid())
+				return;
+
+			QImage image(m_pixmap.toImage());
+				image = image.mirrored(false, true);
+
+			QPixmap reflection = QPixmap::fromImage(image);
+				reflection = reflection.copy(0, 0, reflection.width(), reflection.height() / 3);
+
+			QPixmap newPixmap(m_pixmap.width(), m_pixmap.height() + reflection.height());
+				newPixmap.fill(Qt::transparent);
+
+			QLinearGradient gradient(0, -(reflection.height() / 4), 0, reflection.height());
+				gradient.setColorAt(0, Qt::transparent);
+				gradient.setColorAt(1, color);
+
+			QBrush gradientBrush(gradient);
+
+			QPainter painter;
+				painter.begin(&reflection);
+					painter.setRenderHint(QPainter::Antialiasing, true);
+					painter.fillRect(0, 0, reflection.width(), reflection.height(), gradientBrush);
+				painter.end();
+				painter.begin(&newPixmap);
+					painter.setRenderHint(QPainter::Antialiasing, true);
+					painter.drawPixmap(0, 0, m_pixmap);
+					painter.drawPixmap(0, m_pixmap.height(), reflection);
+				painter.end();
+
+			m_pixmap = QPixmap(newPixmap);
+
 			emit newPictureAvailable(m_pixmap);
 		}
 
