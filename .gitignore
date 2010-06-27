@@ -1,4 +1,6 @@
 Multiuso
+Makefile
+.gitignore
 moc_*.cpp
 qrc_*.cpp
 *.o
