@@ -33,12 +33,22 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargements, EditeurDeCode *editeurDeCode) : QMainWindow(parent)
 {
-	QDir dir(Multiuso::appDirPath() + "/navigateurWeb/cache");
+	QDir cacheDir(Multiuso::appDirPath() + "/navigateurWeb/cache"); // cache
 
-	if (!dir.exists())
-		dir.mkdir(Multiuso::appDirPath() + "/navigateurWeb/cache");
+	if (!cacheDir.exists())
+		cacheDir.mkdir(Multiuso::appDirPath() + "/navigateurWeb/cache");
 
 	QWebSettings::setIconDatabasePath(Multiuso::appDirPath() + "/navigateurWeb/cache/");
+	
+	QDir autreDir(Multiuso::appDirPath() + "/navigateurWeb/autre"); // autre
+
+	if (!autreDir.exists())
+		autreDir.mkdir(Multiuso::appDirPath() + "/navigateurWeb/autre");
+	
+	QDir favorisDir(Multiuso::appDirPath() + "/navigateurWeb/favoris"); // favoris
+
+	if (!favorisDir.exists())
+		favorisDir.mkdir(Multiuso::appDirPath() + "/navigateurWeb/favoris");
 
 	creerActions();
 
