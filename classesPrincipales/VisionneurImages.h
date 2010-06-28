@@ -222,6 +222,12 @@ class FilterWidget : public QWidget
 				buttonReflectionFilter->setToolTip("Reflet");
 				buttonReflectionFilter->setIconSize(QSize(32, 32));
 				connect(buttonReflectionFilter, SIGNAL(clicked()), this, SLOT(slotReflectionFilter()));
+				
+			QPushButton *buttonBorderFilter = new QPushButton;
+				buttonBorderFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/border.png"));
+				buttonBorderFilter->setToolTip("Bordure");
+				buttonBorderFilter->setIconSize(QSize(32, 32));
+				connect(buttonBorderFilter, SIGNAL(clicked()), this, SLOT(slotBorderFilter()));
 
 			QPushButton *buttonSave = new QPushButton("Enregistrer l'image");
 				connect(buttonSave, SIGNAL(clicked()), this, SLOT(slotSave()));
@@ -239,11 +245,12 @@ class FilterWidget : public QWidget
 				mainLayout->addWidget(buttonMirrorHorizontalFilter, 1, 0, 1, 1);
 				mainLayout->addWidget(buttonMirrorVerticalFilter, 1, 1, 1, 1);
 				mainLayout->addWidget(buttonReflectionFilter, 1, 2, 1, 1);
-				mainLayout->addWidget(new QLabel("<hr />"), 2, 0, 1, 3);
-				mainLayout->addWidget(buttonSave, 3, 0, 1, 3);
-				mainLayout->addWidget(buttonSaveAs, 4, 0, 1, 3);
-				mainLayout->addWidget(new QLabel("<hr />"), 5, 0, 1, 3);
-				mainLayout->addWidget(buttonCancelChanges, 6, 0, 1, 3);
+				mainLayout->addWidget(buttonBorderFilter, 2, 0, 1, 1);
+				mainLayout->addWidget(new QLabel("<hr />"), 3, 0, 1, 3);
+				mainLayout->addWidget(buttonSave, 4, 0, 1, 3);
+				mainLayout->addWidget(buttonSaveAs, 5, 0, 1, 3);
+				mainLayout->addWidget(new QLabel("<hr />"), 6, 0, 1, 3);
+				mainLayout->addWidget(buttonCancelChanges, 7, 0, 1, 3);
 				mainLayout->setAlignment(Qt::AlignTop);
 		}
 
@@ -402,6 +409,36 @@ class FilterWidget : public QWidget
 					painter.drawPixmap(0, m_pixmap.height(), reflection);
 				painter.end();
 
+			m_pixmap = QPixmap(newPixmap);
+
+			emit newPictureAvailable(m_pixmap);
+		}
+
+		void slotBorderFilter()
+		{
+			if (m_pixmap.isNull())
+				return;
+			
+			QColor color = QColorDialog::getColor(Qt::white, NULL, "Choisissez la couleur de la bordure", QColorDialog::ShowAlphaChannel);
+
+			if (!color.isValid())
+				return;
+
+			bool ok;
+
+			int borderWidth = QInputDialog::getInt(NULL, "Multiuso", "Épaisseur de la bordure (en px) :", 1, 1, 2147483647, 1, &ok);
+
+			if (!ok)
+				return;
+
+			QPixmap newPixmap(m_pixmap.width() + (borderWidth * 2), m_pixmap.height() + (borderWidth * 2));
+				newPixmap.fill(color);
+
+			QPainter painter;
+				painter.begin(&newPixmap);
+					painter.drawPixmap(borderWidth, borderWidth, m_pixmap);
+				painter.end();
+			
 			m_pixmap = QPixmap(newPixmap);
 
 			emit newPictureAvailable(m_pixmap);
