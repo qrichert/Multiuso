@@ -228,7 +228,12 @@
 		<file>icones/visionneur_images/actionZoomMoins.png</file>
 		<file>icones/visionneur_images/actionZoomNormal.png</file>
 		<file>icones/visionneur_images/actionZoomPlus.png</file>
-
+		<file>icones/visionneur_images/filtres/color_filter.png</file>
+		<file>icones/visionneur_images/filtres/horizontal_mirror.png</file>
+		<file>icones/visionneur_images/filtres/inverser.png</file>
+		<file>icones/visionneur_images/filtres/photo_effect.png</file>
+		<file>icones/visionneur_images/filtres/reflection.png</file>
+		<file>icones/visionneur_images/filtres/vertical_mirror.png</file>
 
 		<file>icones/widgets/agenda.png</file>
 		<file>icones/widgets/calculatrice.png</file>
