@@ -8,3 +8,6 @@ qrc_*.cpp
 *.cache
 *.db
 *.so
+navigateurWeb/autre/*
+navigateurWeb/cache/*
+navigateurWeb/favoris/*
