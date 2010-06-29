@@ -35,50 +35,84 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 	QWidget *widgetImage = new QWidget;
 		widgetImage->setLayout(layoutImage);
 
+// Label(s)
+	buttonsLabel = new ButtonLabel;
+
+	QHBoxLayout *layoutButtonsLabel = new QHBoxLayout;
+		layoutButtonsLabel->addWidget(buttonsLabel);
+		layoutButtonsLabel->setContentsMargins(0, 0, 0, 25);
+
 // Buttons	
 	fileBrowser = new OpenButton;
 		fileBrowser->setIcon(QIcon(":/icones/accueil/filebrowser.png"));
 		fileBrowser->setObjectName("filebrowser");
 		connect(fileBrowser, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+		connect(fileBrowser, SIGNAL(activeHover(QString)), this, SLOT(slotActiveHover(QString)));
+		connect(fileBrowser, SIGNAL(inactiveHover()), this, SLOT(slotInactiveHover()));
 
 	widgets = new OpenButton;
 		widgets->setIcon(QIcon(":/icones/accueil/widgets.png"));
 		widgets->setObjectName("widgets");
 		connect(widgets, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+		connect(widgets, SIGNAL(activeHover(QString)), this, SLOT(slotActiveHover(QString)));
+		connect(widgets, SIGNAL(inactiveHover()), this, SLOT(slotInactiveHover()));
+
 
 	pictureViewer = new OpenButton;
 		pictureViewer->setIcon(QIcon(":/icones/accueil/pictureviewer.png"));
 		pictureViewer->setObjectName("pictureviewer");
 		connect(pictureViewer, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+		connect(pictureViewer, SIGNAL(activeHover(QString)), this, SLOT(slotActiveHover(QString)));
+		connect(pictureViewer, SIGNAL(inactiveHover()), this, SLOT(slotInactiveHover()));
+
 
 	textEdit = new OpenButton;
 		textEdit->setIcon(QIcon(":/icones/accueil/textedit.png"));
 		textEdit->setObjectName("textedit");
 		connect(textEdit, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+		connect(textEdit, SIGNAL(activeHover(QString)), this, SLOT(slotActiveHover(QString)));
+		connect(textEdit, SIGNAL(inactiveHover()), this, SLOT(slotInactiveHover()));
+
 
 	codeEdit = new OpenButton;
 		codeEdit->setIcon(QIcon(":/icones/accueil/codeedit.png"));
 		codeEdit->setObjectName("codeedit");
 		connect(codeEdit, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+		connect(codeEdit, SIGNAL(activeHover(QString)), this, SLOT(slotActiveHover(QString)));
+		connect(codeEdit, SIGNAL(inactiveHover()), this, SLOT(slotInactiveHover()));
+
 
 	ftp = new OpenButton;
 		ftp->setIcon(QIcon(":/icones/accueil/ftp.png"));
 		ftp->setObjectName("ftp");
 		connect(ftp, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+		connect(ftp, SIGNAL(activeHover(QString)), this, SLOT(slotActiveHover(QString)));
+		connect(ftp, SIGNAL(inactiveHover()), this, SLOT(slotInactiveHover()));
+
 
 	webBrowser = new OpenButton;
 		webBrowser->setIcon(QIcon(":/icones/accueil/webbrowser.png"));
 		webBrowser->setObjectName("webbrowser");
 		connect(webBrowser, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+		connect(webBrowser, SIGNAL(activeHover(QString)), this, SLOT(slotActiveHover(QString)));
+		connect(webBrowser, SIGNAL(inactiveHover()), this, SLOT(slotInactiveHover()));
+
+
+	QHBoxLayout *layoutOpen1l = new QHBoxLayout; // 1st line
+		layoutOpen1l->addWidget(fileBrowser);
+		layoutOpen1l->addWidget(widgets);
+		layoutOpen1l->addWidget(pictureViewer);
+		layoutOpen1l->addWidget(textEdit);
+		
+	QHBoxLayout *layoutOpen2l = new QHBoxLayout; // 2nd line
+		layoutOpen2l->addWidget(codeEdit);
+		layoutOpen2l->addWidget(ftp);
+		layoutOpen2l->addWidget(webBrowser);
 
 	QGridLayout *layoutOpen = new QGridLayout;
-		layoutOpen->addWidget(fileBrowser, 0, 0, 1, 1);
-		layoutOpen->addWidget(widgets, 0, 1, 1, 1);
-		layoutOpen->addWidget(pictureViewer, 0, 2, 1, 1);
-		layoutOpen->addWidget(textEdit, 0, 3, 1, 1);
-		layoutOpen->addWidget(codeEdit, 1, 0, 1, 1);
-		layoutOpen->addWidget(ftp, 1, 1, 1, 1);
-		layoutOpen->addWidget(webBrowser, 1, 2, 1, 1);
+		layoutOpen->addLayout(layoutButtonsLabel, 0, 0);
+		layoutOpen->addLayout(layoutOpen1l, 1, 0);
+		layoutOpen->addLayout(layoutOpen2l, 2, 0);
 		layoutOpen->setContentsMargins(0, 0, 0, 0);
 
 	QWidget *widgetOpen = new QWidget;
@@ -248,4 +282,14 @@ void Accueil::showPicture()
 {
 	widgetCentralArea->setCurrentIndex(0);
 	showPictureButton->hide();
+}
+
+void Accueil::slotActiveHover(QString buttonName)
+{
+	buttonsLabel->setLabelText(Multiuso::getFullNameOf(buttonName));
+}
+
+void Accueil::slotInactiveHover()
+{
+	buttonsLabel->noLabelText();
 }

@@ -88,7 +88,6 @@ class OpenButton : public QPushButton
 			setProperties();
 		}
 
-	public:
 		void setProperties()
 		{
 			setFixedSize(135, 135);
@@ -107,25 +106,61 @@ class OpenButton : public QPushButton
 			return m_active;
 		}
 
-	public:
 		void emitClicked()
 		{
 			emit clicked();
 		}
 
+	signals:
+		void activeHover(QString name);
+		void inactiveHover();
+
 	protected:
 		void enterEvent(QEvent *)
 		{
 			setIconSize(QSize(128, 128));
+
+			emit activeHover(objectName());
 		}
 
 		void leaveEvent(QEvent *)
 		{
 			setIconSize(QSize(113, 113));
+
+			emit inactiveHover();
 		}
 	
 	private:
 		bool m_active;
+};
+
+class ButtonLabel : public QLabel
+{
+	Q_OBJECT
+
+	public:
+		ButtonLabel(QWidget *parent = 0) : QLabel(parent)
+		{
+			setFixedHeight(50);
+			setText("");
+		
+			setStyleSheet("background-color: transparent;");
+		}
+
+	public slots:
+		void setLabelText(QString text)
+		{
+			setText("<center>"
+					"<span style='font-weight:bold;color:#cfcfcf;'>"
+						+ text +
+					"</span>"
+				"</center>");
+		}
+
+		void noLabelText()
+		{
+			setText("");
+		}
 };
 
 class Accueil : public QWidget
@@ -145,13 +180,17 @@ class Accueil : public QWidget
 		void showButtons();
 		void showPicture();
 
+		void slotActiveHover(QString buttonName);
+		void slotInactiveHover();
+
 	private:
 		QWidget *parentPointer;
 		QMdiArea *aireCentrale;
 		QStackedWidget *widgetCentralArea;
 		QPushButton *showPictureButton;
 
-	private:
+		ButtonLabel *buttonsLabel;
+
 		OpenButton *fileBrowser;
 		OpenButton *widgets;
 		OpenButton *pictureViewer;
