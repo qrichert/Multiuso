@@ -366,7 +366,7 @@ void FenPrincipale::creerReglages()
 		setWindowState(Qt::WindowMaximized);
 	}
 
-	setMinimumSize(700, 400);
+	setMinimumSize(700, 450);
 }
 
 void FenPrincipale::creerBarreMenus()
