@@ -24,7 +24,6 @@ HighlighterCSS::HighlighterCSS(QTextDocument *parent = 0) : QSyntaxHighlighter(p
         RegleDeSurlignage regle;
 
         formatMotsCles.setForeground(Qt::darkBlue);
-        formatMotsCles.setFontWeight(QFont::Bold);
 
         QStringList modelesMotsCle;
                 modelesMotsCle << "aqua" << "azimuth" << "background-attachment" << "background-color" <<
