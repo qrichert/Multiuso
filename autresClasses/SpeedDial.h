@@ -70,7 +70,12 @@ class GetPageUrl : public QDialog
 						
 			url->setCompleter(completerUrl);
 
-			exec();
+			if (exec() == QDialog::Rejected)
+			{
+				url->setText("http://");
+
+				return QString("");
+			}
 
 			QString urlEntered = url->text();
 				
