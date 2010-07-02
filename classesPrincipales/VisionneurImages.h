@@ -387,12 +387,12 @@ class FilterWidget : public QWidget
 				image = image.mirrored(false, true);
 
 			QPixmap reflection = QPixmap::fromImage(image);
-				reflection = reflection.copy(0, 0, reflection.width(), reflection.height() / 3);
+				reflection = reflection.copy(0, 0, reflection.width(), reflection.height() / 2);
 
 			QPixmap newPixmap(m_pixmap.width(), m_pixmap.height() + reflection.height());
 				newPixmap.fill(Qt::transparent);
 
-			QLinearGradient gradient(0, -(reflection.height() / 3), 0, reflection.height());
+			QLinearGradient gradient(0, -(reflection.height() / 2), 0, reflection.height());
 				gradient.setColorAt(0, Qt::transparent);
 				gradient.setColorAt(1, color);
 
