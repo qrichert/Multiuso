@@ -95,8 +95,9 @@ class Picture : public QLabel
 						painter.setPen(Qt::NoPen);
 						painter.setBrush(Qt::white);
 						painter.setOpacity(0.4);
-						painter.drawEllipse(-(pixmapToShow.width()), -(pixmapToShow.height() + (pixmapToShow.height() / 3)),
-							pixmapToShow.width() * 2, pixmapToShow.height() * 2);
+						painter.drawEllipse(-(pixmapToShow.width() - (pixmapToShow.width() / 6)),
+								-(pixmapToShow.height() + (pixmapToShow.height() / 3)),
+									pixmapToShow.width() * 2, pixmapToShow.height() * 2);
 					painter.end();
 
 				const QPixmap dragPixmap = pixmapToShow;
