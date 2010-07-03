@@ -32,7 +32,7 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 		layoutImage->addWidget(labelAccueil);
 		layoutImage->setContentsMargins(0, 0, 0, 0);
 
-	QWidget *widgetImage = new QWidget;
+	widgetImage = new QWidget;
 		widgetImage->setLayout(layoutImage);
 
 // Label(s)
@@ -115,13 +115,15 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 		layoutOpen->addLayout(layoutOpen2l, 2, 0);
 		layoutOpen->setContentsMargins(0, 0, 0, 0);
 
-	QWidget *widgetOpen = new QWidget;
+	widgetOpen = new QWidget;
 		widgetOpen->setLayout(layoutOpen);
 
 // Central area
 	widgetCentralArea = new QStackedWidget;
 		widgetCentralArea->addWidget(widgetImage);
 		widgetCentralArea->addWidget(widgetOpen);
+
+	oldCentralWidgetPos = widgetCentralArea->pos();
 
 	QGridLayout *layoutCentralArea = new QGridLayout;
 		layoutCentralArea->addWidget(widgetCentralArea, 0, 0, 1, 2, Qt::AlignCenter);
@@ -157,11 +159,14 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 		layoutPrincipal->addWidget(aireCentrale);
 		layoutPrincipal->setContentsMargins(0, 0, 0, 0);
 
+	transitionInProgress = false;
+
 	if (optionsAccueil.value("ouverture/page").toInt() == 0)
 		showPicture();
 
 	else
 		showButtons();
+
 }
 
 void Accueil::restoreOpenedTabs()
@@ -245,6 +250,9 @@ void Accueil::actualiserFond()
 
 void Accueil::buttonClicked()
 {
+	if (transitionInProgress)
+		return;
+
 	FenPrincipale *fenP = qobject_cast<FenPrincipale *>(parentPointer);
 
 	if (fenP == 0)
@@ -274,14 +282,78 @@ void Accueil::buttonClicked()
 
 void Accueil::showButtons()
 {
+	if (transitionInProgress)
+		return;
+
+	transitionInProgress = true;
+
+	oldCentralWidgetPos = widgetCentralArea->pos();
+	
+	QPropertyAnimation *anim = new QPropertyAnimation(widgetCentralArea, "pos");
+		anim->setDuration(ANIMATION_DURATION);
+		anim->setKeyValueAt(0, oldCentralWidgetPos);
+		anim->setKeyValueAt(1, QPoint(-(widgetCentralArea->width()), widgetCentralArea->pos().y()));
+		anim->start();
+
+	QTimer::singleShot(ANIMATION_DURATION, this, SLOT(showButtons2()));
+}
+
+void Accueil::showButtons2()
+{
 	widgetCentralArea->setCurrentIndex(1);
+	
+	QPropertyAnimation *anim = new QPropertyAnimation(widgetCentralArea, "pos");
+		anim->setDuration(ANIMATION_DURATION);
+		anim->setKeyValueAt(0, QPoint(oldCentralWidgetPos.x(), -(widgetCentralArea->height())));
+		anim->setKeyValueAt(1, oldCentralWidgetPos);
+		anim->start();
+
+	QTimer::singleShot(ANIMATION_DURATION, this, SLOT(showButtons3()));
+}
+
+void Accueil::showButtons3()
+{
 	showPictureButton->show();
+
+	transitionInProgress = false;
 }
 
 void Accueil::showPicture()
 {
-	widgetCentralArea->setCurrentIndex(0);
+	if (transitionInProgress)
+		return;
+
+	transitionInProgress = true;
+	
+	oldCentralWidgetPos = widgetCentralArea->pos();
+
 	showPictureButton->hide();
+
+	QPropertyAnimation *anim = new QPropertyAnimation(widgetCentralArea, "pos");
+		anim->setDuration(ANIMATION_DURATION);
+		anim->setKeyValueAt(0, oldCentralWidgetPos);
+		anim->setKeyValueAt(1, QPoint(oldCentralWidgetPos.y(), -(widgetCentralArea->height())));
+		anim->start();
+	
+	QTimer::singleShot(ANIMATION_DURATION, this, SLOT(showPicture2()));
+}
+
+void Accueil::showPicture2()
+{
+	widgetCentralArea->setCurrentIndex(0);
+
+	QPropertyAnimation *anim = new QPropertyAnimation(widgetCentralArea, "pos");
+		anim->setDuration(ANIMATION_DURATION);
+		anim->setKeyValueAt(0, QPoint(-(widgetCentralArea->width()), oldCentralWidgetPos.y()));
+		anim->setKeyValueAt(1, oldCentralWidgetPos);
+		anim->start();
+
+	QTimer::singleShot(ANIMATION_DURATION, this, SLOT(showPicture3()));
+}
+
+void Accueil::showPicture3()
+{
+	transitionInProgress = false;
 }
 
 void Accueil::slotActiveHover(QString buttonName)

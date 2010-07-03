@@ -165,6 +165,8 @@ class ButtonLabel : public QLabel
 
 class Accueil : public QWidget
 {
+	#define ANIMATION_DURATION 250
+
 	Q_OBJECT
 
 	public:
@@ -178,7 +180,11 @@ class Accueil : public QWidget
 		void actualiserFond();
 		void buttonClicked();
 		void showButtons();
+		void showButtons2();
+		void showButtons3();
 		void showPicture();
+		void showPicture2();
+		void showPicture3();
 
 		void slotActiveHover(QString buttonName);
 		void slotInactiveHover();
@@ -189,6 +195,9 @@ class Accueil : public QWidget
 		QStackedWidget *widgetCentralArea;
 		QPushButton *showPictureButton;
 
+		QWidget *widgetImage;
+		QWidget *widgetOpen;
+
 		ButtonLabel *buttonsLabel;
 
 		OpenButton *fileBrowser;
@@ -198,6 +207,9 @@ class Accueil : public QWidget
 		OpenButton *codeEdit;
 		OpenButton *ftp;
 		OpenButton *webBrowser;
+
+		QPoint oldCentralWidgetPos;
+		bool transitionInProgress;
 };
 
 #endif
