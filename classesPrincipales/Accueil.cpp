@@ -162,11 +162,16 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 	transitionInProgress = false;
 
 	if (optionsAccueil.value("ouverture/page").toInt() == 0)
-		showPicture();
+	{
+		widgetCentralArea->setCurrentIndex(0);
+		showPictureButton->hide();
+	}
 
 	else
-		showButtons();
-
+	{
+		widgetCentralArea->setCurrentIndex(1);
+		showPictureButton->show();
+	}
 }
 
 void Accueil::restoreOpenedTabs()
@@ -358,10 +363,16 @@ void Accueil::showPicture3()
 
 void Accueil::slotActiveHover(QString buttonName)
 {
+	if (transitionInProgress)
+		return;
+
 	buttonsLabel->setLabelText(Multiuso::getFullNameOf(buttonName));
 }
 
 void Accueil::slotInactiveHover()
 {
+	if (transitionInProgress)
+		return;
+
 	buttonsLabel->noLabelText();
 }
