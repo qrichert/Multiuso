@@ -23,6 +23,8 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 {
 	parentPointer = parent;
+	
+	setAcceptDrops(true);
 
 // Picture
 	HomePicture *labelAccueil = new HomePicture;
@@ -232,6 +234,30 @@ void Accueil::openTab(QString tabName)
 int Accueil::openedPage()
 {
 	return widgetCentralArea->currentIndex();
+}
+
+void Accueil::dropEvent(QDropEvent *event)
+{
+	FenPrincipale *fenP = qobject_cast<FenPrincipale *>(parentPointer);
+
+	if (fenP == 0)
+		return;
+
+	const QMimeData *dropData = event->mimeData();
+
+	if (!dropData->hasUrls())
+		return;
+
+	foreach (QUrl url, dropData->urls())
+	{
+		QString urlPath = url.path();
+		
+		if (Multiuso::currentOS() == "windows")
+			urlPath = urlPath.right(urlPath.length() - 1);
+
+		if (QFileInfo(urlPath).exists())
+			fenP->ouvrirFichier(urlPath);
+	}	
 }
 
 void Accueil::actualiserFond()

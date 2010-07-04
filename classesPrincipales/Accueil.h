@@ -176,6 +176,15 @@ class Accueil : public QWidget
 		void openTab(QString tabName);
 		int openedPage();
 
+	protected:
+		void dragEnterEvent(QDragEnterEvent *event)
+		{
+			if (event->mimeData()->hasFormat("text/uri-list"))
+				event->acceptProposedAction();
+		}
+
+		void dropEvent(QDropEvent *event);
+
 	public slots:
 		void actualiserFond();
 		void buttonClicked();
