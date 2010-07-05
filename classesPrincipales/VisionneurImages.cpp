@@ -173,6 +173,9 @@ void VisionneurImages::slotFermer()
 
 void VisionneurImages::slotZoomPlus()
 {
+	if (currentLabel()->isGif())
+		return;
+
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -189,6 +192,9 @@ void VisionneurImages::slotZoomPlus()
 
 void VisionneurImages::slotZoomNormal()
 {
+	if (currentLabel()->isGif())
+		return;
+
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -205,6 +211,9 @@ void VisionneurImages::slotZoomNormal()
 
 void VisionneurImages::slotZoomIdeal()
 {
+	if (currentLabel()->isGif())
+		return;
+
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -237,6 +246,9 @@ void VisionneurImages::slotZoomIdeal()
 
 void VisionneurImages::slotZoomMoins()
 {
+	if (currentLabel()->isGif())
+		return;
+
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -253,6 +265,9 @@ void VisionneurImages::slotZoomMoins()
 
 void VisionneurImages::slotRotateLeft()
 {
+	if (currentLabel()->isGif())
+		return;
+
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -277,6 +292,9 @@ void VisionneurImages::slotRotateLeft()
 
 void VisionneurImages::slotRotateRight()
 {
+	if (currentLabel()->isGif())
+		return;
+
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -343,6 +361,14 @@ void VisionneurImages::slotOpenFileFromDrop(QUrl url)
 	if (currentLabel()->imgPath() == url.toString())
 		return;
 
+	QString slashToAdd = "";
+
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+	
+	if (url.toString().startsWith("file://" + slashToAdd + Multiuso::tempPath())) // If the picture is in the temporary directory
+		return;
+	
 	QString urlPath = url.path();
 	
 	if (Multiuso::currentOS() == "windows")
@@ -478,18 +504,25 @@ void VisionneurImages::slotTabIndexChanged(int)
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 	{
 		if (filterWidget)
+		{
 			filterWidget->setPixmap(*new QPixmap);
+			filterWidget->setIsGif(false);
+		}
 	}
 	
 	else if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 	{
 		if (filterWidget)
+		{
 			filterWidget->setPixmap(*new QPixmap);
+			filterWidget->setIsGif(false);
+		}
 	}
 	
 	else if (filterWidget && !QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)).isNull())
 	{
 		filterWidget->setPixmap(QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)));
+		filterWidget->setIsGif(QFileInfo(currentLabel()->imgPath()).suffix().toLower() == "gif");
 	}
 }
 

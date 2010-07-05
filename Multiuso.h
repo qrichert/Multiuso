@@ -427,23 +427,38 @@ class Multiuso
 			return str;
 		}
 
+		static QString tempPath()
+		{
+			QString tmp = appDirPath() + "/tmp";
+
+			QDir().mkpath(tmp); // In case of "tmp" doesn't exist.
+
+			return tmp;
+		}
+
 		static QString toSize(double size)
 		{
-			QString type = "Mio";
-			size = (size / 1024) / 1024;
+			QString type = "Gio";
+			size = ((size / 1024) / 1024) / 1024;
 
 			if (size < 1)
 			{
-				type = "Kio";
+				type = "Mio";
 				size *= 1024;
 				
-				if (size > 0 && size < 1)
+				if (size < 1)
 				{
-					type = "octets";
+					type = "Kio";
 					size *= 1024;
 
 					if (size > 0 && size < 1)
-						type = "octet";
+					{
+						type = "octets";
+						size *= 1024;
+
+						if (size > 0 && size < 1)
+							type = "octet";
+					}
 				}
 			}
 

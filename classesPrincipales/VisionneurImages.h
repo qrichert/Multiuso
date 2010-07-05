@@ -31,6 +31,7 @@ class Picture : public QLabel
 		{
 			m_imgPath = "";
 			m_zoom = 1.0;
+			m_isGif = false;
 
 			setAcceptDrops(true);
 		}
@@ -50,6 +51,11 @@ class Picture : public QLabel
 			m_zoom = zoom;
 		}
 
+		bool isGif()
+		{
+			return m_isGif;
+		}
+
 	protected:
 		void mousePressEvent(QMouseEvent *event)
 		{
@@ -66,14 +72,33 @@ class Picture : public QLabel
 
 			if (event->button() == Qt::LeftButton)
 			{
+				QPixmap tempPixmap;
+				QString saveTempPixmapPath;
+			       
+				if (movie() != NULL)
+				{
+					tempPixmap = movie()->currentPixmap();
+
+					saveTempPixmapPath = m_imgPath;
+				}
+				
+				else
+				{
+					tempPixmap = *pixmap();
+
+					saveTempPixmapPath = Multiuso::tempPath() + "/" + QFileInfo(m_imgPath).fileName();
+				
+					tempPixmap.save(saveTempPixmapPath); // No "file://" for saving
+
+					saveTempPixmapPath = "file://" + slashToAdd + saveTempPixmapPath; // Now we can add the "file://"
+				}
+
 				QList<QUrl> urls;
-			       		urls << QUrl(m_imgPath);
+			       		urls << QUrl(saveTempPixmapPath);
 
 				QMimeData *mimeData = new QMimeData;
 					mimeData->setUrls(urls);
-
-				QPixmap tempPixmap = *pixmap();
-
+	
 				if (tempPixmap.width() > tempPixmap.height() && tempPixmap.width() > 150)
 					tempPixmap = tempPixmap.scaledToWidth(150);
 
@@ -129,7 +154,23 @@ class Picture : public QLabel
 	public slots:
 		void setImage(QString imgPath)
 		{
-			setPixmap(QPixmap(imgPath));
+			if (m_isGif)
+				setMovie(NULL);
+
+			if (QFileInfo(imgPath).suffix().toLower() == "gif")
+			{
+				m_isGif = true;
+
+				QMovie *movie = new QMovie(imgPath);
+					setMovie(movie);
+					movie->start();
+			}
+
+			else
+			{
+				m_isGif = false;
+				setPixmap(QPixmap(imgPath));
+			}
 
 			QString slashToAdd = "";
 
@@ -145,6 +186,7 @@ class Picture : public QLabel
 	private:
 		QString m_imgPath;
 		double m_zoom;
+		bool m_isGif;
 };
 
 class ScrollArea : public QScrollArea
@@ -187,6 +229,7 @@ class FilterWidget : public QWidget
 		FilterWidget()
 		{
 			m_pixmap = *new QPixmap;
+			m_isGif = false;
 
 			QPushButton *buttonPhotoFilter = new QPushButton;
 				buttonPhotoFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/photo_effect.png"));
@@ -267,10 +310,15 @@ class FilterWidget : public QWidget
 				m_pixmap = *new QPixmap;
 		}
 
+		void setIsGif(bool isGif)
+		{
+			m_isGif = isGif;
+		}
+
 	public slots:
 		void slotPhotoFilter()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 
 			int borderWidth = 0;
@@ -308,7 +356,7 @@ class FilterWidget : public QWidget
 
 		void slotColorFilter()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 
 			QColor color = QColorDialog::getColor(Qt::blue, NULL, "Multiuso");
@@ -337,7 +385,7 @@ class FilterWidget : public QWidget
 	
 		void slotInvertColorsFilter()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 
 			QImage image(m_pixmap.toImage());
@@ -350,7 +398,7 @@ class FilterWidget : public QWidget
 		
 		void slotMirrorHorizontalFilter()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 
 			QImage image(m_pixmap.toImage());
@@ -363,7 +411,7 @@ class FilterWidget : public QWidget
 
 		void slotMirrorVerticalFilter()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 
 			QImage image(m_pixmap.toImage());
@@ -376,7 +424,7 @@ class FilterWidget : public QWidget
 
 		void slotReflectionFilter()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 			
 			QColor color = QColorDialog::getColor(Qt::white, NULL, "Choisissez la couleur de fond");
@@ -417,7 +465,7 @@ class FilterWidget : public QWidget
 
 		void slotBorderFilter()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 			
 			QColor color = QColorDialog::getColor(Qt::white, NULL, "Choisissez la couleur de la bordure", QColorDialog::ShowAlphaChannel);
@@ -447,7 +495,7 @@ class FilterWidget : public QWidget
 
 		void slotSave()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 
 			emit savePictureRequested(m_pixmap);
@@ -455,7 +503,7 @@ class FilterWidget : public QWidget
 
 		void slotSaveAs()
 		{
-			if (m_pixmap.isNull())
+			if (m_pixmap.isNull() || m_isGif)
 				return;
 
 			QString file = QFileDialog::getSaveFileName(this, "Multiuso",
@@ -475,6 +523,7 @@ class FilterWidget : public QWidget
 
 	private:
 		QPixmap m_pixmap;
+		bool m_isGif;
 };
 
 class VisionneurImages : public QMainWindow
