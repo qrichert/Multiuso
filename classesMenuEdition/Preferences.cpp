@@ -469,7 +469,7 @@ void Preferences::slotRemettreAZero()
 		if (choixRedemarrerApresRemiseAZero->isChecked())
 			QProcess::startDetached(Multiuso::openCommand() + Multiuso::appDirPath() + "/Multiuso" + Multiuso::currentSuffix());
 		
-		qApp->quit();
+		Multiuso::quit();
 	}
 }
 

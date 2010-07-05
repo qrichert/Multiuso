@@ -833,7 +833,7 @@ void FenPrincipale::slotGestionnaireDesPlugins()
 	{
 		QProcess::startDetached(Multiuso::openCommand() + Multiuso::appDirPath() + "/GPlugins" + Multiuso::currentSuffix());
 
-		qApp->quit();
+		Multiuso::quit();
 	}
 }
 
@@ -877,8 +877,7 @@ void FenPrincipale::slotQuitter()
 		reglagesFenetre.setValue("ouverture/page", accueil->openedPage());
 		reglagesFenetre.setValue("pagesDuProgramme/dernierePage", pagesDuProgramme->currentIndex());
 
-
-	qApp->quit();
+	Multiuso::quit();
 }
 
 void FenPrincipale::slotGoToHome()
@@ -1383,7 +1382,7 @@ void FenPrincipale::telechargementNouvelleVersionFini()
 	{
 		QProcess::startDetached(Multiuso::openCommand() + Multiuso::appDirPath() + "/Updater" + Multiuso::currentSuffix());
 
-		qApp->quit();
+		Multiuso::quit();
 	}
 }
 
@@ -1402,7 +1401,7 @@ void FenPrincipale::assistantDeMiseAJour()
 	{
 		QProcess::startDetached(Multiuso::openCommand() + Multiuso::appDirPath() + "/Updater" + Multiuso::currentSuffix());
 
-		qApp->quit();
+		Multiuso::quit();
 	}
 }
 

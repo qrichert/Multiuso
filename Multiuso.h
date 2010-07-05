@@ -336,6 +336,15 @@ class Multiuso
 			return appDirPath() + "/extensions/plugins/";
 		}
 
+		static void quit()
+		{
+			removeDirectory(tempPath());
+
+			qApp->quit();
+
+			return;
+		}
+
 		static int randomNumber(int min, int max)
 		{
 			srand(time(NULL));
