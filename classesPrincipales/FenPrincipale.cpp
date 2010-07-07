@@ -26,6 +26,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "classesMenuAutresFonctionnalites/GenerateurPageWeb.h"
 #include "classesMenuAutresFonctionnalites/GenerateurClassesCpp.h"
 #include "classesMenuAutresFonctionnalites/CreerFichier.h"
+#include "classesMenuAutresFonctionnalites/FeedTarsiers/FeedTarsiers.h"
 #include "classesMenuAutresFonctionnalites/PlusOuMoins.h"
 #include "classesMenuAutresFonctionnalites/CreerReadme.h"
 #include "classesMenuAide/APropos.h"
@@ -492,6 +493,11 @@ void FenPrincipale::creerActions()
 		actionCreerFichier->setIcon(QIcon(":/icones/actions/actionCreerFichier.png"));
 		actionCreerFichier->setStatusTip("Créer un fichier de nom et d'extension libre");
 		connect(actionCreerFichier, SIGNAL(triggered()), this, SLOT(slotCreerFichier()));
+		
+	actionFeedTarsiers = new QAction("Feed&Tarsiers", this);
+		actionFeedTarsiers->setIcon(QIcon(":/icones/feed_tarsiers/tarsier_l_3.png"));
+		actionFeedTarsiers->setStatusTip("Jouer à FeedTarsiers");
+		connect(actionFeedTarsiers, SIGNAL(triggered()), this, SLOT(slotFeedTarsiers()));
 
 	actionPlusOuMoins = new QAction("&Plus ou Moins", this);
 		actionPlusOuMoins->setIcon(QIcon(":/icones/actions/actionPlusOuMoins.png"));
@@ -564,6 +570,7 @@ void FenPrincipale::creerMenus()
 
 	sousMenuMiniJeux = new QMenu("&Mini-Jeux");
 		sousMenuMiniJeux->setIcon(QIcon(":/icones/menus/sousMenuMiniJeux.png"));
+		sousMenuMiniJeux->addAction(actionFeedTarsiers);
 		sousMenuMiniJeux->addAction(actionPlusOuMoins);
 
 	menuAutresFonctionnalites->addMenu(sousMenuProgrammation);
@@ -1032,6 +1039,13 @@ void FenPrincipale::slotCreerFichier()
 	CreerFichier *fenCreerFichier = new CreerFichier(this);
 		fenCreerFichier->exec();
 		fenCreerFichier->deleteLater();
+}
+
+void FenPrincipale::slotFeedTarsiers()
+{
+	FeedTarsiers *fenFeedTarsiers = new FeedTarsiers(this);
+		fenFeedTarsiers->exec();
+		fenFeedTarsiers->deleteLater();
 }
 
 void FenPrincipale::slotPlusOuMoins()

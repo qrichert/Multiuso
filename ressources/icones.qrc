@@ -101,6 +101,35 @@
 		<file>icones/editeur_de_texte/souligne.png</file>
 		<file>icones/editeur_de_texte/supprimer.png</file>
 		<file>icones/editeur_de_texte/toutSelectionner.png</file>
+		
+		<file>icones/feed_tarsiers/background.png</file>
+		<file>icones/feed_tarsiers/background_rules_0.png</file>
+		<file>icones/feed_tarsiers/background_rules_1.png</file>
+		<file>icones/feed_tarsiers/background_rules_2.png</file>
+		<file>icones/feed_tarsiers/cricket.png</file>
+		<file>icones/feed_tarsiers/cursor.png</file>
+		<file>icones/feed_tarsiers/fruit_10.png</file>
+		<file>icones/feed_tarsiers/fruit_1.png</file>
+		<file>icones/feed_tarsiers/fruit_2.png</file>
+		<file>icones/feed_tarsiers/fruit_3.png</file>
+		<file>icones/feed_tarsiers/fruit_4.png</file>
+		<file>icones/feed_tarsiers/fruit_5.png</file>
+		<file>icones/feed_tarsiers/fruit_6.png</file>
+		<file>icones/feed_tarsiers/fruit_7.png</file>
+		<file>icones/feed_tarsiers/fruit_8.png</file>
+		<file>icones/feed_tarsiers/fruit_9.png</file>
+		<file>icones/feed_tarsiers/home.png</file>
+		<file>icones/feed_tarsiers/informations.png</file>
+		<file>icones/feed_tarsiers/precedent.png</file>
+		<file>icones/feed_tarsiers/suivant.png</file>
+		<file>icones/feed_tarsiers/tarsier_l_1.png</file>
+		<file>icones/feed_tarsiers/tarsier_l_2.png</file>
+		<file>icones/feed_tarsiers/tarsier_l_3.png</file>
+		<file>icones/feed_tarsiers/tarsier_l_4.png</file>
+		<file>icones/feed_tarsiers/tarsier_r_1.png</file>
+		<file>icones/feed_tarsiers/tarsier_r_2.png</file>
+		<file>icones/feed_tarsiers/tarsier_r_3.png</file>
+		<file>icones/feed_tarsiers/tarsier_r_4.png</file>
 
 		<file>icones/ftp/connexion.png</file>
 		<file>icones/ftp/creerDossier.png</file>

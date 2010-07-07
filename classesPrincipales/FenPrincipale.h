@@ -86,6 +86,7 @@ class FenPrincipale : public QMainWindow
 		void slotGenerateurPageWeb();
 		void slotGenerateurClassesCpp();
 		void slotCreerFichier();
+		void slotFeedTarsiers();
 		void slotPlusOuMoins();
 		void slotCreerReadme();
 		void slotSurLeWeb();
@@ -181,6 +182,7 @@ class FenPrincipale : public QMainWindow
 		QAction *actionGenerateurPageWeb;
 		QAction *actionGenerateurClassesCpp;
 		QAction *actionCreerFichier;
+		QAction *actionFeedTarsiers;
 		QAction *actionPlusOuMoins;
 		QAction *actionCreerReadme;
 
