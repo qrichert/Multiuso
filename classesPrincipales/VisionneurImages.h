@@ -233,44 +233,44 @@ class FilterWidget : public QWidget
 
 			QPushButton *buttonPhotoFilter = new QPushButton;
 				buttonPhotoFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/photo_effect.png"));
-				buttonPhotoFilter->setToolTip("Effet photo");
-				buttonPhotoFilter->setIconSize(QSize(32, 32));
+				buttonPhotoFilter->setText("Effet photo");
+			//	buttonPhotoFilter->setIconSize(QSize(32, 32));
 				connect(buttonPhotoFilter, SIGNAL(clicked()), this, SLOT(slotPhotoFilter()));
 
 			QPushButton *buttonColorFilter = new QPushButton;
 				buttonColorFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/color_filter.png"));
-				buttonColorFilter->setToolTip("Filtre de couleur");
-				buttonColorFilter->setIconSize(QSize(32, 32));
+				buttonColorFilter->setText("Filtre de couleur");
+			//	buttonColorFilter->setIconSize(QSize(32, 32));
 				connect(buttonColorFilter, SIGNAL(clicked()), this, SLOT(slotColorFilter()));
 
 			QPushButton *buttonInvertColorsFilter = new QPushButton;
 				buttonInvertColorsFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/inverser.png"));
-				buttonInvertColorsFilter->setToolTip("Inverser les couleurs");
-				buttonInvertColorsFilter->setIconSize(QSize(32, 32));
+				buttonInvertColorsFilter->setText("Inverser les couleurs");
+			//	buttonInvertColorsFilter->setIconSize(QSize(32, 32));
 				connect(buttonInvertColorsFilter, SIGNAL(clicked()), this, SLOT(slotInvertColorsFilter()));
 
 			QPushButton *buttonMirrorHorizontalFilter = new QPushButton;
 				buttonMirrorHorizontalFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/horizontal_mirror.png"));
-				buttonMirrorHorizontalFilter->setToolTip("Miroir horizontal");
-				buttonMirrorHorizontalFilter->setIconSize(QSize(32, 32));
+				buttonMirrorHorizontalFilter->setText("Miroir horizontal");
+			//	buttonMirrorHorizontalFilter->setIconSize(QSize(32, 32));
 				connect(buttonMirrorHorizontalFilter, SIGNAL(clicked()), this, SLOT(slotMirrorHorizontalFilter()));
 				
 			QPushButton *buttonMirrorVerticalFilter = new QPushButton;
 				buttonMirrorVerticalFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/vertical_mirror.png"));
-				buttonMirrorVerticalFilter->setToolTip("Miroir vertical");
-				buttonMirrorVerticalFilter->setIconSize(QSize(32, 32));
+				buttonMirrorVerticalFilter->setText("Miroir vertical");
+			//	buttonMirrorVerticalFilter->setIconSize(QSize(32, 32));
 				connect(buttonMirrorVerticalFilter, SIGNAL(clicked()), this, SLOT(slotMirrorVerticalFilter()));
 
 			QPushButton *buttonReflectionFilter = new QPushButton;
 				buttonReflectionFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/reflection.png"));
-				buttonReflectionFilter->setToolTip("Reflet");
-				buttonReflectionFilter->setIconSize(QSize(32, 32));
+				buttonReflectionFilter->setText("Reflet");
+			//	buttonReflectionFilter->setIconSize(QSize(32, 32));
 				connect(buttonReflectionFilter, SIGNAL(clicked()), this, SLOT(slotReflectionFilter()));
 				
 			QPushButton *buttonBorderFilter = new QPushButton;
 				buttonBorderFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/border.png"));
-				buttonBorderFilter->setToolTip("Bordure");
-				buttonBorderFilter->setIconSize(QSize(32, 32));
+				buttonBorderFilter->setText("Bordure");
+			//	buttonBorderFilter->setIconSize(QSize(32, 32));
 				connect(buttonBorderFilter, SIGNAL(clicked()), this, SLOT(slotBorderFilter()));
 
 			QPushButton *buttonSave = new QPushButton("Enregistrer l'image");
@@ -284,17 +284,17 @@ class FilterWidget : public QWidget
 
 			QGridLayout *mainLayout = new QGridLayout(this);
 				mainLayout->addWidget(buttonPhotoFilter, 0, 0, 1, 1);
-				mainLayout->addWidget(buttonColorFilter, 0, 1, 1, 1);
-				mainLayout->addWidget(buttonInvertColorsFilter, 0, 2, 1, 1);
-				mainLayout->addWidget(buttonMirrorHorizontalFilter, 1, 0, 1, 1);
-				mainLayout->addWidget(buttonMirrorVerticalFilter, 1, 1, 1, 1);
-				mainLayout->addWidget(buttonReflectionFilter, 1, 2, 1, 1);
-				mainLayout->addWidget(buttonBorderFilter, 2, 0, 1, 1);
-				mainLayout->addWidget(new QLabel("<hr />"), 3, 0, 1, 3);
-				mainLayout->addWidget(buttonSave, 4, 0, 1, 3);
-				mainLayout->addWidget(buttonSaveAs, 5, 0, 1, 3);
-				mainLayout->addWidget(new QLabel("<hr />"), 6, 0, 1, 3);
-				mainLayout->addWidget(buttonCancelChanges, 7, 0, 1, 3);
+				mainLayout->addWidget(buttonColorFilter, 1, 0, 1, 1);
+				mainLayout->addWidget(buttonInvertColorsFilter, 2, 0, 1, 1);
+				mainLayout->addWidget(buttonMirrorHorizontalFilter, 3, 0, 1, 1);
+				mainLayout->addWidget(buttonMirrorVerticalFilter, 4, 0, 1, 1);
+				mainLayout->addWidget(buttonReflectionFilter, 5, 0, 1, 1);
+				mainLayout->addWidget(buttonBorderFilter, 6, 0, 1, 1);
+				mainLayout->addWidget(new QLabel("<hr />"), 7, 0, 1, 1);
+				mainLayout->addWidget(buttonSave, 8, 0, 1, 1);
+				mainLayout->addWidget(buttonSaveAs, 9, 0, 1, 1);
+				mainLayout->addWidget(new QLabel("<hr />"), 10, 0, 1, 1);
+				mainLayout->addWidget(buttonCancelChanges, 11, 0, 1, 1);
 				mainLayout->setAlignment(Qt::AlignTop);
 		}
 
