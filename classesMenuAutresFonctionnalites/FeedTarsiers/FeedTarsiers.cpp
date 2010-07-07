@@ -21,7 +21,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 FeedTarsiers::FeedTarsiers(QWidget *parent) : QDialog(parent)
 {
-	setWindowTitle("FeedTarsiers");
+	setWindowTitle("Multiuso - FeedTarsiers");
 	setWindowIcon(QIcon(":/icones/feed_tarsiers/tarsier_l_3.png"));
 	setCursor(QCursor(QPixmap(":/icones/feed_tarsiers/cursor.png"), 21, 21));
 
