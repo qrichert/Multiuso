@@ -161,7 +161,7 @@ void FilterWidget::slotColorFilter()
 	bool ok;
 
 	double opacity = QInputDialog::getDouble(new QWidget, "Multiuso",
-		"Opacité du filtre :<br /><em>(0 : transparent, 100 : opaque)</em>", 40.0, 0.0, 100.0, 2, &ok);
+		"Opacité du filtre :<br /><em>(0 : transparent, 100 : opaque)</em>", 40.0, 0.0, 100.0, 1, &ok);
 
 	if (!ok || opacity == 0)
 		return;
@@ -225,12 +225,22 @@ void FilterWidget::slotReflectionFilter()
 
 	if (!color.isValid())
 		return;
+	
+	bool ok;
+
+	double percentOfPicture = QInputDialog::getDouble(new QWidget, "Multiuso",
+		"Le reflet fait X\% de la hauteur de l'image originale :", 50.0, 0.0, 100.0, 1, &ok);
+
+	if (!ok || percentOfPicture == 0)
+		return;
+
+	percentOfPicture /= 100;
 
 	QImage image(m_pixmap.toImage());
 		image = image.mirrored(false, true);
 
 	QPixmap reflection = QPixmap::fromImage(image);
-		reflection = reflection.copy(0, 0, reflection.width(), reflection.height() / 2);
+		reflection = reflection.copy(0, 0, reflection.width(), reflection.height() * percentOfPicture);
 
 	QPixmap newPixmap(m_pixmap.width(), m_pixmap.height() + reflection.height());
 		newPixmap.fill(Qt::transparent);
