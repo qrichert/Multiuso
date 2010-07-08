@@ -67,6 +67,12 @@ FilterWidget::FilterWidget()
 		buttonBorderFilter->setText("Bordure");
 	//	buttonBorderFilter->setIconSize(QSize(32, 32));
 		connect(buttonBorderFilter, SIGNAL(clicked()), this, SLOT(slotBorderFilter()));
+	
+	QPushButton *buttonRotationFilter = new QPushButton;
+		buttonRotationFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/rotation.png"));
+		buttonRotationFilter->setText("Rotation");
+	//	buttonRotationFilter->setIconSize(QSize(32, 32));
+		connect(buttonRotationFilter, SIGNAL(clicked()), this, SLOT(slotRotationFilter()));
 
 	QPushButton *buttonSave = new QPushButton("Enregistrer l'image");
 		connect(buttonSave, SIGNAL(clicked()), this, SLOT(slotSave()));
@@ -85,11 +91,12 @@ FilterWidget::FilterWidget()
 		mainLayout->addWidget(buttonMirrorVerticalFilter, 4, 0, 1, 1);
 		mainLayout->addWidget(buttonReflectionFilter, 5, 0, 1, 1);
 		mainLayout->addWidget(buttonBorderFilter, 6, 0, 1, 1);
-		mainLayout->addWidget(new QLabel("<hr />"), 7, 0, 1, 1);
-		mainLayout->addWidget(buttonSave, 8, 0, 1, 1);
-		mainLayout->addWidget(buttonSaveAs, 9, 0, 1, 1);
-		mainLayout->addWidget(new QLabel("<hr />"), 10, 0, 1, 1);
-		mainLayout->addWidget(buttonCancelChanges, 11, 0, 1, 1);
+		mainLayout->addWidget(buttonRotationFilter, 7, 0, 1, 1);
+		mainLayout->addWidget(new QLabel("<hr />"), 8, 0, 1, 1);
+		mainLayout->addWidget(buttonSave, 9, 0, 1, 1);
+		mainLayout->addWidget(buttonSaveAs, 10, 0, 1, 1);
+		mainLayout->addWidget(new QLabel("<hr />"), 11, 0, 1, 1);
+		mainLayout->addWidget(buttonCancelChanges, 12, 0, 1, 1);
 		mainLayout->setAlignment(Qt::AlignTop);
 }
 
@@ -174,7 +181,7 @@ void FilterWidget::slotColorFilter()
 	if (m_pixmap.isNull() || m_isGif)
 		return;
 
-	QColor color = QColorDialog::getColor(Qt::blue, NULL, "Multiuso");
+	QColor color = QColorDialog::getColor(Qt::blue, this, "Multiuso");
 
 	if (!color.isValid())
 		return;
@@ -242,7 +249,7 @@ void FilterWidget::slotReflectionFilter()
 	if (m_pixmap.isNull() || m_isGif)
 		return;
 	
-	QColor color = QColorDialog::getColor(Qt::white, NULL, "Choisissez la couleur de fond");
+	QColor color = QColorDialog::getColor(Qt::white, this, "Choisissez la couleur de fond");
 
 	if (!color.isValid())
 		return;
@@ -293,14 +300,14 @@ void FilterWidget::slotBorderFilter()
 	if (m_pixmap.isNull() || m_isGif)
 		return;
 	
-	QColor color = QColorDialog::getColor(Qt::white, NULL, "Choisissez la couleur de la bordure", QColorDialog::ShowAlphaChannel);
+	QColor color = QColorDialog::getColor(Qt::white, this, "Choisissez la couleur de la bordure", QColorDialog::ShowAlphaChannel);
 
 	if (!color.isValid())
 		return;
 
 	bool ok;
 
-	int borderWidth = QInputDialog::getInt(NULL, "Multiuso", "Épaisseur de la bordure (en px) :", 1, 1, 2147483647, 1, &ok);
+	int borderWidth = QInputDialog::getInt(this, "Multiuso", "Épaisseur de la bordure (en px) :", 1, 1, 2147483647, 1, &ok);
 
 	if (!ok)
 		return;
@@ -314,6 +321,90 @@ void FilterWidget::slotBorderFilter()
 		painter.end();
 	
 	m_pixmap = QPixmap(newPixmap);
+
+	emit newPictureAvailable(m_pixmap);
+}
+
+void FilterWidget::slotRotationFilter()
+{
+	if (m_pixmap.isNull() || m_isGif)
+		return;
+
+	QDialog *dialog = new QDialog(this);
+		dialog->setWindowTitle("Multiuso");
+
+		// Construction of the dialog
+			QLabel *label1 = new QLabel("Effectuer une rotation de ");
+
+			QDoubleSpinBox *degrees = new QDoubleSpinBox;
+				degrees->setRange(-360, 360);
+				degrees->setValue(45);
+				degrees->setSuffix("°");
+
+			QLabel *label2 = new QLabel(" autour de l'axe ");
+
+			QComboBox *axis = new QComboBox;
+				axis->addItems(QStringList() << "X" << "Y" << "Z");
+				axis->setCurrentIndex(axis->findText("Z"));
+					
+				QHBoxLayout *layout1 = new QHBoxLayout;
+					layout1->addWidget(label1);
+					layout1->addWidget(degrees);
+					layout1->addWidget(label2);
+					layout1->addWidget(axis);
+				
+			QPushButton *reject = new QPushButton("Annuler");
+				connect(reject, SIGNAL(clicked()), dialog, SLOT(reject()));
+
+			QPushButton *accept = new QPushButton("OK");
+				connect(accept, SIGNAL(clicked()), dialog, SLOT(accept()));
+
+				QHBoxLayout *layout2 = new QHBoxLayout;
+					layout2->addWidget(reject);
+					layout2->addWidget(accept);
+					layout2->setAlignment(Qt::AlignRight);
+
+			QVBoxLayout *mainLayout = new QVBoxLayout;
+				mainLayout->addLayout(layout1);
+				mainLayout->addLayout(layout2);
+
+	dialog->setLayout(mainLayout);
+
+	if (dialog->exec() != QDialog::Accepted)
+	{
+		dialog->deleteLater();
+
+		return;
+	}
+
+	// Degrees
+	
+	qreal rotationDegrees = (qreal) degrees->value();
+
+	// Axis
+
+	Qt::Axis rotationAxis;
+
+	if (axis->currentText() == "X")
+		rotationAxis = Qt::XAxis;
+
+	else if (axis->currentText() == "Y")
+		rotationAxis = Qt::YAxis;
+
+	else // == Z
+		rotationAxis = Qt::ZAxis;
+
+	// Construction of the matrix
+	
+	QTransform transform;
+		transform.rotate(rotationDegrees, rotationAxis);
+
+	// Application of the matrix
+
+	QImage image = m_pixmap.toImage();
+		image = image.transformed(transform);
+
+	m_pixmap = QPixmap::fromImage(image);
 
 	emit newPictureAvailable(m_pixmap);
 }

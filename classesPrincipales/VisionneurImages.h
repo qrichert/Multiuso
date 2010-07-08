@@ -239,6 +239,7 @@ class FilterWidget : public QWidget
 		void slotMirrorVerticalFilter();
 		void slotReflectionFilter();
 		void slotBorderFilter();
+		void slotRotationFilter();
 		void slotSave();
 		void slotSaveAs();
 
