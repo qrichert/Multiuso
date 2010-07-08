@@ -117,7 +117,7 @@ void FilterWidget::slotPhotoFilter()
 
 	bool ok;
 
-	int radius = QInputDialog::getInt(new QWidget, "Multiuso", "Taille du rayon (en px) :<br />"
+	int radius = QInputDialog::getInt(this, "Multiuso", "Taille du rayon (en px) :<br />"
 			"<em>Pour les coins arrondis (0 pour aucun arrondissement)</em>",
 				0, 0, 250, 1, &ok);
 
@@ -181,7 +181,7 @@ void FilterWidget::slotColorFilter()
 
 	bool ok;
 
-	double opacity = QInputDialog::getDouble(new QWidget, "Multiuso",
+	double opacity = QInputDialog::getDouble(this, "Multiuso",
 		"Opacité du filtre :<br /><em>(0 : transparent, 100 : opaque)</em>", 40.0, 0.0, 100.0, 1, &ok);
 
 	if (!ok || opacity == 0)
@@ -249,7 +249,7 @@ void FilterWidget::slotReflectionFilter()
 	
 	bool ok;
 
-	double percentOfPicture = QInputDialog::getDouble(new QWidget, "Multiuso",
+	double percentOfPicture = QInputDialog::getDouble(this, "Multiuso",
 		"Le reflet fait X\% de la hauteur de l'image originale :", 50.0, 0.0, 100.0, 1, &ok);
 
 	if (!ok || percentOfPicture == 0)
