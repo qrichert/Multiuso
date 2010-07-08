@@ -275,8 +275,11 @@ class SceneIntroButton : public QObject, public QGraphicsPixmapItem
 			else if (button == 2)
 				setPixmap(QPixmap(":/icones/feed_tarsiers/precedent.png"));
 
-			else // == 3
+			else if (button == 3)
 				setPixmap(QPixmap(":/icones/feed_tarsiers/home.png"));
+
+			else // == 4
+				setPixmap(QPixmap(":/icones/feed_tarsiers/scores.png"));
 		}
 
 	signals:
@@ -301,15 +304,58 @@ class SceneHome : public QGraphicsScene
 			setBackgroundBrush(QPixmap(":/icones/feed_tarsiers/background_rules_0.png"));
 
 			QTransform transform;
-				transform.translate(75, 275);
+				transform.translate(35, 290);
 				transform.rotate(-20);
 
 			SceneIntroButton *button = new SceneIntroButton;
 				button->setNavigationButton(0);
 				button->setTransform(transform);
 				connect(button, SIGNAL(clicked()), this, SIGNAL(showInfos()));
-
+			
 			addItem(button);
+
+			QTransform transform2;
+				transform2.translate(235, 140);
+				transform2.rotate(20);
+
+			SceneIntroButton *button2 = new SceneIntroButton;
+				button2->setNavigationButton(4);
+				button2->setTransform(transform2);
+				connect(button2, SIGNAL(clicked()), this, SLOT(showScores()));
+
+			addItem(button2);
+		}
+
+	public slots:
+		void showScores()
+		{
+			QString scores = "<span style='color:red;'>Impossible d'ouvrir le fichier contenant les scores !</span>";
+
+			QFile file(Multiuso::appDirPath() + "/textes/feed_tarsiers/scores.mltsscores");
+
+				if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+					scores = file.readAll();
+
+				file.close();
+
+			QDialog newDialog;
+				newDialog.setWindowTitle("Scores");
+				newDialog.setWindowIcon(QIcon(":/icones/feed_tarsiers/tarsier_l_3.png"));
+
+				QTextEdit showScores;
+					showScores.setHtml(scores);
+					showScores.setReadOnly(true);
+
+				JungleButton closeDialog("Fermer");
+					connect(&closeDialog, SIGNAL(clicked()), &newDialog, SLOT(accept()));
+
+				QVBoxLayout layout;
+					layout.addWidget(&showScores);
+					layout.addWidget(new QLabel("<hr />"));
+					layout.addWidget(&closeDialog);
+
+			newDialog.setLayout(&layout);
+			newDialog.exec();
 		}
 
 	signals:
