@@ -115,6 +115,15 @@ void FilterWidget::slotPhotoFilter()
 	if (m_pixmap.isNull() || m_isGif)
 		return;
 
+	bool ok;
+
+	int radius = QInputDialog::getInt(new QWidget, "Multiuso", "Taille du rayon (en px) :<br />"
+			"<em>Pour les coins arrondis (0 pour aucun arrondissement)</em>",
+				0, 0, 250, 1, &ok);
+
+	if (!ok)
+		return;
+
 	int borderWidth = 0;
 	
 	if (m_pixmap.width() > m_pixmap.height())
@@ -124,25 +133,37 @@ void FilterWidget::slotPhotoFilter()
 		borderWidth = m_pixmap.width() / 20;
 
 	QPixmap newPixmap(m_pixmap.width() + (borderWidth * 2), m_pixmap.height() + (borderWidth * 2));
+		newPixmap.fill(Qt::transparent);
 
 	QPainter painter;
-		painter.begin(&newPixmap);
+		painter.begin(&newPixmap); // First we add a white border to the "main" pixmap
 			painter.setRenderHint(QPainter::Antialiasing, true);
 			painter.setPen(Qt::white);
 			painter.setBrush(Qt::white);
-			painter.fillRect(0, 0, newPixmap.width(), newPixmap.height(), Qt::white);
+			painter.drawRoundedRect(0, 0, newPixmap.width(), newPixmap.height(), radius, radius);
 			painter.drawPixmap(borderWidth, borderWidth, m_pixmap);
 		painter.end();
-		painter.begin(&newPixmap);
-		painter.setRenderHint(QPainter::Antialiasing, true);
-		painter.setPen(Qt::NoPen);
-			painter.setBrush(Qt::white);
-		painter.setOpacity(0.4);
-			painter.drawEllipse(-(newPixmap.width() - (newPixmap.width() / 6)),
-				-(newPixmap.height() + (newPixmap.height() / 3)),
-					newPixmap.width() * 2, newPixmap.height() * 2);
-		painter.end();
 
+	QPixmap reflectionPixmap(newPixmap.width() + (borderWidth * 1.5), newPixmap.height() + (borderWidth * 1.5)); // "+ (borderWidth) * 2" to have a greater ellipse
+		reflectionPixmap.fill(Qt::transparent);
+
+		painter.begin(&reflectionPixmap); // Then we draw an ellipse
+			painter.setRenderHint(QPainter::Antialiasing, true);
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(Qt::white);
+			painter.setOpacity(0.4);
+			painter.drawEllipse(-(reflectionPixmap.width() - (reflectionPixmap.width() / 6)),
+				-(reflectionPixmap.height() + (reflectionPixmap.height() / 3)),
+					reflectionPixmap.width() * 2, reflectionPixmap.height() * 2);
+		painter.end();
+	
+		painter.begin(&newPixmap); // Finally we aply the ellipse of the "main" pixmap with rounded corners
+			painter.setRenderHint(QPainter::Antialiasing, true);
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(reflectionPixmap);
+			painter.drawRoundedRect(0, 0, newPixmap.width(), newPixmap.height(), radius, radius);
+		painter.end();
+	
 	m_pixmap = QPixmap(newPixmap);
 
 	emit newPictureAvailable(newPixmap);
