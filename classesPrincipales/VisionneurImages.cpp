@@ -193,13 +193,23 @@ void FilterWidget::slotColorFilter()
 
 	if (!ok || opacity == 0)
 		return;
+	
+	int radius = QInputDialog::getInt(this, "Multiuso", "Taille du rayon (en px) :<br />"
+		"<em>Pour les coins arrondis (0 pour aucun arrondissement)</em>",
+			0, 0, 250, 1, &ok);
+
+	if (!ok)
+		return;
 
 	opacity /= 100;
 
 	QPainter painter;
 		painter.begin(&m_pixmap);
-		painter.setOpacity(opacity);
-		painter.fillRect(0, 0, m_pixmap.width(), m_pixmap.height(), color);
+			painter.setRenderHint(QPainter::Antialiasing, true);
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(color);
+			painter.setOpacity(opacity);
+			painter.drawRoundedRect(0, 0, m_pixmap.width(), m_pixmap.height(), radius, radius);
 		painter.end();
 	
 	emit newPictureAvailable(m_pixmap);
