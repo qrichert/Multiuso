@@ -1,0 +1,7 @@
+Vous pouvez appliquer des bordures de couleur sur des images, mais saviez-vous qu'il était également possible de rendre ces bordures transparentes ?
+
+Au moment de choisir la couleur de la bordure, cherchez un champ nommé "Canal alpha". Ce champ contient normalement une valeur de 255, ce qui correspond à une couleur totalement opaque.
+
+Plus vous baissez cette valeur, plus l'opacité de la couleur diminue. Si elle atteint 0 on ne verra plus la bordure.
+
+En résumé 0 correspond à une couleur totalement transparente (= invisible) et 255 à une couleur totalement opaque.
