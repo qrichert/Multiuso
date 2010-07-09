@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 	
 	QCoreApplication::setApplicationName("Multiuso");
-	QCoreApplication::setApplicationVersion("2.2.0");
+	QCoreApplication::setApplicationVersion("2.2.1");
 	QCoreApplication::setOrganizationName("Quentin RICHERT");
 	QCoreApplication::setOrganizationDomain("http://multiuso.sourceforge.net/");
 
