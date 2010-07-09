@@ -311,12 +311,23 @@ void FilterWidget::slotBorderFilter()
 
 	if (!ok)
 		return;
+	
+	int radius = QInputDialog::getInt(this, "Multiuso", "Taille du rayon (en px) :<br />"
+			"<em>Pour les coins arrondis (0 pour aucun arrondissement)</em>",
+				0, 0, 250, 1, &ok);
+
+	if (!ok)
+		return;
 
 	QPixmap newPixmap(m_pixmap.width() + (borderWidth * 2), m_pixmap.height() + (borderWidth * 2));
-		newPixmap.fill(color);
+		newPixmap.fill(Qt::transparent);
 
 	QPainter painter;
 		painter.begin(&newPixmap);
+			painter.setRenderHint(QPainter::Antialiasing, true);
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(color);
+			painter.drawRoundedRect(0, 0, newPixmap.width(), newPixmap.height(), radius, radius);
 			painter.drawPixmap(borderWidth, borderWidth, m_pixmap);
 		painter.end();
 	
