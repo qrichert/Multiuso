@@ -240,6 +240,9 @@ class FilterWidget : public QWidget
 		void slotReflectionFilter();
 		void slotBorderFilter();
 		void slotRotationFilter();
+		void slotResizeFilter();
+		void resizePictureValueChangedX();
+		void resizePictureValueChangedY();
 		void slotSave();
 		void slotSaveAs();
 
@@ -252,6 +255,15 @@ class FilterWidget : public QWidget
 	private:
 		QPixmap m_pixmap;
 		bool m_isGif;
+
+		QDialog *m_resizeDialog;
+		QSpinBox *m_pictureX;
+		int m_originalPictureX;
+		QSpinBox *m_pictureY;
+		int m_originalPictureY;
+		QPushButton *m_resizeProportional;
+		QPushButton *m_resizeReject;
+		QPushButton *m_resizeOk;
 };
 
 class VisionneurImages : public QMainWindow

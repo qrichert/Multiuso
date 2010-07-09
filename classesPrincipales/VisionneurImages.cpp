@@ -73,6 +73,12 @@ FilterWidget::FilterWidget()
 		buttonRotationFilter->setText("Rotation");
 	//	buttonRotationFilter->setIconSize(QSize(32, 32));
 		connect(buttonRotationFilter, SIGNAL(clicked()), this, SLOT(slotRotationFilter()));
+		
+	QPushButton *buttonResizeFilter = new QPushButton;
+		buttonResizeFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/resize.png"));
+		buttonResizeFilter->setText("Redimensionner");
+	//	buttonResizeFilter->setIconSize(QSize(32, 32));
+		connect(buttonResizeFilter, SIGNAL(clicked()), this, SLOT(slotResizeFilter()));
 
 	QPushButton *buttonSave = new QPushButton("Enregistrer l'image");
 		connect(buttonSave, SIGNAL(clicked()), this, SLOT(slotSave()));
@@ -92,12 +98,50 @@ FilterWidget::FilterWidget()
 		mainLayout->addWidget(buttonReflectionFilter, 5, 0, 1, 1);
 		mainLayout->addWidget(buttonBorderFilter, 6, 0, 1, 1);
 		mainLayout->addWidget(buttonRotationFilter, 7, 0, 1, 1);
-		mainLayout->addWidget(new QLabel("<hr />"), 8, 0, 1, 1);
-		mainLayout->addWidget(buttonSave, 9, 0, 1, 1);
-		mainLayout->addWidget(buttonSaveAs, 10, 0, 1, 1);
-		mainLayout->addWidget(new QLabel("<hr />"), 11, 0, 1, 1);
-		mainLayout->addWidget(buttonCancelChanges, 12, 0, 1, 1);
+		mainLayout->addWidget(buttonResizeFilter, 8, 0, 1, 1);
+		mainLayout->addWidget(new QLabel("<hr />"), 9, 0, 1, 1);
+		mainLayout->addWidget(buttonSave, 10, 0, 1, 1);
+		mainLayout->addWidget(buttonSaveAs, 11, 0, 1, 1);
+		mainLayout->addWidget(new QLabel("<hr />"), 12, 0, 1, 1);
+		mainLayout->addWidget(buttonCancelChanges, 13, 0, 1, 1);
 		mainLayout->setAlignment(Qt::AlignTop);
+
+	// Construction of the resize-picture dialog
+	
+	m_resizeDialog = new QDialog(this);
+		m_resizeDialog->setWindowTitle("Multiuso");
+		m_resizeDialog->setWindowIcon(QIcon(":/icones/visionneur_images/filtres/resize.png"));
+
+	m_pictureX = new QSpinBox;
+		m_pictureX->setSuffix("px");
+		m_pictureX->setRange(1, 1000000);
+		connect(m_pictureX, SIGNAL(editingFinished()), this, SLOT(resizePictureValueChangedX()));
+		m_originalPictureX = 0;
+	
+	m_pictureY = new QSpinBox;
+		m_pictureY->setSuffix("px");
+		m_pictureY->setRange(1, 1000000);
+		connect(m_pictureY, SIGNAL(editingFinished()), this, SLOT(resizePictureValueChangedY()));
+		m_originalPictureY = 0;
+
+	m_resizeProportional = new QPushButton(QIcon(":/icones/visionneur_images/filtres/resize_proportional.png"), "");
+		m_resizeProportional->setCheckable(true);
+		m_resizeProportional->setChecked(true);
+
+	m_resizeReject = new QPushButton("Annuler");
+		connect(m_resizeReject, SIGNAL(clicked()), m_resizeDialog, SLOT(reject()));
+
+	m_resizeOk = new QPushButton("OK");
+		connect(m_resizeOk, SIGNAL(clicked()), m_resizeDialog, SLOT(accept()));
+
+	QGridLayout *resizeDialogLayout = new QGridLayout(m_resizeDialog);
+		resizeDialogLayout->addWidget(new QLabel("Largeur : "), 0, 0, 1, 1);
+		resizeDialogLayout->addWidget(m_pictureX, 0, 1, 1, 1);
+		resizeDialogLayout->addWidget(new QLabel("Hauteur : "), 1, 0, 1, 1);
+		resizeDialogLayout->addWidget(m_pictureY, 1, 1, 1, 1);
+		resizeDialogLayout->addWidget(m_resizeProportional, 0, 2, 2, 1);
+		resizeDialogLayout->addWidget(m_resizeReject, 2, 1, 1, 1);
+		resizeDialogLayout->addWidget(m_resizeOk, 2, 2, 1, 1);
 }
 
 void FilterWidget::setPixmap(QPixmap pixmap)
@@ -429,6 +473,47 @@ void FilterWidget::slotRotationFilter()
 
 	emit newPictureAvailable(m_pixmap);
 }
+
+void FilterWidget::slotResizeFilter()
+{
+	if (m_pixmap.isNull() || m_isGif)
+		return;
+
+	m_originalPictureX = m_pixmap.width();
+		m_pictureX->setValue(m_originalPictureX);
+
+	m_originalPictureY = m_pixmap.height();
+		m_pictureY->setValue(m_originalPictureY);
+
+	if (m_resizeDialog->exec() != QDialog::Accepted)
+		return;
+
+	m_pixmap = m_pixmap.scaled(m_pictureX->value(), m_pictureY->value(),
+			Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+	
+	emit newPictureAvailable(m_pixmap);
+}
+
+void FilterWidget::resizePictureValueChangedX()
+{
+	if (!m_resizeProportional->isChecked())
+		return;
+
+	qreal factor = (qreal) m_pictureX->value() / m_originalPictureX;	
+
+	m_pictureY->setValue(m_originalPictureY * factor);
+}
+
+void FilterWidget::resizePictureValueChangedY()
+{
+	if (!m_resizeProportional->isChecked())
+		return;
+	
+	qreal factor = (qreal) m_pictureY->value() / m_originalPictureY;
+
+	m_pictureX->setValue(m_originalPictureX * factor);
+}
+
 
 void FilterWidget::slotSave()
 {
