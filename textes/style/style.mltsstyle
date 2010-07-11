@@ -1,3 +1,4 @@
 QPushButton { color: green; }
 QLabel { color: blue; }
 QLineEdit { background-color: red; }
+QToolBar { color:blue; }

@@ -202,7 +202,7 @@ void FilterWidget::slotPhotoFilter()
 			painter.setRenderHint(QPainter::Antialiasing, true);
 			painter.setPen(Qt::NoPen);
 			painter.setBrush(Qt::white);
-			painter.setOpacity(0.4);
+			painter.setOpacity(0.3);
 			painter.drawEllipse(-(reflectionPixmap.width() - (reflectionPixmap.width() / 6)),
 				-(reflectionPixmap.height() + (reflectionPixmap.height() / 3)),
 					reflectionPixmap.width() * 2, reflectionPixmap.height() * 2);
