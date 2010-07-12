@@ -32,8 +32,8 @@
 		<file>icones/actions/actionGenerateurPageWeb.png</file>
 		<file>icones/actions/actionGestionnaireDesPlugins.png</file>
 		<file>icones/actions/actionGoToHome.png</file>
-		<file>icones/actions/actionNotes.png</file>
 		<file>icones/actions/actionObtenirPlugins.png</file>
+		<file>icones/actions/actionOrganisateur.png</file>
 		<file>icones/actions/actionPleinEcran.png</file>
 		<file>icones/actions/actionPlusOuMoins.png</file>
 		<file>icones/actions/actionPreferences.png</file>
@@ -230,10 +230,9 @@
 		<file>icones/navigateur_web/navigateur_web.png</file>
 		<file>icones/navigateur_web/renommer.png</file>
 		<file>icones/navigateur_web/supprimer.png</file>
-
-		<file>icones/notes/actionNouvelleNote.png</file>
-		<file>icones/notes/actionRenommer.png</file>
-		<file>icones/notes/actionSupprimer.png</file>
+		
+		<file>icones/organisateur/modifier.png</file>
+		<file>icones/organisateur/supprimer.png</file>
 
 		<file>icones/preferences/accueil.png</file>
 		<file>icones/preferences/editeur_de_code.png</file>

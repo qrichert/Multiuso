@@ -80,7 +80,7 @@ class FenPrincipale : public QMainWindow
 		void slotTailleParDefaut();
 		void slotPleinEcran();
 		void slotBlocNotes();
-		void slotNotes();
+		void slotOrganisateur();
 		void slotCompteurDeLignes();
 		void slotCompresseurDeCode();
 		void slotGenerateurPageWeb();
@@ -176,7 +176,7 @@ class FenPrincipale : public QMainWindow
 
 			/* MENU AUTRES FONCTIONNALITÉS	*/
 		QAction *actionBlocNotes;
-		QAction *actionNotes;
+		QAction *actionOrganisateur;
 		QAction *actionCompteurDeLignes;
 		QAction *actionCompresseurDeCode;
 		QAction *actionGenerateurPageWeb;

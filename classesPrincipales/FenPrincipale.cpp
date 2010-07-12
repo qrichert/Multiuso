@@ -20,7 +20,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "FenPrincipale.h"
 #include "classesMenuEdition/Preferences.h"
 #include "classesMenuAutresFonctionnalites/BlocNotes.h"
-#include "classesMenuAutresFonctionnalites/Notes.h"
+#include "classesMenuAutresFonctionnalites/Organisateur.h"
 #include "classesMenuAutresFonctionnalites/CompteurDeLignes.h"
 #include "classesMenuAutresFonctionnalites/CompresseurDeCode.h"
 #include "classesMenuAutresFonctionnalites/GenerateurPageWeb.h"
@@ -464,10 +464,10 @@ void FenPrincipale::creerActions()
 		actionBlocNotes->setStatusTip("Ouvrir le Bloc-Notes");
 		connect(actionBlocNotes, SIGNAL(triggered()), this, SLOT(slotBlocNotes()));
 
-	actionNotes = new QAction("N&otes", this);
-		actionNotes->setIcon(QIcon(":/icones/actions/actionNotes.png"));
-		actionNotes->setStatusTip("Gérer mes notes");
-		connect(actionNotes, SIGNAL(triggered()), this, SLOT(slotNotes()));
+	actionOrganisateur = new QAction("&Organisateur", this);
+		actionOrganisateur->setIcon(QIcon(":/icones/actions/actionOrganisateur.png"));
+		actionOrganisateur->setStatusTip("Gérer une liste des tâches à faire");
+		connect(actionOrganisateur, SIGNAL(triggered()), this, SLOT(slotOrganisateur()));
 
 	actionCompteurDeLignes = new QAction("Compteur de &lignes", this);
 		actionCompteurDeLignes->setIcon(QIcon(":/icones/actions/actionCompteurDeLignes.png"));
@@ -577,7 +577,7 @@ void FenPrincipale::creerMenus()
 	menuAutresFonctionnalites->addMenu(sousMenuMiniJeux);
 	menuAutresFonctionnalites->addSeparator();
 	menuAutresFonctionnalites->addAction(actionBlocNotes);
-	menuAutresFonctionnalites->addAction(actionNotes);
+	menuAutresFonctionnalites->addAction(actionOrganisateur);
 	menuAutresFonctionnalites->addAction(actionCompteurDeLignes);
 	menuAutresFonctionnalites->addAction(actionCreerFichier);
 	menuAutresFonctionnalites->addAction(actionCreerReadme);
@@ -996,11 +996,11 @@ void FenPrincipale::slotBlocNotes()
 		fenBlocNotes->deleteLater();
 }
 
-void FenPrincipale::slotNotes()
+void FenPrincipale::slotOrganisateur()
 {
-	Notes *fenNotes = new Notes(this);
-		fenNotes->exec();
-		fenNotes->deleteLater();
+	Organisateur *fenOrganisateur = new Organisateur(this);
+		fenOrganisateur->exec();
+		fenOrganisateur->deleteLater();
 }
 
 void FenPrincipale::slotCompteurDeLignes()
