@@ -55,8 +55,12 @@ class Organisateur : public QDialog
 	public:
 		Organisateur(QWidget *parent);
 
+		void initializeTasks();
+
 	public slots:
 		void slotAddTask();
+		void slotEditTask();
+		void slotDeleteTask();
 
 	private:
 		QTableWidget *mainTable;
