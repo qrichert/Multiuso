@@ -31,21 +31,38 @@ class EditWidget : public QWidget
 		{
 			QPushButton *b_edit = new QPushButton;
 				b_edit->setIcon(QIcon(":/icones/organisateur/modifier.png"));
+				b_edit->setFixedSize(20, 20);
 				connect(b_edit, SIGNAL(clicked()), this, SIGNAL(editRequest()));	
 				
 				
 			QPushButton *b_delete = new QPushButton;
 				b_delete->setIcon(QIcon(":/icones/organisateur/supprimer.png"));
+				b_delete->setFixedSize(20, 20);
 				connect(b_delete, SIGNAL(clicked()), this, SIGNAL(deleteRequest()));
 
 			QHBoxLayout *layout = new QHBoxLayout(this);
 				layout->addWidget(b_edit);
 				layout->addWidget(b_delete);
+
+			m_row = 0;
+		}
+
+		void setRow(int row)
+		{
+			m_row = row;
+		}
+
+		int row()
+		{
+			return m_row;
 		}
 
 	signals:
 		void editRequest();
 		void deleteRequest();
+
+	private:
+		int m_row;
 };
 
 class Organisateur : public QDialog
@@ -60,13 +77,21 @@ class Organisateur : public QDialog
 	public slots:
 		void initializeTasks(QString sortBy = "");
 		
-		void slotAddTask();
+		void slotAddTask(bool edition = false, QStringList values = QStringList());
 		void slotEditTask();
 		void slotDeleteTask();
 
 	private:
 		QComboBox *m_sortBy;
 		QTableWidget *mainTable;
+
+		struct Pair
+		{
+			int first;
+			int second;
+		};
+
+		QList<Pair> pairs;
 
 		QList<QStringList> priorityVeryHigh;
 		QList<QStringList> priorityHigh;

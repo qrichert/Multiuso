@@ -60,24 +60,50 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 {
 	foreach (QStringList line, tasks)
 	{
-		QString m_title = line.value(0);
+		int m_id = line.value(0).toInt();
+
+		QString m_title = line.value(1);
 
 			if (m_title.size() > 15)
 				m_title = m_title.left(12) + "...";
 
-		QString m_content = line.value(1);
+		QString m_content = line.value(2);
 			
 			if (m_content.size() > 40)
 				m_content = m_content.left(37) + "...";
 
-		QString m_priority = line.value(2);
+		QString m_priority = line.value(3);
+
+			QBrush brush(Qt::black);
+
+			if (m_priority == "Très élevée")
+				brush.setColor(Qt::red);
+
+			else if (m_priority == "Élevée")
+				brush.setColor(QColor(255, 108, 0));
+
+			else if (m_priority == "Normale")
+				brush.setColor(Qt::darkGreen);
+
+			else if (m_priority == "Faible")
+				brush.setColor(QColor(11, 58, 234));
+
+			else if (m_priority == "Très faible")
+				brush.setColor(Qt::darkBlue);
 		
 		int newRowCount = mainTable->rowCount() + 1;
+
+		Pair newPair;
+			newPair.first = newRowCount - 1;
+			newPair.second = m_id;
+
+		pairs << newPair;
 	
 		QTableWidgetItem *itemNumber = new QTableWidgetItem(QString::number(newRowCount));
 			itemNumber->setFlags(itemNumber->flags() & ~Qt::ItemIsEditable);
 
 		EditWidget *editTaskWidget = new EditWidget;
+			editTaskWidget->setRow(newRowCount - 1);
 			connect(editTaskWidget, SIGNAL(editRequest()), this, SLOT(slotEditTask()));
 			connect(editTaskWidget, SIGNAL(deleteRequest()), this, SLOT(slotDeleteTask()));
 			
@@ -89,6 +115,7 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 		
 		QTableWidgetItem *itemPriority = new QTableWidgetItem(m_priority);
 			itemPriority->setFlags(itemPriority->flags() & ~Qt::ItemIsEditable);
+			itemPriority->setForeground(brush);
 
 		mainTable->setRowCount(newRowCount);
 			mainTable->setItem(newRowCount - 1, 0, itemNumber);
@@ -101,6 +128,8 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 
 void Organisateur::initializeTasks(QString sortBy)
 {
+	pairs.clear();
+
 	priorityVeryHigh.clear();
 	priorityHigh.clear();
 	priorityNormal.clear();
@@ -120,19 +149,19 @@ void Organisateur::initializeTasks(QString sortBy)
 	{
 		QStringList task = settings.value(group + "/content").value<QStringList>();
 
-		if (task.value(2) == "Très élevée")
+		if (task.value(3) == "Très élevée")
 			priorityVeryHigh << task;
 
-		else if (task.value(2) == "Élevée")
+		else if (task.value(3) == "Élevée")
 			priorityHigh << task;
 
-		else if (task.value(2) == "Normale")
+		else if (task.value(3) == "Normale")
 			priorityNormal << task;
 
-		else if (task.value(2) == "Faible")
+		else if (task.value(3) == "Faible")
 			priorityLow << task;
 
-		else if (task.value(2) == "Très faible")
+		else if (task.value(3) == "Très faible")
 			priorityVeryLow << task;
 	}
 
@@ -174,20 +203,37 @@ void Organisateur::initializeTasks(QString sortBy)
 	mainTable->horizontalHeader()->setStretchLastSection(true);
 }
 
-void Organisateur::slotAddTask()
+void Organisateur::slotAddTask(bool edition, QStringList values)
 {
 	QDialog *dialog = new QDialog(this);
-		dialog->setWindowTitle("Ajouter une tâche");
+
+		if (edition)
+			dialog->setWindowTitle("Ajouter une tâche");
+
+		else
+			dialog->setWindowTitle("Éditer une tâche");
+
 		dialog->setWindowIcon(QIcon(":/icones/actions/actionOrganisteur.png"));
 
 			QLineEdit *taskTitle = new QLineEdit;
+				
+				if (edition)
+					taskTitle->setText(values.value(1));
 
 			QTextEdit *taskContent = new QTextEdit;
+
+				if (edition)
+					taskContent->setText(values.value(2));
 
 			QComboBox *taskPriority = new QComboBox;
 				taskPriority->addItems(QStringList() << "Très élevée" << "Élevée" << "Normale"
 						<< "Faible" << "Très faible");
-				taskPriority->setCurrentIndex(taskPriority->findText("Normale"));
+
+				if (edition)
+					taskPriority->setCurrentIndex(taskPriority->findText(values.value(3)));
+
+				else
+					taskPriority->setCurrentIndex(taskPriority->findText("Normale"));
 
 			QPushButton *acceptDialog = new QPushButton("OK");
 				connect(acceptDialog, SIGNAL(clicked()), dialog, SLOT(accept()));
@@ -218,21 +264,72 @@ void Organisateur::slotAddTask()
 
 	// Saving infos
 		QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
-			
-			int nextID = settings.value("nextID").toInt() + 1;
 
-			settings.setValue("nextID", nextID);
-			settings.setValue(QString::number(nextID) + "/content", QStringList() << m_taskTitle
-					<< m_taskContent << m_taskPriority);
+			int group;
+		
+			if (edition)
+			{
+				group = values.value(0).toInt();
+			}
+
+			else
+			{	
+				int nextID = settings.value("nextID").toInt() + 1;
+
+				settings.setValue("nextID", nextID);
+
+				group = nextID;
+			}
+
+			settings.setValue(QString::number(group) + "/content", QStringList() << QString::number(group)
+					<< m_taskTitle << m_taskContent << m_taskPriority);
 
 	initializeTasks(m_sortBy->currentText());
 }
 
 void Organisateur::slotEditTask()
 {
+	EditWidget *editWidget = qobject_cast<EditWidget *>(sender());
+
+	if (editWidget == 0)
+		return;
+
+	int row = editWidget->row();
+		
+	QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
+
+	foreach (Pair pair, pairs)
+	{
+		if (pair.first == row)
+		{
+			slotAddTask(true, settings.value(QString::number(pair.second) + "/content").value<QStringList>());
+
+			return;
+		}
+	}	
 }
 
 void Organisateur::slotDeleteTask()
 {
+	EditWidget *editWidget = qobject_cast<EditWidget *>(sender());
+
+	if (editWidget == 0)
+		return;
+
+	int row = editWidget->row();
+		
+	QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
+
+	foreach (Pair pair, pairs)
+	{
+		if (pair.first == row)
+		{
+			settings.remove(QString::number(pair.second));
+
+			initializeTasks(m_sortBy->currentText());
+
+			return;
+		}
+	}	
 }
 
