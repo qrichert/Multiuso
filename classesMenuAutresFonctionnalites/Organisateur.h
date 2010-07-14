@@ -65,6 +65,7 @@ class Organisateur : public QDialog
 		void slotDeleteTask();
 
 	private:
+		QComboBox *m_sortBy;
 		QTableWidget *mainTable;
 
 		QList<QStringList> priorityVeryHigh;

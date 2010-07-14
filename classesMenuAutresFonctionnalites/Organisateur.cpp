@@ -26,10 +26,10 @@ Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 
 	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
 
-	QComboBox *sortBy = new QComboBox;
-		sortBy->addItems(QStringList() << "Tout" << "Priorité très élevée" << "Priorité élevée"
+	m_sortBy = new QComboBox;
+		m_sortBy->addItems(QStringList() << "Tout" << "Priorité très élevée" << "Priorité élevée"
 				<< "Priorité normale" << "Priorité faible" << "Priorité très faible");
-		connect(sortBy, SIGNAL(currentIndexChanged(QString)), this, SLOT(initializeTasks(QString)));
+		connect(m_sortBy, SIGNAL(currentIndexChanged(QString)), this, SLOT(initializeTasks(QString)));
 
 	QPushButton *addTask = new QPushButton("Ajouter une tâche");
 		connect(addTask, SIGNAL(clicked()), this, SLOT(slotAddTask()));
@@ -48,10 +48,11 @@ Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 
 	QGridLayout *mainLayout = new QGridLayout(this);
 		mainLayout->addWidget(new QLabel("Double-cliquez sur une tâche pour l'afficher"), 0, 0, 1, 2);
-		mainLayout->addWidget(sortBy, 0, 2, 1, 1);
+		mainLayout->addWidget(m_sortBy, 0, 2, 1, 1);
 		mainLayout->addWidget(addTask, 0, 3, 1, 1);
 		mainLayout->addWidget(mainTable, 1, 0, 1, 4);
 
+	m_sortBy->setCurrentIndex(m_sortBy->findText("Tout"));
 	initializeTasks();
 }
 
@@ -223,6 +224,8 @@ void Organisateur::slotAddTask()
 			settings.setValue("nextID", nextID);
 			settings.setValue(QString::number(nextID) + "/content", QStringList() << m_taskTitle
 					<< m_taskContent << m_taskPriority);
+
+	initializeTasks(m_sortBy->currentText());
 }
 
 void Organisateur::slotEditTask()
