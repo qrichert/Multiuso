@@ -26,6 +26,11 @@ Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 
 	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
 
+	QComboBox *sortBy = new QComboBox;
+		sortBy->addItems(QStringList() << "Tout" << "Priorité très élevée" << "Priorité élevée"
+				<< "Priorité normale" << "Priorité faible" << "Priorité très faible");
+		connect(sortBy, SIGNAL(currentIndexChanged(QString)), this, SLOT(initializeTasks(QString)));
+
 	QPushButton *addTask = new QPushButton("Ajouter une tâche");
 		connect(addTask, SIGNAL(clicked()), this, SLOT(slotAddTask()));
 
@@ -42,15 +47,130 @@ Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 		mainTable->horizontalHeader()->setStretchLastSection(true);
 
 	QGridLayout *mainLayout = new QGridLayout(this);
-		mainLayout->addWidget(new QLabel("Double-cliquez sur une tâche pour l'afficher"), 0, 0, 1, 3);
+		mainLayout->addWidget(new QLabel("Double-cliquez sur une tâche pour l'afficher"), 0, 0, 1, 2);
+		mainLayout->addWidget(sortBy, 0, 2, 1, 1);
 		mainLayout->addWidget(addTask, 0, 3, 1, 1);
 		mainLayout->addWidget(mainTable, 1, 0, 1, 4);
 
 	initializeTasks();
 }
 
-void Organisateur::initializeTasks()
+void Organisateur::addTasksToTable(QList<QStringList> tasks)
 {
+	foreach (QStringList line, tasks)
+	{
+		QString m_title = line.value(0);
+
+			if (m_title.size() > 15)
+				m_title = m_title.left(12) + "...";
+
+		QString m_content = line.value(1);
+			
+			if (m_content.size() > 40)
+				m_content = m_content.left(37) + "...";
+
+		QString m_priority = line.value(2);
+		
+		int newRowCount = mainTable->rowCount() + 1;
+	
+		QTableWidgetItem *itemNumber = new QTableWidgetItem(QString::number(newRowCount));
+			itemNumber->setFlags(itemNumber->flags() & ~Qt::ItemIsEditable);
+
+		EditWidget *editTaskWidget = new EditWidget;
+			connect(editTaskWidget, SIGNAL(editRequest()), this, SLOT(slotEditTask()));
+			connect(editTaskWidget, SIGNAL(deleteRequest()), this, SLOT(slotDeleteTask()));
+			
+		QTableWidgetItem *itemTitle = new QTableWidgetItem(m_title);
+			itemTitle->setFlags(itemTitle->flags() & ~Qt::ItemIsEditable);
+
+		QTableWidgetItem *itemContent = new QTableWidgetItem(m_content);
+			itemContent->setFlags(itemContent->flags() & ~Qt::ItemIsEditable);
+		
+		QTableWidgetItem *itemPriority = new QTableWidgetItem(m_priority);
+			itemPriority->setFlags(itemPriority->flags() & ~Qt::ItemIsEditable);
+
+		mainTable->setRowCount(newRowCount);
+			mainTable->setItem(newRowCount - 1, 0, itemNumber);
+			mainTable->setCellWidget(newRowCount - 1, 1, editTaskWidget);
+			mainTable->setItem(newRowCount - 1, 2, itemTitle);
+			mainTable->setItem(newRowCount - 1, 3, itemContent);
+			mainTable->setItem(newRowCount - 1, 4, itemPriority);
+	}
+}
+
+void Organisateur::initializeTasks(QString sortBy)
+{
+	priorityVeryHigh.clear();
+	priorityHigh.clear();
+	priorityNormal.clear();
+	priorityLow.clear();
+	priorityVeryLow.clear();
+
+	QStringList headerLabels;
+		headerLabels << "#" << "-" << "Titre" << "Contenu" << "Priorité";
+
+	mainTable->clear();
+	mainTable->setRowCount(0);
+	mainTable->setHorizontalHeaderLabels(headerLabels);
+
+	QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
+	
+	foreach (QString group, settings.childGroups())
+	{
+		QStringList task = settings.value(group + "/content").value<QStringList>();
+
+		if (task.value(2) == "Très élevée")
+			priorityVeryHigh << task;
+
+		else if (task.value(2) == "Élevée")
+			priorityHigh << task;
+
+		else if (task.value(2) == "Normale")
+			priorityNormal << task;
+
+		else if (task.value(2) == "Faible")
+			priorityLow << task;
+
+		else if (task.value(2) == "Très faible")
+			priorityVeryLow << task;
+	}
+
+	if (sortBy == "Tout" || sortBy == "")
+	{
+		addTasksToTable(priorityVeryHigh);
+		addTasksToTable(priorityHigh);
+		addTasksToTable(priorityNormal);
+		addTasksToTable(priorityLow);
+		addTasksToTable(priorityVeryLow);
+	}
+	
+	else if (sortBy == "Priorité très élevée")
+	{
+		addTasksToTable(priorityVeryHigh);
+	}
+
+	else if (sortBy == "Priorité élevée")
+	{
+		addTasksToTable(priorityHigh);
+	}
+
+	else if (sortBy == "Priorité normale")
+	{
+		addTasksToTable(priorityNormal);
+	}
+
+	else if (sortBy == "Priorité faible")
+	{
+		addTasksToTable(priorityLow);
+	}
+
+	else if (sortBy == "Priorité très faible")
+	{
+		addTasksToTable(priorityVeryLow);
+	}
+
+	mainTable->resizeColumnsToContents();
+	mainTable->horizontalHeader()->setStretchLastSection(true);
 }
 
 void Organisateur::slotAddTask()
@@ -91,8 +211,6 @@ void Organisateur::slotAddTask()
 	if (!dialog->exec() == QDialog::Accepted)
 		return;
 
-	int newRowCount = mainTable->rowCount() + 1;
-
 	QString m_taskTitle = taskTitle->text();
 	QString m_taskContent = taskContent->toPlainText();
 	QString m_taskPriority = taskPriority->currentText();
@@ -105,33 +223,6 @@ void Organisateur::slotAddTask()
 			settings.setValue("nextID", nextID);
 			settings.setValue(QString::number(nextID) + "/content", QStringList() << m_taskTitle
 					<< m_taskContent << m_taskPriority);
-	// ------------
-	// Mettre le reste dans une fonction qui organiste tout (initializeTasks())
-	QTableWidgetItem *itemNumber = new QTableWidgetItem(QString::number(newRowCount));
-		itemNumber->setFlags(itemNumber->flags() & ~Qt::ItemIsEditable);
-
-	EditWidget *editTaskWidget = new EditWidget;
-		connect(editTaskWidget, SIGNAL(editRequest()), this, SLOT(slotEditTask()));
-		connect(editTaskWidget, SIGNAL(deleteRequest()), this, SLOT(slotDeleteTask()));
-			
-	QTableWidgetItem *itemTitle = new QTableWidgetItem(m_taskTitle);
-		itemTitle->setFlags(itemTitle->flags() & ~Qt::ItemIsEditable);
-
-	QTableWidgetItem *itemContent = new QTableWidgetItem(m_taskContent);
-		itemContent->setFlags(itemContent->flags() & ~Qt::ItemIsEditable);
-		
-	QTableWidgetItem *itemPriority = new QTableWidgetItem(m_taskPriority);
-		itemPriority->setFlags(itemPriority->flags() & ~Qt::ItemIsEditable);
-
-	mainTable->setRowCount(newRowCount);
-		mainTable->setItem(newRowCount - 1, 0, itemNumber);
-		mainTable->setCellWidget(newRowCount - 1, 1, editTaskWidget);
-		mainTable->setItem(newRowCount - 1, 2, itemTitle);
-		mainTable->setItem(newRowCount - 1, 3, itemContent);
-		mainTable->setItem(newRowCount - 1, 4, itemPriority);
-
-	mainTable->resizeColumnsToContents();
-	mainTable->horizontalHeader()->setStretchLastSection(true);
 }
 
 void Organisateur::slotEditTask()

@@ -55,9 +55,11 @@ class Organisateur : public QDialog
 	public:
 		Organisateur(QWidget *parent);
 
-		void initializeTasks();
+		void addTasksToTable(QList<QStringList> tasks);
 
 	public slots:
+		void initializeTasks(QString sortBy = "");
+		
 		void slotAddTask();
 		void slotEditTask();
 		void slotDeleteTask();
@@ -65,6 +67,11 @@ class Organisateur : public QDialog
 	private:
 		QTableWidget *mainTable;
 
+		QList<QStringList> priorityVeryHigh;
+		QList<QStringList> priorityHigh;
+		QList<QStringList> priorityNormal;
+		QList<QStringList> priorityLow;
+		QList<QStringList> priorityVeryLow;
 };
 
 #endif
