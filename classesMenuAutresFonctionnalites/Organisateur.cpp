@@ -50,6 +50,7 @@ Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 		mainLayout->addWidget(m_sortBy, 0, 2, 1, 1);
 		mainLayout->addWidget(addTask, 0, 3, 1, 1);
 		mainLayout->addWidget(mainTable, 1, 0, 1, 4);
+		mainLayout->addWidget(Multiuso::closeButton(this), 2, 3, 1, 1);
 
 	m_sortBy->setCurrentIndex(m_sortBy->findText("Tout"));
 	initializeTasks();
@@ -355,12 +356,9 @@ void Organisateur::slotShowTask(QTableWidgetItem *item)
 					text->setHtml("<h2>" + taskContent.value(1) + "</h2>"
 							+ taskContent.value(2).replace("\n", "<br />"));
 
-				QPushButton *closeButton = new QPushButton("Fermer");
-					connect(closeButton, SIGNAL(clicked()), dialog, SLOT(accept()));
-
 				QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
 					dialogLayout->addWidget(text);
-					dialogLayout->addWidget(closeButton);
+					dialogLayout->addWidget(Multiuso::closeButton(dialog));
 
 				dialog->exec();
 

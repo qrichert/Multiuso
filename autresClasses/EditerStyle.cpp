@@ -72,6 +72,8 @@ void EditerStyle::slotEnregistrer()
 	}
 
 	fichier.close();
+
+	accept();
 }
 
 void EditerStyle::closeEvent(QCloseEvent *event)

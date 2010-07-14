@@ -58,6 +58,7 @@ CodePageWebGenere::CodePageWebGenere(QString &codeGenere, QString &titrePage, QW
 		layoutPrincipal->addWidget(code);
 		layoutPrincipal->addLayout(layoutOptions);
 		layoutPrincipal->addWidget(ouvrir);
+		layoutPrincipal->addWidget(Multiuso::closeButton(this));
 }
 
 void CodePageWebGenere::slotEnregistrerCode()

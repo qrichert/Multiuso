@@ -31,7 +31,7 @@ BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 
 	layoutPrincipal = new QVBoxLayout(this);
 		layoutPrincipal->addWidget(m_notes);
-		layoutPrincipal->setContentsMargins(0, 0, 0, 0);
+		layoutPrincipal->addWidget(Multiuso::closeButton(this));
 
 	QFile fichierNotes(Multiuso::appDirPath() + "/textes/bloc_notes/notes.mltsnotes");
 

@@ -60,6 +60,7 @@ CompresseurDeCode::CompresseurDeCode(QWidget *parent = 0) : QDialog(parent)
 		layoutCompresseurDeCode->addWidget(texteCompresse);
 		layoutCompresseurDeCode->addWidget(javascript);
 		layoutCompresseurDeCode->addWidget(compresser);
+		layoutCompresseurDeCode->addWidget(Multiuso::closeButton(this));
 }
 
 void CompresseurDeCode::slotOuvrir()

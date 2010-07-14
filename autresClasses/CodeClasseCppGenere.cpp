@@ -77,6 +77,7 @@ CodeClasseCppGenere::CodeClasseCppGenere(QString &header, QString &constructeur,
 
 	QVBoxLayout *layoutPrincipal = new QVBoxLayout(this);
 		layoutPrincipal->addWidget(tabCode);
+		layoutPrincipal->addWidget(Multiuso::closeButton(this));
 }
 
 void CodeClasseCppGenere::slotEnregistrerHeader()

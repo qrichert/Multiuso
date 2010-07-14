@@ -41,6 +41,8 @@ class TelechargerFichier : public QDialog
 		void telechargementContinue(qint64 recu, qint64 total);
 		void annulerTelechargement();
 		void finTelechargement();
+		void accept();
+		void reject();
 
 	signals:
 		void DesactiverIcone();

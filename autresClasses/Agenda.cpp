@@ -85,7 +85,7 @@ Agenda::Agenda(QWidget *parent = 0, const QDate *date = 0) : QDialog(parent)
 
 	QVBoxLayout *layoutAgenda = new QVBoxLayout(this);
 		layoutAgenda->addWidget(champDeSaisie);
-		layoutAgenda->setContentsMargins(0, 0, 0, 0);
+		layoutAgenda->addWidget(Multiuso::closeButton(this));
 }
 
 void Agenda::slotChangementDeTexte()

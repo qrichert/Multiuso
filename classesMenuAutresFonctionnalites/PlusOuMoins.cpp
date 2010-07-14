@@ -98,6 +98,7 @@ PlusOuMoins::PlusOuMoins(QWidget *parent = 0) : QDialog(parent)
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 		layout->addWidget(tabs);
+		layout->addWidget(Multiuso::closeButton(this));
 }
 
 void PlusOuMoins::jouerCoup()

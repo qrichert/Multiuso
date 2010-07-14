@@ -67,6 +67,7 @@ CompteurDeLignes::CompteurDeLignes(QWidget *parent = 0) : QDialog(parent)
 		layoutPrincipal->addWidget(resultat, 2, 0, 1, 1);
 		layoutPrincipal->addLayout(doNotCountLayout, 2, 1, 1, 1);
 		layoutPrincipal->addWidget(clearButton, 3, 0, 1, 1);
+		layoutPrincipal->addWidget(Multiuso::closeButton(this), 3, 1, 1, 1);
 }
 
 void CompteurDeLignes::selectionFichiers()

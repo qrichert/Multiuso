@@ -49,6 +49,7 @@ TelechargerFichier::TelechargerFichier(QWidget *parent = 0) : QDialog(parent)
 		layout->addWidget(telecharger);
 		layout->addWidget(new QLabel("<hr />"));
 		layout->addWidget(listeTelechargements);
+		layout->addWidget(Multiuso::closeButton(this));
 }
 
 void TelechargerFichier::ajouterTelechargement()
@@ -213,7 +214,18 @@ void TelechargerFichier::finTelechargement()
 
 void TelechargerFichier::closeEvent(QCloseEvent *event)
 {
+	accept();
+	event->accept();
+}
+
+void TelechargerFichier::accept()
+{
 	emit MajEtat();
 
-	event->accept();
+	QDialog::accept();
+}
+
+void TelechargerFichier::reject()
+{
+	accept();
 }

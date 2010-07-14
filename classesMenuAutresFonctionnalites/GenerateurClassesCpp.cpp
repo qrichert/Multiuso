@@ -73,11 +73,15 @@ GenerateurClassesCpp::GenerateurClassesCpp(QWidget *parent = 0) : QDialog(parent
 	generer = new QPushButton("&Générer");
 		connect(generer, SIGNAL(clicked()), this, SLOT(slotGenerer()));
 
+	QHBoxLayout *layoutButtons = new QHBoxLayout;
+		layoutButtons->addWidget(generer);
+		layoutButtons->addWidget(Multiuso::closeButton(this));
+
 	QGridLayout *layoutPrincipal = new QGridLayout(this);
 		layoutPrincipal->addWidget(groupeDefinition, 0, 0);
 		layoutPrincipal->addWidget(groupeOptions, 1, 0);
 		layoutPrincipal->addWidget(groupeCommentaires, 2, 0);
-		layoutPrincipal->addWidget(generer, 3, 0, Qt::AlignRight);
+		layoutPrincipal->addLayout(layoutButtons, 3, 0, Qt::AlignRight);
 }
 
 void GenerateurClassesCpp::slotGenerer()

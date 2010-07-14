@@ -61,6 +61,17 @@ class Multiuso
 
 			return str;
 		}
+
+		static QPushButton *closeButton(QDialog *dialog, QString label = "")
+		{
+			if (label.isEmpty())
+				label = "Fermer";
+
+			QPushButton *close = new QPushButton(label);
+				QObject::connect(close, SIGNAL(clicked()), dialog, SLOT(accept()));
+
+			return close;
+		}
 		
 		static bool copyDirectory(QString from, QString to)
 		{

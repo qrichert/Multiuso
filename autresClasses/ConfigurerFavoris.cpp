@@ -55,7 +55,7 @@ ConfigurerFavoris::ConfigurerFavoris(NavigateurWeb *parent = 0)
 
 	QGridLayout *layout = new QGridLayout(this);
 		layout->addWidget(widgetCentral, 0, 0, 1, 1);
-		layout->setContentsMargins(0, 0, 0, 0);
+		layout->addWidget(Multiuso::closeButton(this), 1, 0, 1, 1);
 }
 
 void ConfigurerFavoris::listerFavoris()

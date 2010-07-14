@@ -47,7 +47,7 @@ CreerReadme::CreerReadme(QWidget *parent = 0) : QDialog(parent)
 		layoutInfos->addRow("Site web de l'auteur :", siteWebAuteur);
 		layoutInfos->addRow("Commentaires :", commentaires);
 		layoutInfos->addWidget(boutonGenerer);
-
+		layoutInfos->addWidget(Multiuso::closeButton(this));
 }
 
 void CreerReadme::genererReadme()

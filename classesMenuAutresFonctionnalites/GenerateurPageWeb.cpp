@@ -116,6 +116,7 @@ GenerateurPageWeb::GenerateurPageWeb(QWidget *parent = 0) : QDialog(parent)
 	QVBoxLayout *layoutPrincipal = new QVBoxLayout(this);
 		layoutPrincipal->addWidget(separateur4);
 		layoutPrincipal->addWidget(generer);
+		layoutPrincipal->addWidget(Multiuso::closeButton(this));
 }
 
 void GenerateurPageWeb::slotGenerer()

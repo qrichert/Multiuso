@@ -41,6 +41,7 @@ CreerFichier::CreerFichier(QWidget *parent = 0) : QDialog(parent)
 	QVBoxLayout *layout = new QVBoxLayout(this);
 		layout->addLayout(layoutLineEdit);
 		layout->addWidget(enregistrer);
+		layout->addWidget(Multiuso::closeButton(this));
 }
 
 void CreerFichier::slotChangementTexte(QString)
