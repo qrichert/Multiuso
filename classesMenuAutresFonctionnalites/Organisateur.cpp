@@ -353,7 +353,7 @@ void Organisateur::slotShowTask(QTableWidgetItem *item)
 				
 				QTextBrowser *text = new QTextBrowser;
 					text->setHtml("<h2>" + taskContent.value(1) + "</h2>"
-							+ taskContent.value(2));
+							+ taskContent.value(2).replace("\n", "<br />"));
 
 				QPushButton *closeButton = new QPushButton("Fermer");
 					connect(closeButton, SIGNAL(clicked()), dialog, SLOT(accept()));
