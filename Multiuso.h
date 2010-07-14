@@ -26,10 +26,13 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 class Multiuso
 {
 	public:
-		static QString appDirPath()
+		static QString appDirPath(QString program = "")
 		{
+			if (program.isEmpty())
+				program = "Multiuso";
+
 			#ifdef Q_WS_MAC
-				return QCoreApplication::applicationDirPath().remove("/Multiuso.app/Contents/MacOS");
+				return QCoreApplication::applicationDirPath().remove("/" + program + ".app/Contents/MacOS");
 			#else
 				return QCoreApplication::applicationDirPath();
 			#endif
@@ -62,7 +65,7 @@ class Multiuso
 			return str;
 		}
 
-		static QPushButton *closeButton(QDialog *dialog, QString label = "")
+		static QWidget *closeButton(QDialog *dialog, QString label = "")
 		{
 			if (label.isEmpty())
 				label = "Fermer";
@@ -70,7 +73,15 @@ class Multiuso
 			QPushButton *close = new QPushButton(label);
 				QObject::connect(close, SIGNAL(clicked()), dialog, SLOT(accept()));
 
-			return close;
+			QVBoxLayout *layout = new QVBoxLayout;
+				layout->addWidget(close);
+				layout->setAlignment(Qt::AlignRight);
+				layout->setContentsMargins(0, 0, 0, 0);
+
+			QWidget *widget = new QWidget;
+				widget->setLayout(layout);
+
+			return widget;
 		}
 		
 		static bool copyDirectory(QString from, QString to)
