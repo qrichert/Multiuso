@@ -80,6 +80,7 @@ class Organisateur : public QDialog
 		void slotAddTask(bool edition = false, QStringList values = QStringList());
 		void slotEditTask();
 		void slotDeleteTask();
+		void slotShowTask(QTableWidgetItem *item);
 
 	private:
 		QComboBox *m_sortBy;

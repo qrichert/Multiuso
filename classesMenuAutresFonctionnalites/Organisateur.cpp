@@ -23,7 +23,6 @@ Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 {
 	setWindowTitle("Multiuso - Organisteur");
 	setWindowIcon(QIcon(":/icones/actions/actionOrganisteur.png"));
-
 	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
 
 	m_sortBy = new QComboBox;
@@ -123,6 +122,7 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 			mainTable->setItem(newRowCount - 1, 2, itemTitle);
 			mainTable->setItem(newRowCount - 1, 3, itemContent);
 			mainTable->setItem(newRowCount - 1, 4, itemPriority);
+			connect(mainTable, SIGNAL(itemDoubleClicked(QTableWidgetItem *)), this, SLOT(slotShowTask(QTableWidgetItem *)));
 	}
 }
 
@@ -327,6 +327,42 @@ void Organisateur::slotDeleteTask()
 			settings.remove(QString::number(pair.second));
 
 			initializeTasks(m_sortBy->currentText());
+
+			return;
+		}
+	}	
+}
+
+void Organisateur::slotShowTask(QTableWidgetItem *item)
+{
+	int row = item->row();
+		
+	QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
+
+	foreach (Pair pair, pairs)
+	{
+		if (pair.first == row)
+		{
+			QStringList taskContent = settings.value(QString::number(pair.second)
+					+ "/content").value<QStringList>();
+
+			QDialog *dialog = new QDialog(this);
+				dialog->setWindowTitle("#" + taskContent.value(0) + " - " + taskContent.value(1));
+				dialog->setWindowIcon(QIcon(":/icones/actions/actionOrganisteur.png"));
+				dialog->resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
+				
+				QTextBrowser *text = new QTextBrowser;
+					text->setHtml("<h2>" + taskContent.value(1) + "</h2>"
+							+ taskContent.value(2));
+
+				QPushButton *closeButton = new QPushButton("Fermer");
+					connect(closeButton, SIGNAL(clicked()), dialog, SLOT(accept()));
+
+				QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
+					dialogLayout->addWidget(text);
+					dialogLayout->addWidget(closeButton);
+
+				dialog->exec();
 
 			return;
 		}
