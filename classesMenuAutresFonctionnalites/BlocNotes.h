@@ -29,12 +29,19 @@ class BlocNotes : public QDialog
 	public:
 		BlocNotes(QWidget *parent);
 
+		void loadNotes();
+		void updateView();
+		QPlainTextEdit *currentTextEdit();
+
 	public slots:
-		void slotChangementDeTexte();
+		void addTab();
+		void saveText();
 
 	private:
-		QPlainTextEdit *m_notes;
-		QVBoxLayout *layoutPrincipal;
+		QLineEdit *m_noteTitle;
+		QTabWidget *m_tabWidget;
+		QVBoxLayout *m_tabWidgetLayout;
+		QWidget *m_container;
 
 };
 

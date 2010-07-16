@@ -26,33 +26,82 @@ BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 
 	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
 
-	m_notes = new QPlainTextEdit;
-		connect(m_notes, SIGNAL(textChanged()), this, SLOT(slotChangementDeTexte()));
+	m_noteTitle = new QLineEdit; // Bouton ajouter à côté
 
-	layoutPrincipal = new QVBoxLayout(this);
-		layoutPrincipal->addWidget(m_notes);
-		layoutPrincipal->addWidget(Multiuso::closeButton(this));
+	m_tabWidget = new QTabWidget;
+		m_tabWidget->setDocumentMode(true);
+		m_tabWidget->setTabsClosable(true);
+		m_tabWidget->setMovable(true);
 
-	QFile fichierNotes(Multiuso::appDirPath() + "/textes/bloc_notes/notes.mltsnotes");
+	m_tabWidgetLayout = new QVBoxLayout;
+		m_tabWidgetLayout->addWidget(m_tabWidget);
 
-	if (fichierNotes.open(QIODevice::ReadOnly | QIODevice::Text))
-		m_notes->insertPlainText(fichierNotes.readAll());
+	m_container = new QWidget;
 
-	else
-		QMessageBox::warning(this, "Multiuso", "Impossible d'ouvrir le fichier contenant les notes.<br />Le texte que vous allez écrire risque de ne pas être enregistré !");
+	QVBoxLayout *containerLayout = new QVBoxLayout;
+		containerLayout->addWidget(m_container);
 
-	fichierNotes.close();
+	QVBoxLayout *mainLayout = new QVBoxLayout(this);
+		mainLayout->addWidget(m_noteTitle);
+		mainLayout->addLayout(containerLayout);
+		mainLayout->addWidget(Multiuso::closeButton(this));
+
+	loadNotes();
 }
 
-void BlocNotes::slotChangementDeTexte()
+void BlocNotes::loadNotes()
 {
-	QFile notes(Multiuso::appDirPath() + "/textes/bloc_notes/notes.mltsnotes");
+	QSettings settings(Multiuso::appDirPath() + "/reglages/bloc_notes.ini", QSettings::IniFormat);
 
-	if (notes.open(QIODevice::WriteOnly | QIODevice::Text))
-		notes.write(m_notes->toPlainText().toAscii());
+	foreach (QString page, settings.childGroups())
+	{
+		addTab();
+
+		m_tabWidget->widget(m_tabWidget->count() - 1)->findChild<QPlainTextEdit *>()->setPlainText(settings.value(page + "/content").toString());
+	
+		connect(m_tabWidget->widget(m_tabWidget->count() - 1)->findChild<QPlainTextEdit *>(), SIGNAL(textChanged()), this, SLOT(saveText()));
+	}
+
+	if (m_tabWidget->count() == 0)
+		addTab();
+
+	updateView();
+}
+
+void BlocNotes::updateView()
+{
+	if (m_tabWidget->count() == 1)
+		m_container->setLayout(m_tabWidget->currentWidget()->layout());
 
 	else
-		QMessageBox::warning(this, "Multiuso", "Impossible d'ouvrir le fichier contenant les notes.<br />Le dernier changement apporté au texte n'a pas été enregistré !");
+		m_container->setLayout(m_tabWidgetLayout);
+}
 
-	notes.close();
+QPlainTextEdit *BlocNotes::currentTextEdit()
+{
+	return m_tabWidget->currentWidget()->findChild<QPlainTextEdit *>();
+}
+
+void BlocNotes::addTab()
+{
+	QPlainTextEdit *textEdit = new QPlainTextEdit;
+	
+	QVBoxLayout *textEditLayout = new QVBoxLayout;
+		textEditLayout->addWidget(textEdit);
+
+	QWidget *container = new QWidget;
+		container->setLayout(textEditLayout);
+
+	m_tabWidget->addTab(container, "Nouvelle note");
+}
+
+void BlocNotes::saveText()
+{
+	QPlainTextEdit *textEdit = qobject_cast<QPlainTextEdit *>(sender());
+
+	if (textEdit == 0)
+		return;
+
+	QSettings settings(Multiuso::appDirPath() + "/reglages/bloc_notes.ini", QSettings::IniFormat);
+		settings.setValue(QString::number(m_tabWidget->currentIndex()) + "/content", textEdit->toPlainText());
 }
