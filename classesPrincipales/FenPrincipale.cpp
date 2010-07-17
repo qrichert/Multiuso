@@ -1362,8 +1362,6 @@ void FenPrincipale::MajDisponible()
 
 void FenPrincipale::erreurDL(QNetworkReply::NetworkError)
 {
-	QMessageBox::warning(this, "Multiuso", "Vous n'êtes pas connecté à internet ou un problème vous empêche d'accéder au réseau.");
-
 	QSettings connecteReseau(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
 		connecteReseau.setValue("reseau/internet", false);
 }
