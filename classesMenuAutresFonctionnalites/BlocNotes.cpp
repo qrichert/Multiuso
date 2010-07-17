@@ -26,25 +26,36 @@ BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 
 	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
 
-	m_noteTitle = new QLineEdit; // Bouton ajouter à côté
+	QAction *actionAddTab = new QAction(this);
+		actionAddTab->setIcon(QIcon(":/icones/bloc_notes/actionAddTab.png"));
+		connect(actionAddTab, SIGNAL(triggered()), this, SLOT(addTab()));
+
+	QToolButton *buttonAddTab = new QToolButton;
+		buttonAddTab->setDefaultAction(actionAddTab);
+		buttonAddTab->setAutoRaise(true);
 
 	m_tabWidget = new QTabWidget;
 		m_tabWidget->setDocumentMode(true);
-		m_tabWidget->setTabsClosable(true);
-		m_tabWidget->setMovable(true);
+		//m_tabWidget->setTabPosition(QTabWidget::East);
+		m_tabWidget->setCornerWidget(buttonAddTab, Qt::BottomLeftCorner);
+		connect(m_tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
+		connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 
-	m_tabWidgetLayout = new QVBoxLayout;
-		m_tabWidgetLayout->addWidget(m_tabWidget);
+	m_containerLayout = new QVBoxLayout;
+		m_containerLayout->addWidget(m_tabWidget);
+		m_containerLayout->setContentsMargins(0, 0, 0, 0);
 
 	m_container = new QWidget;
+		m_container->setLayout(m_containerLayout);
 
 	QVBoxLayout *containerLayout = new QVBoxLayout;
 		containerLayout->addWidget(m_container);
+		containerLayout->setContentsMargins(0, 0, 0, 0);
 
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
-		mainLayout->addWidget(m_noteTitle);
 		mainLayout->addLayout(containerLayout);
 		mainLayout->addWidget(Multiuso::closeButton(this));
+		mainLayout->setContentsMargins(4, 4, 4, 4);
 
 	loadNotes();
 }
@@ -52,47 +63,105 @@ BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 void BlocNotes::loadNotes()
 {
 	QSettings settings(Multiuso::appDirPath() + "/reglages/bloc_notes.ini", QSettings::IniFormat);
+		
+	int last_index = settings.value("last_index").toInt();
 
 	foreach (QString page, settings.childGroups())
 	{
-		addTab();
+		addTab(false);
 
-		m_tabWidget->widget(m_tabWidget->count() - 1)->findChild<QPlainTextEdit *>()->setPlainText(settings.value(page + "/content").toString());
+		currentTextEdit(m_tabWidget->count() - 1)->setPlainText(
+			settings.value(page + "/content").toString());
 	
-		connect(m_tabWidget->widget(m_tabWidget->count() - 1)->findChild<QPlainTextEdit *>(), SIGNAL(textChanged()), this, SLOT(saveText()));
+		connect(currentTextEdit(m_tabWidget->count() - 1),
+			SIGNAL(textChanged()), this, SLOT(saveText()));
 	}
 
 	if (m_tabWidget->count() == 0)
 		addTab();
 
 	updateView();
+
+	m_tabWidget->setCurrentIndex(last_index);
 }
 
 void BlocNotes::updateView()
 {
 	if (m_tabWidget->count() == 1)
-		m_container->setLayout(m_tabWidget->currentWidget()->layout());
+		m_tabWidget->setTabsClosable(false);
 
 	else
-		m_container->setLayout(m_tabWidgetLayout);
+		m_tabWidget->setTabsClosable(true);
+
+	for (int i = 0; i < m_tabWidget->count(); i++)
+	{
+		QString text = currentTextEdit(i)->toPlainText();
+
+		if (text.isEmpty())
+			text = "(vide)";
+
+		else	
+			text = text.left(text.indexOf("\n"));
+
+		if (text.size() > 17)
+			text = text.left(14) + "...";
+
+		m_tabWidget->setTabText(i, text);
+	}
 }
 
-QPlainTextEdit *BlocNotes::currentTextEdit()
+QPlainTextEdit *BlocNotes::currentTextEdit(int index)
 {
-	return m_tabWidget->currentWidget()->findChild<QPlainTextEdit *>();
+	if (index == -1)
+		return m_tabWidget->currentWidget()->findChild<QPlainTextEdit *>();
+	
+	else	
+		return m_tabWidget->widget(index)->findChild<QPlainTextEdit *>();
 }
 
-void BlocNotes::addTab()
+void BlocNotes::addTab(bool connect)
 {
 	QPlainTextEdit *textEdit = new QPlainTextEdit;
+
+	if (connect)
+		QObject::connect(textEdit, SIGNAL(textChanged()), this, SLOT(saveText()));
+
 	
 	QVBoxLayout *textEditLayout = new QVBoxLayout;
 		textEditLayout->addWidget(textEdit);
+		textEditLayout->setContentsMargins(0, 0, 0, 0);
 
 	QWidget *container = new QWidget;
 		container->setLayout(textEditLayout);
 
-	m_tabWidget->addTab(container, "Nouvelle note");
+	m_tabWidget->addTab(container, "(vide)");
+
+	updateView();
+
+	m_tabWidget->setCurrentIndex(m_tabWidget->count() - 1);
+}
+
+void BlocNotes::removeTab(int index)
+{
+	m_tabWidget->widget(index)->deleteLater();
+	m_tabWidget->removeTab(index);
+
+	QFile::remove(Multiuso::appDirPath() + "/reglages/bloc_notes.ini");
+
+	QSettings settings(Multiuso::appDirPath() + "/reglages/bloc_notes.ini", QSettings::IniFormat);
+
+	for (int i = 0; i < m_tabWidget->count(); i++)
+		settings.setValue(QString::number(i) + "/content", currentTextEdit(i)->toPlainText());
+
+	updateView();
+	
+	tabChanged(m_tabWidget->currentIndex());
+}
+
+void BlocNotes::tabChanged(int tab)
+{
+	QSettings settings(Multiuso::appDirPath() + "/reglages/bloc_notes.ini", QSettings::IniFormat);
+		settings.setValue("last_index", tab);
 }
 
 void BlocNotes::saveText()
@@ -104,4 +173,7 @@ void BlocNotes::saveText()
 
 	QSettings settings(Multiuso::appDirPath() + "/reglages/bloc_notes.ini", QSettings::IniFormat);
 		settings.setValue(QString::number(m_tabWidget->currentIndex()) + "/content", textEdit->toPlainText());
+
+
+	updateView();
 }

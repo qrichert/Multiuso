@@ -49,6 +49,8 @@
 		<file>icones/astuces/close.png</file>
 		
 		<file>icones/autre/iconeVide.png</file>
+		
+		<file>icones/bloc_notes/actionAddTab.png</file>
 
 		<file>icones/editeur_de_code/annuler.png</file>
 		<file>icones/editeur_de_code/coller.png</file>

@@ -31,16 +31,17 @@ class BlocNotes : public QDialog
 
 		void loadNotes();
 		void updateView();
-		QPlainTextEdit *currentTextEdit();
+		QPlainTextEdit *currentTextEdit(int index = -1);
 
 	public slots:
-		void addTab();
+		void addTab(bool connect = true);
+		void removeTab(int index);
+		void tabChanged(int tab);
 		void saveText();
-
+	
 	private:
-		QLineEdit *m_noteTitle;
 		QTabWidget *m_tabWidget;
-		QVBoxLayout *m_tabWidgetLayout;
+		QVBoxLayout *m_containerLayout;
 		QWidget *m_container;
 
 };
