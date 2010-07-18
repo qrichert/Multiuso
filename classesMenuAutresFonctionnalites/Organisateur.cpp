@@ -44,6 +44,7 @@ Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 		mainTable->setSelectionMode(QAbstractItemView::SingleSelection);
 		mainTable->resizeColumnsToContents();
 		mainTable->horizontalHeader()->setStretchLastSection(true);
+		connect(mainTable, SIGNAL(itemDoubleClicked(QTableWidgetItem *)), this, SLOT(slotShowTask(QTableWidgetItem *)));
 
 	QGridLayout *mainLayout = new QGridLayout(this);
 		mainLayout->addWidget(new QLabel("Double-cliquez sur une tâche pour l'afficher"), 0, 0, 1, 2);
@@ -123,7 +124,6 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 			mainTable->setItem(newRowCount - 1, 2, itemTitle);
 			mainTable->setItem(newRowCount - 1, 3, itemContent);
 			mainTable->setItem(newRowCount - 1, 4, itemPriority);
-			connect(mainTable, SIGNAL(itemDoubleClicked(QTableWidgetItem *)), this, SLOT(slotShowTask(QTableWidgetItem *)));
 	}
 }
 
