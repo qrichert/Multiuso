@@ -29,7 +29,7 @@ HighlighterCPP::HighlighterCPP(QTextDocument *parent = 0) : QSyntaxHighlighter(p
 		QStringList modelesMotsCle;
 			modelesMotsCle << "\\bchar\\b" << "\\basm\\b" << "\\bauto\\b" << "\\bbool\\b" << "\\bbreak\\b" << "\\bcase\\b"
 				<< "\\bcatch\\b" << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b" << "\\bconst_cast\\b" << "\\bcontinue\\b"
-				<< "\\bdefault\\b" << "\\bdelete\\b" << "\\bdo\\b" << "\\bdouble\\b" << "\\bdo while\\b" << "\\bdynamic_cast\\b"
+				<< "\\bdefault\\b" << "\\bdelete\\b" << "\\bdo\\b" << "\\bdouble\\b" << "\\bdynamic_cast\\b"
 				<< "\\belse\\b" << "\\benum\\b" << "\\bexplicit\\b" << "\\bexport\\b" << "\\bextern\\b" << "\\bfalse\\b"
 				<< "\\bfloat\\b" << "\\bfor\\b" << "\\bfriend\\b" << "\\bgoto\\b" << "\\bif\\b" << "\\binline\\b" << "\\bint\\b"
 				<< "\\blong\\b" << "\\bmutable\\b" << "\\bnamespace\\b" << "\\bnew\\b" << "\\boperator\\b" << "\\bprivate\\b"
