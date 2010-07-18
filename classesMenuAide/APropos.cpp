@@ -185,20 +185,21 @@ void APropos::slotLicence()
 		dialogueLicence.setWindowIcon(QIcon(":/icones/actions/actionAPropos.png"));
 		dialogueLicence.resize(550, 350);
 
-	QFile licence(Multiuso::appDirPath() + "/textes/licence/licence");
-
-	QString contenuLicence;
-
-	if (licence.open(QIODevice::ReadOnly | QIODevice::Text))
-		contenuLicence = licence.readAll();
-
-	else
-		contenuLicence = "Impossible d'ouvrir le fichier contenant la licence.";
-
-	licence.close();
-
 	QTextEdit *texteLicence = new QTextEdit;
-		texteLicence->setPlainText(contenuLicence);
+		texteLicence->setPlainText("Copyright © 2009-2010 Quentin RICHERT\n"
+				"\n"
+				"Multiuso is free software: you can redistribute it and/or modify\n"
+				"it under the terms of the GNU General Public License as published by\n"
+				"the Free Software Foundation, either version 3 of the License, or\n"
+				"(at your option) any later version.\n"
+				"\n"
+				"Multiuso is distributed in the hope that it will be useful,\n"
+				"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+				"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+				"GNU General Public License for more details.\n"
+				"\n"
+				"You should have received a copy of the GNU General Public License\n"
+				"along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.");
 		texteLicence->setReadOnly(true);
 
 	QVBoxLayout *layoutLicence = new QVBoxLayout(&dialogueLicence);
