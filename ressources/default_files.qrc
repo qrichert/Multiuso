@@ -1,0 +1,38 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+	<qresource>
+		<file>default_files/ini/apparence.ini</file>
+		<file>default_files/ini/chronometre.ini</file>
+		<file>default_files/ini/config.ini</file>
+		<file>default_files/ini/creer_readme.ini</file>
+		<file>default_files/ini/editeur_de_code.ini</file>
+		<file>default_files/ini/editeur_de_texte.ini</file>
+		<file>default_files/ini/ftp.ini</file>
+		<file>default_files/ini/generer.ini</file>
+		<file>default_files/ini/nav_fichiers.ini</file>
+		<file>default_files/ini/navigateur.ini</file>
+		<file>default_files/ini/preferences.ini</file>
+		<file>default_files/ini/proxy.ini</file>
+		<file>default_files/ini/visionneur_images.ini</file>
+		<file>default_files/ini/widgets.ini</file>
+
+		<file>default_files/navigateurWeb/html/page_vierge.html</file>
+		<file>default_files/navigateurWeb/html/page_vierge.png</file>
+		<file>default_files/navigateurWeb/html/pas_de_connexion.html</file>
+		<file>default_files/navigateurWeb/html/pas_de_connexion.png</file>
+
+		<file>default_files/navigateurWeb/speedDial/speedDial.html</file>
+
+		<file>default_files/navigateurWeb/speedDial/pictures/actionSpeedDial.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/background_gradient.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/background_link_head.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/delete_active.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/delete_alpha.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/delete_hover.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/delete.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/empty.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/error.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/logo.png</file>
+		<file>default_files/navigateurWeb/speedDial/pictures/wait.gif</file>
+	</qresource>
+ </RCC>

@@ -28,6 +28,8 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "classesPrincipales/FenPrincipale.h"
 #include "autresClasses/Astuces.h"
 
+void checkFiles();
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
@@ -38,6 +40,8 @@ int main(int argc, char *argv[])
 	QCoreApplication::setApplicationVersion("2.2.1");
 	QCoreApplication::setOrganizationName("Quentin RICHERT");
 	QCoreApplication::setOrganizationDomain("http://multiuso.sourceforge.net/");
+
+	checkFiles();
 
 	bool showTips = false;
 	bool showMainWindow = true;
@@ -111,4 +115,22 @@ int main(int argc, char *argv[])
 	}
 	
 	return app.exec();
+}
+
+void checkFiles()
+{
+	QDir().mkpath(Multiuso::appDirPath() + "/extensions/images"); // empty
+	QDir().mkpath(Multiuso::appDirPath() + "/extensions/plugins"); // empty
+	QDir().mkpath(Multiuso::appDirPath() + "/extensions/styles"); // empty
+
+	// INI
+	QDir().mkpath(Multiuso::appDirPath() + "/ini"); // empty
+
+	// Web browser
+	QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/autre"); // empty
+	QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/cache"); // empty
+	QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/favoris"); // empty
+	QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/html");
+	QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/speedDial");
+		QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/pictures");
 }
