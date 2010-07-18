@@ -86,7 +86,7 @@ void TelechargerFichier::nouveauTelechargement(const QString lien)
 			return;
 
 
-		QSettings emplacementDossier(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+		QSettings emplacementDossier(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 		QDir dir;
 			dir.mkpath(emplacementDossier.value("telechargements/dossier").toString() + "/Multiuso - Téléchargements");
@@ -201,7 +201,7 @@ void TelechargerFichier::finTelechargement()
 
 	QString nomFichier = nomsFichiers.value(reponses.indexOf(reponse));
 
-	QSettings emplacementDossier(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings emplacementDossier(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	QDir dir;
 		dir.mkpath(emplacementDossier.value("telechargements/dossier").toString() + "/Multiuso - Téléchargements");

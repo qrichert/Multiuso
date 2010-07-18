@@ -38,7 +38,7 @@ void SpeedDial::loadSpeedDial()
 	titleContent.clear();
 	linksContent.clear();
 	imgContent.clear();
-	
+
 	QString slashToAdd = "";
 
 		if (Multiuso::currentOS() == "windows")
@@ -48,31 +48,31 @@ void SpeedDial::loadSpeedDial()
 
 	if (speedDialContent.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
-		
+
 		QString content = speedDialContent.readAll();
-				
-			content.replace("${PATH}", "file://" + slashToAdd + Multiuso::appDirPath());	
-			content.replace("${WEBSITE}", QCoreApplication::organizationDomain());	
-			content.replace("${DELETE}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/delete.png");	
-			content.replace("${DELETEHOVER}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/delete_hover.png");	
-			content.replace("${DELETEACTIVE}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/delete_active.png");	
-			content.replace("${DELETEALPHA}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/delete_alpha.png");	
-	
-			QSettings links(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+
+			content.replace("${PATH}", "file://" + slashToAdd + Multiuso::appDirPath());
+			content.replace("${WEBSITE}", QCoreApplication::organizationDomain());
+			content.replace("${DELETE}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/delete.png");
+			content.replace("${DELETEHOVER}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/delete_hover.png");
+			content.replace("${DELETEACTIVE}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/delete_active.png");
+			content.replace("${DELETEALPHA}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/delete_alpha.png");
+
+			QSettings links(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 
 			for (int i = 1; i <= 8; i++)
 			{
 				QStringList infos = links.value("speedDial/dial" + QString::number(i)).value<QStringList >();
 
-				content.replace("${TABTITLE_" + QString::number(i) + "}", infos.value(0));	
+				content.replace("${TABTITLE_" + QString::number(i) + "}", infos.value(0));
 				content.replace("${TABLINK_" + QString::number(i) + "}", infos.value(1));
 
 				if (infos.value(2) == "${EMPTYIMG}")
-					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/empty.png");	
-			
+					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/empty.png");
+
 				else if (infos.value(2) == "${WAIT}")
-					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/wait.gif");	
-			
+					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/pictures/wait.gif");
+
 				else
 					content.replace("${TABIMG_" + QString::number(i) + "}", "file://" + slashToAdd + Multiuso::appDirPath() + "/navigateurWeb/speedDial/" + infos.value(2));
 
@@ -101,15 +101,15 @@ void SpeedDial::addNewLink(QString title, QString url, QPixmap pixmap)
 
 	if (title.size() > 18)
 		title = title.left(15) + "...";
-	
+
 	QStringList newItems;
 		newItems << title << url << pixmapName;
 
-	QSettings links(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings links(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 		links.setValue("speedDial/dial" + QString::number(currentDial), newItems);
 
 	loadSpeedDial();
-		
+
 	addingNew = false;
 	currentDial = 0;
 }
@@ -119,7 +119,7 @@ void SpeedDial::downloadError()
 	QStringList emptyItems;
 		emptyItems << "(vide)" << "Ajouter un site Web" << "${EMPTYIMG}";
 
-	QSettings links(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings links(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 		links.setValue("speedDial/dial" + QString::number(currentDial), emptyItems);
 
 	loadSpeedDial();
@@ -157,15 +157,15 @@ void SpeedDial::openLink(QUrl urlClicked)
 				{
 					return;
 				}
-	
+
 				else if (linkToAdd.contains(QRegExp("https?://(.+).(.+)")))
 				{
 					screen->takeScreenshotOf(linkToAdd);
-					
+
 					QStringList emptyItems;
 						emptyItems << "(vide)" << "Ajouter un site Web" << "${WAIT}";
 
-					QSettings links(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+					QSettings links(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 						links.setValue("speedDial/dial" + QString::number(link), emptyItems);
 
 					loadSpeedDial();
@@ -186,7 +186,7 @@ void SpeedDial::openLink(QUrl urlClicked)
 				}
 			}
 		}
-			
+
 		else
 		{
 			emit openUrlRequested(linksContent.value(link - 1));
@@ -200,14 +200,14 @@ void SpeedDial::openLink(QUrl urlClicked)
 		QStringList emptyItems;
 			emptyItems << "(vide)" << "Ajouter un site Web" << "${EMPTYIMG}";
 
-		QSettings links(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+		QSettings links(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 			links.setValue("speedDial/dial" + QString::number(link), emptyItems);
 
 			QFile::remove(Multiuso::appDirPath() + "/navigateurWeb/speedDial/" + imgContent.value(link - 1));
 
 		loadSpeedDial();
 	}
-	
+
 	else if (url == "close_download_error")
 	{
 		page()->mainFrame()->evaluateJavaScript("document.getElementById('downloadError').style.display='none';");

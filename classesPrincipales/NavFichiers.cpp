@@ -27,7 +27,7 @@ NavFichiers::NavFichiers(QWidget *parent) : QMainWindow(parent)
 	QToolButton *buttonNewTab = new QToolButton;
 		buttonNewTab->setDefaultAction(actionNouvelOnglet);
 		buttonNewTab->setAutoRaise(true);
-		
+
 	QToolButton *buttonCloseTab = new QToolButton;
 		buttonCloseTab->setDefaultAction(actionFermerOnglet);
 		buttonCloseTab->setAutoRaise(true);
@@ -44,13 +44,13 @@ NavFichiers::NavFichiers(QWidget *parent) : QMainWindow(parent)
 
 	setCentralWidget(onglets);
 
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/nav_fichiers.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 		restoreState(reglages.value("etat_fenetre").toByteArray());
 
 	QShortcut *shortcutSwitchTab = new QShortcut(QKeySequence("Ctrl+Tab"), this);
 		connect(shortcutSwitchTab, SIGNAL(activated()), this, SLOT(slotSwitchTab()));
-		
-	p_fenPrincipale = parent;	
+
+	p_fenPrincipale = parent;
 	p_visionneurImages = NULL;
 	p_editeurDeTexte = NULL;
 	p_editeurDeCode = NULL;
@@ -152,7 +152,7 @@ void NavFichiers::creerActions()
 		actionNouvelOnglet->setIcon(QIcon(":/icones/nav_fichiers/actionNouvelOnglet.png"));
 		actionNouvelOnglet->setShortcut(QKeySequence("Ctrl+T"));
 		connect(actionNouvelOnglet, SIGNAL(triggered()), this, SLOT(ajouterOnglet()));
-		
+
 	actionFermerOnglet = new QAction("Fermer l'onglet", this);
 		actionFermerOnglet->setIcon(QIcon(":/icones/nav_fichiers/actionFermerOnglet.png"));
 		actionFermerOnglet->setShortcut(QKeySequence("Ctrl+W"));
@@ -181,8 +181,8 @@ void NavFichiers::ajouterOnglet()
 
 QWidget *NavFichiers::nouvelOnglet()
 {
-	QSettings settings(Multiuso::appDirPath() + "/reglages/nav_fichiers.ini", QSettings::IniFormat);
-	
+	QSettings settings(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
+
 	QString welcomeFolder = settings.value("dossier_accueil").toString();
 
 	if (!QDir(welcomeFolder).exists())
@@ -338,7 +338,7 @@ void NavFichiers::slotDossierPersonnel()
 
 void NavFichiers::slotDossierTelechargements()
 {
-	QSettings emplacementDossier(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings emplacementDossier(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	QDir dir;
 		dir.mkpath(emplacementDossier.value("telechargements/dossier").toString() + "/Multiuso - Téléchargements");
@@ -390,7 +390,7 @@ void NavFichiers::slotSwitchTab()
 
 void NavFichiers::sauvegarderEtat()
 {
-	QSettings enregistrer(Multiuso::appDirPath() + "/reglages/nav_fichiers.ini", QSettings::IniFormat);
+	QSettings enregistrer(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 		enregistrer.setValue("etat_fenetre", saveState());
 }
 

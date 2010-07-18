@@ -324,7 +324,7 @@ class Multiuso
 
 		static QString lastPath()
 		{
-			QSettings settings(appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+			QSettings settings(appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		
 			QString pathToReturn = takeSlash(settings.value("last_path").toString());
 
@@ -363,8 +363,6 @@ class Multiuso
 			removeDirectory(tempPath());
 
 			qApp->quit();
-
-			return;
 		}
 
 		static int randomNumber(int min, int max)
@@ -426,7 +424,7 @@ class Multiuso
 			if (dirToSave.isEmpty() || !QDir(dirToSave).exists())
 				return;
 
-			QSettings settings(appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+			QSettings settings(appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 				settings.setValue("last_path", dirToSave);
 		}
 

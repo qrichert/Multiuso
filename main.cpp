@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
 		app.installTranslator(&translator);
 
-	QSettings config(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	if (config.value("ouverture/crash").toBool())
 	{	
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 	if (config.value("telechargements/dossier").toString().isEmpty())
 		config.setValue("telechargements/dossier", QDir::homePath());
 	
-	QSettings fileBrowserSettings(Multiuso::appDirPath() + "/reglages/nav_fichiers.ini", QSettings::IniFormat);
+	QSettings fileBrowserSettings(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 	
 	if (fileBrowserSettings.value("dossier_accueil").toString().isEmpty())
 		fileBrowserSettings.setValue("dossier_accueil", QDir::homePath());

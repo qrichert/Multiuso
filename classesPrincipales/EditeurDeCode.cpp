@@ -47,7 +47,7 @@ EditeurDeCode::EditeurDeCode(QWidget *parent) : QMainWindow(parent)
 
 	setCentralWidget(onglets);
 
-	QSettings restaurer(Multiuso::appDirPath() + "/reglages/editeur_de_code.ini", QSettings::IniFormat);
+	QSettings restaurer(Multiuso::appDirPath() + "/ini/editeur_de_code.ini", QSettings::IniFormat);
 		restoreState(restaurer.value("etat_fenetre").toByteArray());
 }
 
@@ -221,7 +221,7 @@ void EditeurDeCode::creerOptionsTexte()
 		toolBarOptions->addWidget(colorisation);
 		connect(colorisation, SIGNAL(currentIndexChanged(int)), this, SLOT(changementHighlighter(int)));
 
-		
+
 	toolBarOptions->addSeparator();
 
 
@@ -244,7 +244,7 @@ void EditeurDeCode::slotOpenInWebBrowser()
 	browser->openCodeEditDocument(onglets->tabText(onglets->currentIndex()), pageActuelle()->toPlainText());
 
 	FenPrincipale *fen = qobject_cast<FenPrincipale *>(pointeurSurParent);
-		
+
 	if (!Multiuso::openTabsList(fen->tabWidget()).contains("Navigateur Web"))
 		fen->homeTab()->openTab("Navigateur Web");
 
@@ -253,7 +253,7 @@ void EditeurDeCode::slotOpenInWebBrowser()
 
 void EditeurDeCode::slotChangementTexte()
 {
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/editeur_de_code.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/editeur_de_code.ini", QSettings::IniFormat);
 
 	if (reglages.value("enregistrement/enregistrement_automatique").toBool())
 		slotEnregistrer();
@@ -315,7 +315,7 @@ void EditeurDeCode::highlighterFor(QString extension)
 
 	QStringList highlightersJava;
 		highlightersJava << "java" << "jar" << "class";
-		
+
 	QStringList highlightersJavaScript;
 		highlightersJavaScript << "js";
 
@@ -363,13 +363,13 @@ void EditeurDeCode::highlighterFor(QString extension)
 
 	else if (highlightersJava.contains(extension))
 		colorisation->setCurrentIndex(colorisation->findText("Java"));
-	
+
 	else if (highlightersJavaScript.contains(extension))
 		colorisation->setCurrentIndex(colorisation->findText("JavaScript"));
 
 	else if (highlightersPerl.contains(extension))
 		colorisation->setCurrentIndex(colorisation->findText("Perl"));
-	
+
 	else if (highlightersPHP.contains(extension))
 		colorisation->setCurrentIndex(colorisation->findText("PHP"));
 
@@ -419,7 +419,7 @@ void EditeurDeCode::openContent(QString content, QString title)
 
 void EditeurDeCode::setWebBrowser(QMainWindow *browser)
 {
-	webBrowserPointer = browser;	
+	webBrowserPointer = browser;
 }
 
 void EditeurDeCode::changementHighlighter(int highlighter)
@@ -430,7 +430,7 @@ void EditeurDeCode::changementHighlighter(int highlighter)
 
 void EditeurDeCode::sauvegarderEtat()
 {
-	QSettings enregistrer(Multiuso::appDirPath() + "/reglages/editeur_de_code.ini", QSettings::IniFormat);
+	QSettings enregistrer(Multiuso::appDirPath() + "/ini/editeur_de_code.ini", QSettings::IniFormat);
 		enregistrer.setValue("etat_fenetre", saveState());
 }
 
@@ -561,7 +561,7 @@ void EditeurDeCode::slotEnregistrer()
 void EditeurDeCode::slotEnregistrerSous()
 {
 	QString cheminDuFichier = QFileDialog::getSaveFileName(this, "Multiuso", Multiuso::lastPath() + "/Nouveau document.mltstxt", "Texte (*)");
-	
+
 	Multiuso::setLastPath(cheminDuFichier);
 
 	QFile fichier(cheminDuFichier);
@@ -590,7 +590,7 @@ void EditeurDeCode::slotEnregistrerSous()
 void EditeurDeCode::slotOuvrir()
 {
 	QString cheminFichier = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(), "Texte (*)");
-	
+
 	Multiuso::setLastPath(cheminFichier);
 
 	if (!cheminFichier.isEmpty())

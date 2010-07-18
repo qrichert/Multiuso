@@ -41,13 +41,13 @@ Astuces::Astuces(QWidget *parent) : QDialog(parent)
 	suivant = new QPushButton("&Suivant");
 		connect(suivant, SIGNAL(clicked()), this, SLOT(slotSuivant()));
 
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	afficherAuDemarrage = new QCheckBox("Afficher les astuces au démarrage de Multiuso");
-	
+
 		if (reglages.value("ouverture/astuces").toBool())
 			afficherAuDemarrage->setCheckState(Qt::Checked);
-		
+
 	QPushButton *closeTips = new QPushButton;
 		closeTips->setIcon(QIcon(":/icones/astuces/close.png"));
 		closeTips->setFlat(true);
@@ -172,7 +172,7 @@ void Astuces::slotSuivant()
 
 void Astuces::slotCloseTips()
 {
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		reglages.setValue("ouverture/astuces", afficherAuDemarrage->isChecked());
 
 	accept();
@@ -180,7 +180,7 @@ void Astuces::slotCloseTips()
 
 void Astuces::closeEvent(QCloseEvent *event)
 {
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		reglages.setValue("ouverture/astuces", afficherAuDemarrage->isChecked());
 
 	event->accept();

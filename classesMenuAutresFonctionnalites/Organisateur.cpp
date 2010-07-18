@@ -69,7 +69,7 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 				m_title = m_title.left(12) + "...";
 
 		QString m_content = line.value(2);
-			
+
 			if (m_content.size() > 40)
 				m_content = m_content.left(37) + "...";
 
@@ -91,7 +91,7 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 
 			else if (m_priority == "Très faible")
 				brush.setColor(Qt::darkBlue);
-		
+
 		int newRowCount = mainTable->rowCount() + 1;
 
 		Pair newPair;
@@ -99,7 +99,7 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 			newPair.second = m_id;
 
 		pairs << newPair;
-	
+
 		QTableWidgetItem *itemNumber = new QTableWidgetItem(QString::number(newRowCount));
 			itemNumber->setFlags(itemNumber->flags() & ~Qt::ItemIsEditable);
 
@@ -107,13 +107,13 @@ void Organisateur::addTasksToTable(QList<QStringList> tasks)
 			editTaskWidget->setRow(newRowCount - 1);
 			connect(editTaskWidget, SIGNAL(editRequest()), this, SLOT(slotEditTask()));
 			connect(editTaskWidget, SIGNAL(deleteRequest()), this, SLOT(slotDeleteTask()));
-			
+
 		QTableWidgetItem *itemTitle = new QTableWidgetItem(m_title);
 			itemTitle->setFlags(itemTitle->flags() & ~Qt::ItemIsEditable);
 
 		QTableWidgetItem *itemContent = new QTableWidgetItem(m_content);
 			itemContent->setFlags(itemContent->flags() & ~Qt::ItemIsEditable);
-		
+
 		QTableWidgetItem *itemPriority = new QTableWidgetItem(m_priority);
 			itemPriority->setFlags(itemPriority->flags() & ~Qt::ItemIsEditable);
 			itemPriority->setForeground(brush);
@@ -144,8 +144,8 @@ void Organisateur::initializeTasks(QString sortBy)
 	mainTable->setRowCount(0);
 	mainTable->setHorizontalHeaderLabels(headerLabels);
 
-	QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
-	
+	QSettings settings(Multiuso::appDirPath() + "/ini/task_manager.ini", QSettings::IniFormat);
+
 	foreach (QString group, settings.childGroups())
 	{
 		QStringList task = settings.value(group + "/content").value<QStringList>();
@@ -174,7 +174,7 @@ void Organisateur::initializeTasks(QString sortBy)
 		addTasksToTable(priorityLow);
 		addTasksToTable(priorityVeryLow);
 	}
-	
+
 	else if (sortBy == "Priorité très élevée")
 	{
 		addTasksToTable(priorityVeryHigh);
@@ -217,7 +217,7 @@ void Organisateur::slotAddTask(bool edition, QStringList values)
 		dialog->setWindowIcon(QIcon(":/icones/actions/actionOrganisteur.png"));
 
 			QLineEdit *taskTitle = new QLineEdit;
-				
+
 				if (edition)
 					taskTitle->setText(values.value(1));
 
@@ -238,7 +238,7 @@ void Organisateur::slotAddTask(bool edition, QStringList values)
 
 			QPushButton *acceptDialog = new QPushButton("OK");
 				connect(acceptDialog, SIGNAL(clicked()), dialog, SLOT(accept()));
-				
+
 			QPushButton *rejectDialog = new QPushButton("Annuler");
 				connect(rejectDialog, SIGNAL(clicked()), dialog, SLOT(reject()));
 
@@ -264,17 +264,17 @@ void Organisateur::slotAddTask(bool edition, QStringList values)
 	QString m_taskPriority = taskPriority->currentText();
 
 	// Saving infos
-		QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
+		QSettings settings(Multiuso::appDirPath() + "/ini/task_manager.ini", QSettings::IniFormat);
 
 			int group;
-		
+
 			if (edition)
 			{
 				group = values.value(0).toInt();
 			}
 
 			else
-			{	
+			{
 				int nextID = settings.value("nextID").toInt() + 1;
 
 				settings.setValue("nextID", nextID);
@@ -296,8 +296,8 @@ void Organisateur::slotEditTask()
 		return;
 
 	int row = editWidget->row();
-		
-	QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
+
+	QSettings settings(Multiuso::appDirPath() + "/ini/task_manager.ini", QSettings::IniFormat);
 
 	foreach (Pair pair, pairs)
 	{
@@ -307,7 +307,7 @@ void Organisateur::slotEditTask()
 
 			return;
 		}
-	}	
+	}
 }
 
 void Organisateur::slotDeleteTask()
@@ -318,8 +318,8 @@ void Organisateur::slotDeleteTask()
 		return;
 
 	int row = editWidget->row();
-		
-	QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
+
+	QSettings settings(Multiuso::appDirPath() + "/ini/task_manager.ini", QSettings::IniFormat);
 
 	foreach (Pair pair, pairs)
 	{
@@ -331,14 +331,14 @@ void Organisateur::slotDeleteTask()
 
 			return;
 		}
-	}	
+	}
 }
 
 void Organisateur::slotShowTask(QTableWidgetItem *item)
 {
 	int row = item->row();
-		
-	QSettings settings(Multiuso::appDirPath() + "/reglages/task_manager.ini", QSettings::IniFormat);
+
+	QSettings settings(Multiuso::appDirPath() + "/ini/task_manager.ini", QSettings::IniFormat);
 
 	foreach (Pair pair, pairs)
 	{
@@ -351,7 +351,7 @@ void Organisateur::slotShowTask(QTableWidgetItem *item)
 				dialog->setWindowTitle("#" + taskContent.value(0) + " - " + taskContent.value(1));
 				dialog->setWindowIcon(QIcon(":/icones/actions/actionOrganisteur.png"));
 				dialog->resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
-				
+
 				QTextBrowser *text = new QTextBrowser;
 					text->setHtml("<h2>" + taskContent.value(1) + "</h2>"
 							+ taskContent.value(2).replace("\n", "<br />"));
@@ -364,6 +364,6 @@ void Organisateur::slotShowTask(QTableWidgetItem *item)
 
 			return;
 		}
-	}	
+	}
 }
 

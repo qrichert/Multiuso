@@ -39,12 +39,12 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 		cacheDir.mkdir(Multiuso::appDirPath() + "/navigateurWeb/cache");
 
 	QWebSettings::setIconDatabasePath(Multiuso::appDirPath() + "/navigateurWeb/cache/");
-	
+
 	QDir autreDir(Multiuso::appDirPath() + "/navigateurWeb/autre"); // autre
 
 	if (!autreDir.exists())
 		autreDir.mkdir(Multiuso::appDirPath() + "/navigateurWeb/autre");
-	
+
 	QDir favorisDir(Multiuso::appDirPath() + "/navigateurWeb/favoris"); // favoris
 
 	if (!favorisDir.exists())
@@ -63,10 +63,10 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 		}
 
 	completer.close();
-	
+
 	QCompleter *completerBarreAdresse = new QCompleter(sitesVisites, this);
 		completerBarreAdresse->setCaseSensitivity(Qt::CaseInsensitive);
-						
+
 	barreAdresse->setCompleter(completerBarreAdresse);
 
 	lastLink = "";
@@ -159,7 +159,7 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 		connect(vueHistorique, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(slotOuvrirHistorique(QModelIndex)));
 
 	QPushButton *effacerHistorique = new QPushButton("Effacer l'historique");
-		connect(effacerHistorique, SIGNAL(clicked()), this, SLOT(slotEffacerHistorique()));	
+		connect(effacerHistorique, SIGNAL(clicked()), this, SLOT(slotEffacerHistorique()));
 
 	QVBoxLayout *layoutHistorique = new QVBoxLayout;
 		layoutHistorique->addWidget(vueHistorique);
@@ -174,7 +174,7 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 		dockHistorique->setObjectName("Historique");
 		addDockWidget(Qt::LeftDockWidgetArea, dockHistorique);
 		dockHistorique->hide();
-		
+
 	QToolButton *buttonCloseTab = new QToolButton;
 		buttonCloseTab->setDefaultAction(actionFermer);
 		buttonCloseTab->setAutoRaise(true);
@@ -214,7 +214,7 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 
 	setCentralWidget(widgetCentral);
 
-	QSettings restaurer(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings restaurer(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 		restoreState(restaurer.value("etat_fenetre").toByteArray());
 
 	actualiserFavoris();
@@ -222,21 +222,21 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 	pointeurSurParent = parent;
 	pointeurSurTelechargements = telechargements;
 	pointeurSurEditeurDeCode = editeurDeCode;
-	
+
 	// <Stalker (www.siteduzero.com)>
 		httpConnexion = new QHttp(this);
 		proxy = new QNetworkProxy;
 	// </Stalker (www.siteduzero.com)>
-		
+
 	if (restaurer.value("restaurer_onglets").toBool())
 	{
 		QStringList links = restaurer.value("derniers_onglets").value<QStringList>(); // QSettings::value() → QVariant::value()
-		
+
 		for (int i = 0; i < links.size(); i++)
 		{
 			if (i != 0)
 				slotNouvelOnglet();
-			
+
 			slotOuvrirUrl(links.value(i));
 		}
 
@@ -250,7 +250,7 @@ void NavigateurWeb::creerActions()
 		actionNouveau->setIcon(QIcon(":/icones/navigateur_web/actionNouveau.png"));
 		actionNouveau->setShortcut(QKeySequence("Ctrl+T"));
 		connect(actionNouveau, SIGNAL(triggered()), this, SLOT(speedDial()));
-		
+
 	actionFermer = new QAction("Fermer l'onglet", this);
 		actionFermer->setIcon(QIcon(":/icones/navigateur_web/actionFermer.png"));
 		actionFermer->setShortcut(QKeySequence("Ctrl+W"));
@@ -271,7 +271,7 @@ void NavigateurWeb::creerActions()
 		actionOuvrirCode->setIcon(QIcon(":/icones/navigateur_web/actionOuvrirCode.png"));
 		actionOuvrirCode->setShortcut(QKeySequence("Ctrl+Shift+O"));
 		connect(actionOuvrirCode, SIGNAL(triggered()), this, SLOT(slotOuvrirCode()));
-		
+
 	actionHistorique = new QAction("Historique", this);
 		actionHistorique->setIcon(QIcon(":/icones/navigateur_web/actionHistorique.png"));
 		actionHistorique->setShortcut(QKeySequence("Ctrl+Shift+H"));
@@ -369,7 +369,7 @@ void NavigateurWeb::slotFermerOnglet(int onglet)
 }
 
 void NavigateurWeb::speedDial()
-{	
+{
 	SpeedDial *pageWeb = new SpeedDial;
 		pageWeb->setContextMenuPolicy(Qt::CustomContextMenu);
 		pageWeb->page()->setContentEditable(false);
@@ -380,7 +380,7 @@ void NavigateurWeb::speedDial()
 		pageWeb->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 
 		connect(pageWeb, SIGNAL(openUrlRequested(QString)), this, SLOT(slotOuvrirUrlSpeedDial(QString)));
-			
+
 		connect(pageWeb, SIGNAL(iconChanged()), this, SLOT(changementIcone()));
 		connect(pageWeb, SIGNAL(loadFinished(bool)), this, SLOT(chargementFini(bool)));
 		connect(pageWeb, SIGNAL(loadProgress(int)), this, SLOT(chargementContinue(int)));
@@ -404,7 +404,7 @@ void NavigateurWeb::speedDial()
 	onglets->addTab(page, "Speed dial");
 	onglets->setCurrentIndex(onglets->count() - 1);
 	onglets->setTabIcon(onglets->currentIndex(), QIcon(":/icones/navigateur_web/actionSpeedDial.png"));
-	
+
 	if (onglets->count() > 1)
 	{
 		onglets->setTabsClosable(true);
@@ -415,7 +415,7 @@ void NavigateurWeb::speedDial()
 void NavigateurWeb::slotOuvrirUrlSpeedDial(QString url)
 {
 	int index = onglets->currentIndex();
-	
+
 	onglets->insertTab(index + 1, nouvelOnglet(), "(Sans titre)");
 	onglets->setCurrentIndex(index);
 	onglets->setTabIcon(onglets->currentIndex(), faviconUrl(pageActuelle()->url().toString()));
@@ -435,9 +435,9 @@ QWebView *NavigateurWeb::pageActuelle()
 
 QWidget *NavigateurWeb::nouvelOnglet()
 {
-	QSettings connecteReseau(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings connecteReseau(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 
 	QWebView *pageWeb = new QWebView;
 		pageWeb->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -458,7 +458,7 @@ QWidget *NavigateurWeb::nouvelOnglet()
 		pageWeb->page()->settings()->setAttribute(QWebSettings::ZoomTextOnly, reglages.value("settings/zoom_text_only").toBool());
 		pageWeb->page()->settings()->setAttribute(QWebSettings::PrintElementBackgrounds, reglages.value("settings/imprimer_elements_fond").toBool());
 		pageWeb->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-	
+
 		connect(pageWeb, SIGNAL(iconChanged()), this, SLOT(changementIcone()));
 		connect(pageWeb, SIGNAL(loadFinished(bool)), this, SLOT(chargementFini(bool)));
 		connect(pageWeb, SIGNAL(loadProgress(int)), this, SLOT(chargementContinue(int)));
@@ -475,7 +475,7 @@ QWidget *NavigateurWeb::nouvelOnglet()
 
 		QUrl url = barreAdresse->text();
 
-		if (QSettings(Multiuso::appDirPath() + "/reglages/proxy.ini", QSettings::IniFormat).value("activer").toBool())
+		if (QSettings(Multiuso::appDirPath() + "/ini/proxy.ini", QSettings::IniFormat).value("activer").toBool())
 		{
 			// <Stalker (www.siteduzero.com)>
 				connect(pageWeb->page()->networkAccessManager(),SIGNAL(finished(QNetworkReply*)),this,SLOT(slotErrorPageCheck(QNetworkReply*)));
@@ -501,17 +501,17 @@ QWidget *NavigateurWeb::nouvelOnglet()
 }
 
 QIcon NavigateurWeb::faviconUrl(QString url)
-{	
+{
 	return QWebSettings::iconForUrl(QUrl(url));
 }
 
 void NavigateurWeb::sauvegarderEtat()
 {
-	QSettings enregistrer(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings enregistrer(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 		enregistrer.setValue("etat_fenetre", saveState());
 
 	QStringList lastTabs;
-	
+
 	for (int i = 0; i < onglets->count(); i++)
 		lastTabs << onglets->widget(i)->findChild<QWebView *>()->url().toString();
 
@@ -572,7 +572,7 @@ void NavigateurWeb::actualiserFavoris()
 
 			nom.replace("&", "&&");
 			nomCourt.replace("&", "&&");
-	
+
 			QAction *action = new QAction(nomCourt, this);
 				action->setIcon(faviconUrl(lien));
 				action->setStatusTip(lien);
@@ -675,9 +675,9 @@ void NavigateurWeb::slotFermerOnglet()
 void NavigateurWeb::slotLinkClicked(QUrl url)
 {
 	int index = onglets->currentIndex();
-	
+
 	QFlags<Qt::KeyboardModifier> modifiers = qApp->keyboardModifiers();
-		
+
 	if (modifiers == Qt::ControlModifier || modifiers == (Qt::ControlModifier | Qt::AltModifier)) // Ctrl || Ctrl + Alt = New tab
 		slotNouvelOnglet();
 
@@ -728,7 +728,7 @@ void NavigateurWeb::slotOuvrirCode()
 	pointeurSurEditeurDeCode->openContent(pageActuelle()->page()->mainFrame()->toHtml(), pageActuelle()->title());
 
 	FenPrincipale *fen = qobject_cast<FenPrincipale *>(pointeurSurParent);
-	
+
 	if (!Multiuso::openTabsList(fen->tabWidget()).contains("Éditeur de code"))
 		fen->homeTab()->openTab("Éditeur de code");
 
@@ -738,7 +738,7 @@ void NavigateurWeb::slotOuvrirCode()
 void NavigateurWeb::slotSelectionFichierPourOuvrir()
 {
 	QString fichier = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(), "Tous les fichiers (*)");
-	
+
 	Multiuso::setLastPath(fichier);
 
 	if (!fichier.isEmpty())
@@ -856,17 +856,17 @@ void NavigateurWeb::slotStop()
 
 void NavigateurWeb::slotAccueil()
 {
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 		pageActuelle()->load(QUrl(reglages.value("page_accueil").toString()));
 }
 
 void NavigateurWeb::slotChangerAdresse()
 {
 	// <Stalker (www.siteduzero.com)>
-		QSettings reglagesProxy(Multiuso::appDirPath() + "/reglages/proxy.ini", QSettings::IniFormat);
+		QSettings reglagesProxy(Multiuso::appDirPath() + "/ini/proxy.ini", QSettings::IniFormat);
 		QUrl url = barreAdresse->text();
 	// </Stalker (www.siteduzero.com)>
-	
+
 	if (barreAdresse->text() == "about:blank" || barreAdresse->text().isEmpty())
 	{
 		pageActuelle()->load(QUrl(Multiuso::appDirPath() + "/navigateurWeb/html/page_vierge.html"));
@@ -892,7 +892,7 @@ void NavigateurWeb::slotChangerAdresse()
 
 		pageActuelle()->page()->mainFrame()->evaluateJavaScript(js);
 	}
-		
+
 	// <Stalker (www.siteduzero.com)>
 		else if (barreAdresse->text().left(7) == "http://")
 		{
@@ -903,18 +903,18 @@ void NavigateurWeb::slotChangerAdresse()
 				proxy->setPort(reglagesProxy.value("port_http",80).toInt());
 				QNetworkProxy::setApplicationProxy(*proxy);
 			}
-			
+
 			else
 			{
 				proxy->setType(QNetworkProxy::NoProxy);
 				QNetworkProxy::setApplicationProxy(*proxy);
 			}
-			
+
 			httpConnexion = new QHttp(url.host(),QHttp::ConnectionModeHttp);
-			
+
 			slotOuvrirUrl(barreAdresse->text());
 		}
-		
+
 		else if (barreAdresse->text().left(8) == "https://")
 		{
 			if (reglagesProxy.value("activer",false).toBool())
@@ -924,18 +924,18 @@ void NavigateurWeb::slotChangerAdresse()
 				proxy->setPort(reglagesProxy.value("port_ssl",80).toInt());
 				QNetworkProxy::setApplicationProxy(*proxy);
 			}
-			
+
 			else
 			{
 				proxy->setType(QNetworkProxy::NoProxy);
 				QNetworkProxy::setApplicationProxy(*proxy);
 			}
-			
+
 			httpConnexion = new QHttp(url.host(),QHttp::ConnectionModeHttps);
-			
+
 			slotOuvrirUrl(barreAdresse->text());
 		}
-		
+
 		else if (barreAdresse->text().left(6) == "ftp://")
 		{
 			if (reglagesProxy.value("activer",false).toBool())
@@ -945,15 +945,15 @@ void NavigateurWeb::slotChangerAdresse()
 				proxy->setPort(reglagesProxy.value("port_ftp",80).toInt());
 				QNetworkProxy::setApplicationProxy(*proxy);
 			}
-			
+
 			else
 			{
 				proxy->setType(QNetworkProxy::NoProxy);
 				QNetworkProxy::setApplicationProxy(*proxy);
 			}
-			
+
 			httpConnexion = new QHttp(url.host(),QHttp::ConnectionModeHttps);
-			
+
 			slotOuvrirUrl(barreAdresse->text());
 		}
 	// </Stalker (www.siteduzero.com)>
@@ -977,7 +977,7 @@ void NavigateurWeb::slotEasterEgg()
 
 void NavigateurWeb::slotRechercherMoteurRecherche()
 {
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 
 	QString moteur = reglages.value("moteur_de_recherche").toString();
 	QString search = "";
@@ -992,7 +992,7 @@ void NavigateurWeb::slotRechercherMoteurRecherche()
 
 	else if (moteur == "Bing")
 		search = "http://www.bing.com/search?q=" + q;
-	
+
 	else if (moteur == "Yahoo!")
 		search = "http://fr.search.yahoo.com/search?p=" + q;
 
@@ -1001,7 +1001,7 @@ void NavigateurWeb::slotRechercherMoteurRecherche()
 
 	else if (moteur == "Personnalisé")
 		search = reglages.value("moteur_personnalise").toString() + q;
-	
+
 	else // We use Google ad default
 		search = "http://www.google.fr/search?q=" + q;
 
@@ -1023,7 +1023,7 @@ void NavigateurWeb::slotAjouterFavori()
 
 	if (titre.size() > 30)
 		titre = titre.left(30);
-	
+
 	QDir dir(Multiuso::appDirPath() + "/navigateurWeb/favoris");
 
 	QStringList listeFavoris = dir.entryList(QDir::Files);
@@ -1041,7 +1041,7 @@ void NavigateurWeb::slotAjouterFavori()
 			QMessageBox::information(this, "Multiuso", "Ce favori existe déjà, aucun nouveau favori n'a été créé.");
 
 		favori.close();
-	
+
 		actualiserFavoris();
 	}
 
@@ -1090,7 +1090,7 @@ void NavigateurWeb::slotScreenshotTaken(QString title, QString url, QPixmap pixm
 
 	QString savePath = QFileDialog::getSaveFileName(this, "Multiuso", Multiuso::lastPath() + "/" + title + " (" + url + ").png",
 			"Images (*.png, *.bmp, *.jpg, *.jpeg, *.ppm, *.xbm, *.xpm)");
-			
+
 	Multiuso::setLastPath(savePath);
 
 	if (!savePath.isEmpty())
@@ -1114,7 +1114,7 @@ void NavigateurWeb::survolLien(QString lien, QString titre, QString contenu)
 void NavigateurWeb::changementIcone()
 {
 	QWebView *view = qobject_cast<QWebView *>(sender());
-	
+
 	if (view == 0)
 		return;
 
@@ -1130,7 +1130,7 @@ void NavigateurWeb::chargementFini(bool ok)
 
 	if (ok)
 	{
-		QSettings reglages(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+		QSettings reglages(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 
 		if (reglages.value("utiliser_historique").toBool())
 		{
@@ -1142,17 +1142,17 @@ void NavigateurWeb::chargementFini(bool ok)
 				{
 					completer.write(QString(pageActuelle()->url().toString() + "\n").toAscii());
 					sitesVisites << pageActuelle()->url().toString();
-					
+
 					QCompleter *completerBarreAdresse = new QCompleter(sitesVisites, this);
 						completerBarreAdresse->setCaseSensitivity(Qt::CaseInsensitive);
-					
+
 					barreAdresse->completer()->deleteLater();
 					barreAdresse->setCompleter(completerBarreAdresse);
 				}
 			}
 
 			completer.close();
-	
+
 			QFile historique(Multiuso::appDirPath() + "/navigateurWeb/autre/historique.mltshistory");
 
 			if (historique.open(QIODevice::Append | QIODevice::Text))
@@ -1161,7 +1161,7 @@ void NavigateurWeb::chargementFini(bool ok)
 				liensHistorique << pageActuelle()->url().toString();
 				modeleHistorique->setStringList(liensHistorique);
 			}
-	
+
 			historique.close();
 		}
 	}
@@ -1183,7 +1183,7 @@ void NavigateurWeb::chargementContinue(int progressionDuChargement)
 void NavigateurWeb::debutChargement()
 {
 	QWebView *view = qobject_cast<QWebView *>(sender());
-	
+
 	if (view == 0)
 		return;
 
@@ -1199,7 +1199,7 @@ void NavigateurWeb::debutChargement()
 void NavigateurWeb::changementDeTitre(QString titre)
 {
 	QWebView *view = qobject_cast<QWebView *>(sender());
-	
+
 	if (view == 0)
 		return;
 
@@ -1213,10 +1213,10 @@ void NavigateurWeb::changementUrl(QUrl url)
 {
 	if (pageActuelle()->url() != url)
 		return;
-			
+
 	if (url.toString().contains(QRegExp("file(.+)" + Multiuso::appDirPath() + "/navigateurWeb/html/page_vierge.html")))
 		barreAdresse->setText("about:blank");
-	
+
 	else if (url.toString().contains(QRegExp("file(.+)" + Multiuso::appDirPath() + "/navigateurWeb/speedDial/speedDial.html")))
 		barreAdresse->setText("speed-dial");
 
@@ -1259,17 +1259,17 @@ void NavigateurWeb::slotDatabaseQuotaExceeded(QWebFrame *frame, QString name)
 }
 
 void NavigateurWeb::slotOuvrirMenuNavigation()
-{		
+{
 	menuNavigation->exec(QCursor::pos());
 }
 
 void NavigateurWeb::slotMenuPage(QPoint)
 {
 	QWebHitTestResult hitTestResult = pageActuelle()->page()->mainFrame()->hitTestContent(QCursor::pos());
-	
+
 	QList<QAction *> menuActions = pageActuelle()->page()->createStandardContextMenu()->actions();
 	QList<QAction *> newActions;
-		
+
 	foreach (QAction *action, menuActions)
 	{
 		action->setText(Multiuso::firstLetterToUpper(action->text()));
@@ -1280,7 +1280,7 @@ void NavigateurWeb::slotMenuPage(QPoint)
 			action->setIcon(QIcon(":/icones/navigateur_web/actionRecharger.png"));
 			newActions << action;
 		}
-		
+
 		else if (action->text().toLower() == "stop")
 		{
 			action->setIcon(QIcon(":/icones/navigateur_web/actionStop.png"));
@@ -1292,13 +1292,13 @@ void NavigateurWeb::slotMenuPage(QPoint)
 			action->setIcon(QIcon(":/icones/navigateur_web/actionPrecedent.png"));
 			newActions << action;
 		}
-				
+
 		else if (action->text().toLower() == "suivant")
 		{
 			action->setIcon(QIcon(":/icones/navigateur_web/actionSuivant.png"));
 			newActions << action;
 		}
-		
+
 		else if (action->text().toLower() == "copier")
 		{
 			newActions << action;
@@ -1319,36 +1319,36 @@ void NavigateurWeb::slotMenuPage(QPoint)
 				connect(openLinkInNewTab, SIGNAL(triggered()), this, SLOT(slotOpenLinkInNewTab()));
 				newActions << openLinkInNewTab;
 		}
-		
+
 		else if (action->text().toLower() == "sauvegarder le lien...")
 		{
 			newActions << action;
 		}
-		
+
 		else if (action->text().toLower() == "copier le lien")
 		{
 			newActions << action;
 		}
-		
+
 		// Pictures
 		else if (action->text().toLower() == "ouvrir l'image")
 		{
 			newActions << action;
 		}
-		
+
 		else if (action->text().toLower() == "sauvegarder l'image")
 		{
 			action->setText("Enregistrer l'image sous...");
 
 			newActions << action;
 		}
-		
+
 		else if (action->text().toLower() == "copier l'image")
 		{
 			newActions << action;
 		}
 	}
-	
+
 	QMenu *menu = new QMenu(this);
 		menu->addActions(newActions);
 		menu->addSeparator();
@@ -1362,12 +1362,12 @@ void NavigateurWeb::slotMenuPage(QPoint)
 	void NavigateurWeb::slotErrorPageCheck(QNetworkReply *netRep)
 	{
 		QNetworkReply::NetworkError erreur = netRep->error();
-		
+
 		if (erreur == QNetworkReply::NoError)
 		{
 			// Il n'y a pas d'erreur
 		}
-		
+
 		else
 		{
 			switch (erreur)

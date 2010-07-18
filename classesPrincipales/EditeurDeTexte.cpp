@@ -49,7 +49,7 @@ EditeurDeTexte::EditeurDeTexte(QWidget *parent = 0) : QMainWindow(parent)
 
 	setCentralWidget(onglets);
 
-	QSettings restaurer(Multiuso::appDirPath() + "/reglages/editeur_de_texte.ini", QSettings::IniFormat);
+	QSettings restaurer(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
 		restoreState(restaurer.value("etat_fenetre").toByteArray());
 }
 
@@ -299,7 +299,7 @@ void EditeurDeTexte::creerOptionsTexte()
 
 void EditeurDeTexte::slotChangementTexte()
 {
-	QSettings reglagesSauvegarde(Multiuso::appDirPath() + "/reglages/editeur_de_texte.ini", QSettings::IniFormat);
+	QSettings reglagesSauvegarde(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
 
 	if (reglagesSauvegarde.value("enregistrement/enregistrement_automatique").toBool())
 	{
@@ -338,7 +338,7 @@ void EditeurDeTexte::slotFermerOnglet(int onglet)
 
 void EditeurDeTexte::sauvegarderEtat()
 {
-	QSettings enregistrer(Multiuso::appDirPath() + "/reglages/editeur_de_texte.ini", QSettings::IniFormat);
+	QSettings enregistrer(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
 		enregistrer.setValue("etat_fenetre", saveState());
 }
 
@@ -607,7 +607,7 @@ void EditeurDeTexte::slotEnregistrer()
 void EditeurDeTexte::slotEnregistrerSous()
 {
 	QString cheminDuFichier = QFileDialog::getSaveFileName(this, "Multiuso", Multiuso::lastPath() + "/Nouveau document.mltshtml", "Texte (*)");
-	
+
 	Multiuso::setLastPath(cheminDuFichier);
 
 	QFile fichier(cheminDuFichier);
@@ -640,9 +640,9 @@ void EditeurDeTexte::slotEnregistrerSous()
 void EditeurDeTexte::slotOuvrir()
 {
 	QString cheminFichier = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(), "Texte (*)");
-	
+
 	Multiuso::setLastPath(cheminFichier);
-		
+
 	if (!cheminFichier.isEmpty())
 		slotOuvrirFichier(cheminFichier);
 }
@@ -847,7 +847,7 @@ void EditeurDeTexte::slotInsererImage()
 	if (infosFichierOuvert.fileName().contains(QRegExp("(.){1,}.(mlts)?html?$")))
 	{
 		QString image = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(), "Image (*)");
-		
+
 		Multiuso::setLastPath(image);
 
 		if (!image.isEmpty())

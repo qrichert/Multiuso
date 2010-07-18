@@ -38,7 +38,7 @@ FenPrincipale::FenPrincipale()
 {
 	loaded = false;
 
-	QSettings mainSettings(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings mainSettings(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		int useSplashScreen = mainSettings.value("splash_screen/utiliser").toBool();
 
 	SplashScreen splash;
@@ -182,7 +182,7 @@ FenPrincipale::FenPrincipale()
 		tabVisionneurImages = new QWidget;
 			tabVisionneurImages->setLayout(layoutVisionneurImages);
 
-	
+
 	editeurDeCode->setWebBrowser(navigateur);
 
 
@@ -204,7 +204,7 @@ FenPrincipale::FenPrincipale()
 
 			accueil->restoreOpenedTabs();
 
-		pagesDuProgramme->insertTab(lastOpenedTabs.indexOf("Accueil"), tabAccueil, "Accueil");		
+		pagesDuProgramme->insertTab(lastOpenedTabs.indexOf("Accueil"), tabAccueil, "Accueil");
 		pagesDuProgramme->setCurrentIndex(mainSettings.value("pagesDuProgramme/dernierePage").toInt());
 
 	layoutCentral = new QVBoxLayout;
@@ -215,7 +215,7 @@ FenPrincipale::FenPrincipale()
 		widgetCentral->setLayout(layoutCentral);
 
 	setCentralWidget(widgetCentral);
-	
+
 	disableEnableWidgetsMenuActions();
 
 	if (useSplashScreen)
@@ -262,7 +262,7 @@ FenPrincipale::FenPrincipale()
 
 				setTabIndex(Multiuso::tabIndexOf("Visionneur d'images", pagesDuProgramme));
 			}
-			
+
 			else if (arg == "-te" || arg == "--textedit") // Éditeur de texte
 			{
 				if (!Multiuso::openTabsList(pagesDuProgramme).contains("Éditeur de texte"))
@@ -270,7 +270,7 @@ FenPrincipale::FenPrincipale()
 
 				setTabIndex(Multiuso::tabIndexOf("Éditeur de texte", pagesDuProgramme));
 			}
-			
+
 			else if (arg == "-ce" || arg == "--codeedit") // Éditeur de code
 			{
 				if (!Multiuso::openTabsList(pagesDuProgramme).contains("Éditeur de code"))
@@ -278,7 +278,7 @@ FenPrincipale::FenPrincipale()
 
 				setTabIndex(Multiuso::tabIndexOf("Éditeur de code", pagesDuProgramme));
 			}
-			
+
 			else if (arg == "-ftp" || arg == "--ftp") // Client FTP
 			{
 				if (!Multiuso::openTabsList(pagesDuProgramme).contains("Client FTP"))
@@ -286,7 +286,7 @@ FenPrincipale::FenPrincipale()
 
 				setTabIndex(Multiuso::tabIndexOf("Client FTP", pagesDuProgramme));
 			}
-			
+
 			else if (arg == "-wb" || arg == "--webbrowser") // Navigateur Web
 			{
 				if (!Multiuso::openTabsList(pagesDuProgramme).contains("Navigateur Web"))
@@ -299,7 +299,7 @@ FenPrincipale::FenPrincipale()
 			{
 				navigateur->slotNouvelOnglet();
 				navigateur->slotOuvrirUrl(arg);
-				
+
 				if (!Multiuso::openTabsList(pagesDuProgramme).contains("Navigateur Web"))
 					accueil->openTab("Navigateur Web");
 
@@ -310,12 +310,12 @@ FenPrincipale::FenPrincipale()
 			{
 				systemTray->show();
 				hide();
-	
+
 				if (mainSettings.value("systemTray/afficher").toBool())
 				{
 					systemTray->showMessage("Multiuso", "Multiuso a été minimisé dans le system tray.\n"
 						"Cliquez sur l'icône pour ré-ouvrir le programme.", QSystemTrayIcon::Information, 5000);
-	
+
 					mainSettings.setValue("systemTray/afficher", false);
 				}
 			}
@@ -354,11 +354,11 @@ void FenPrincipale::creerReglages()
 	setWindowIcon(QIcon(":/icones/application/iconeApplication.png"));
 	setUnifiedTitleAndToolBarOnMac(true);
 
-	QSettings ouverture(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings ouverture(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	if (!ouverture.value("ouverture/agrandi").toBool())
 	{
-		QSettings reglagesFenetre(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+		QSettings reglagesFenetre(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 			resize(reglagesFenetre.value("dimensions/largeur").toInt(), reglagesFenetre.value("dimensions/hauteur").toInt());
 	}
 
@@ -388,7 +388,7 @@ void FenPrincipale::creerBarreMenus()
 
 void FenPrincipale::creerActions()
 {
-	QSettings reglagesActions(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings reglagesActions(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	actionTelechargements = new QAction("&Téléchargements", this);
 		actionTelechargements->setIcon(QIcon(":/icones/actions/actionTelechargements.png"));
@@ -399,7 +399,7 @@ void FenPrincipale::creerActions()
 		actionVerifierMaj->setIcon(QIcon(":/icones/actions/actionVerifierMaj.png"));
 		actionVerifierMaj->setStatusTip("Vérifier si une nouvelle version de Multiuso est disponible");
 		connect(actionVerifierMaj, SIGNAL(triggered()), this, SLOT(verifierMAJ()));
-		
+
 	actionAssistantMaj = new QAction("&Assistant de mise à jour", this);
 		actionAssistantMaj->setIcon(QIcon(":/icones/actions/actionAssistantMaj.png"));
 		actionAssistantMaj->setStatusTip("Lancer l'assistant de mise à jour");
@@ -493,7 +493,7 @@ void FenPrincipale::creerActions()
 		actionCreerFichier->setIcon(QIcon(":/icones/actions/actionCreerFichier.png"));
 		actionCreerFichier->setStatusTip("Créer un fichier de nom et d'extension libre");
 		connect(actionCreerFichier, SIGNAL(triggered()), this, SLOT(slotCreerFichier()));
-		
+
 	actionFeedTarsiers = new QAction("Feed&Tarsiers", this);
 		actionFeedTarsiers->setIcon(QIcon(":/icones/feed_tarsiers/tarsier_l_3.png"));
 		actionFeedTarsiers->setStatusTip("Jouer à FeedTarsiers");
@@ -513,7 +513,7 @@ void FenPrincipale::creerActions()
 		actionSurLeWeb->setIcon(QIcon(":/icones/actions/actionSurLeWeb.png"));
 		actionSurLeWeb->setStatusTip("Site Web de Multiuso");
 		connect(actionSurLeWeb, SIGNAL(triggered()), this, SLOT(slotSurLeWeb()));
-	
+
 	actionObtenirPlugins = new QAction("&Obtenir des nouveaux plugins", this);
 		actionObtenirPlugins->setIcon(QIcon(":/icones/actions/actionObtenirPlugins.png"));
 		actionObtenirPlugins->setStatusTip("Obtenir des nouveaux plugins sur le site Web de Multiuso");
@@ -596,7 +596,7 @@ void FenPrincipale::creerBarreEtat()
 {
 	barreDEtat = statusBar();
 
-	QSettings barreEtat(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings barreEtat(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	if (!barreEtat.value("statusBar/afficher").toBool())
 		barreDEtat->hide();
@@ -737,7 +737,7 @@ bool FenPrincipale::eventFilter(QObject *object, QEvent *event)
 
 void FenPrincipale::closeEvent(QCloseEvent *event)
 {
-	QSettings quitter(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings quitter(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	if (!quitter.value("fermeture/systemTray").toBool())
 	{
@@ -750,7 +750,7 @@ void FenPrincipale::closeEvent(QCloseEvent *event)
 		systemTray->show();
 		hide();
 
-		QSettings systemTraySettings(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+		QSettings systemTraySettings(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 		if (systemTraySettings.value("systemTray/afficher").toBool())
 		{
@@ -768,14 +768,14 @@ void FenPrincipale::resizeEvent(QResizeEvent *event)
 {
 	event->accept();
 
-	QSettings reglagesFenetre(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings reglagesFenetre(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		reglagesFenetre.setValue("dimensions/largeur", width());
 		reglagesFenetre.setValue("dimensions/hauteur", height());
 }
 
 void FenPrincipale::moveEvent(QMoveEvent *event)
 {
-	QSettings config(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
  	if (config.value("deplacements/effets").toBool())
 	{
@@ -876,7 +876,7 @@ void FenPrincipale::slotQuitter()
 	if (tabs.isEmpty())
 		tabs << "";
 
-	QSettings reglagesFenetre(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings reglagesFenetre(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		reglagesFenetre.setValue("dimensions/largeur", width());
 		reglagesFenetre.setValue("dimensions/hauteur", height());
 		reglagesFenetre.setValue("ouverture/crash", false);
@@ -898,16 +898,16 @@ void FenPrincipale::actionWidgetClicked()
 
 	if (action == 0)
 		return;
-	
-	QSettings settings(Multiuso::appDirPath() + "/reglages/widgets.ini", QSettings::IniFormat);
+
+	QSettings settings(Multiuso::appDirPath() + "/ini/widgets.ini", QSettings::IniFormat);
 		settings.setValue(Multiuso::cleanStr(action->text()) + "/afficher", true);
 
 	disableEnableWidgetsMenuActions();
 }
-	
+
 void FenPrincipale::updateSubWindowsMenu(QString windowTitle)
 {
-	QSettings settings(Multiuso::appDirPath() + "/reglages/widgets.ini", QSettings::IniFormat);
+	QSettings settings(Multiuso::appDirPath() + "/ini/widgets.ini", QSettings::IniFormat);
 		settings.setValue(Multiuso::cleanStr(windowTitle) + "/afficher", false);
 
 	disableEnableWidgetsMenuActions();
@@ -915,13 +915,13 @@ void FenPrincipale::updateSubWindowsMenu(QString windowTitle)
 
 void FenPrincipale::disableEnableWidgetsMenuActions()
 {
-	QSettings settings(Multiuso::appDirPath() + "/reglages/widgets.ini", QSettings::IniFormat);
+	QSettings settings(Multiuso::appDirPath() + "/ini/widgets.ini", QSettings::IniFormat);
 		bool first = settings.value("first").toBool();
 		settings.setValue("first", false);
 
 	QStringList subWindows;
 		subWindows << "Calendrier/Agenda" << "Calculatrice" << "Chronomètre/Minuterie";
-	
+
 	for (int i = 0; i < subWindows.size(); i++)
 	{
 		if (first)
@@ -929,7 +929,7 @@ void FenPrincipale::disableEnableWidgetsMenuActions()
 
 		if (settings.value(Multiuso::cleanStr(subWindows.value(i)) + "/afficher").toBool())
 			widgets->showWindow(subWindows.value(i));
-		
+
 		if (subWindows.value(i) == "Calendrier/Agenda")
 			actionSubCalendrier->setDisabled(settings.value(Multiuso::cleanStr(subWindows.value(i)) + "/afficher").toBool());
 
@@ -953,7 +953,7 @@ void FenPrincipale::slotPreferences()
 
 void FenPrincipale::slotBarreEtat()
 {
-	QSettings barreEtat(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings barreEtat(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		barreEtat.setValue("statusBar/afficher", actionBarreEtat->isChecked());
 
 	if (actionBarreEtat->isChecked())
@@ -1066,7 +1066,7 @@ void FenPrincipale::slotSurLeWeb()
 {
 	navigateur->slotNouvelOnglet();
 	navigateur->slotOuvrirUrl(QCoreApplication::organizationDomain());
-	
+
 	if (!Multiuso::openTabsList(pagesDuProgramme).contains("Navigateur Web"))
 		accueil->openTab("Navigateur Web");
 
@@ -1077,7 +1077,7 @@ void FenPrincipale::slotObtenirPlugins()
 {
 	navigateur->slotNouvelOnglet();
 	navigateur->slotOuvrirUrl(QCoreApplication::organizationDomain() + "plugins.php");
-	
+
 	if (!Multiuso::openTabsList(pagesDuProgramme).contains("Navigateur Web"))
 		accueil->openTab("Navigateur Web");
 
@@ -1102,7 +1102,7 @@ void FenPrincipale::appliquerReglages()
 {
 	accueil->actualiserFond();
 
-	QSettings apparenceFenetre(Multiuso::appDirPath() + "/reglages/apparence.ini", QSettings::IniFormat);
+	QSettings apparenceFenetre(Multiuso::appDirPath() + "/ini/apparence.ini", QSettings::IniFormat);
 
 	QString style = " ";
 
@@ -1150,7 +1150,7 @@ void FenPrincipale::appliquerReglages()
 }
 
 void FenPrincipale::ouvrirFichier(QString fichier)
-{	
+{
 	QStringList textesFormates;
 		textesFormates << "mltshtml";
 
@@ -1170,7 +1170,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 	if (textesFormates.contains(suffixe.toLower()))
 	{
 		editeurDeTexte->slotOuvrirFichier(fichier);
-		
+
 		if (!Multiuso::openTabsList(pagesDuProgramme).contains("Éditeur de texte"))
 			accueil->openTab("Éditeur de texte");
 
@@ -1181,7 +1181,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 	{
 		editeurDeCode->slotOuvrirFichier(fichier);
 		editeurDeCode->highlighterFor(suffixe);
-		
+
 		if (!Multiuso::openTabsList(pagesDuProgramme).contains("Éditeur de code"))
 			accueil->openTab("Éditeur de code");
 
@@ -1192,7 +1192,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 	{
 		navigateur->slotNouvelOnglet();
 		navigateur->slotOuvrirFichier(fichier);
-		
+
 		if (!Multiuso::openTabsList(pagesDuProgramme).contains("Navigateur Web"))
 			accueil->openTab("Navigateur Web");
 
@@ -1208,7 +1208,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 			visionneurImages->switchToLastIndex();
 
 		visionneurImages->slotOuvrirFichier(fichier);
-		
+
 		if (!Multiuso::openTabsList(pagesDuProgramme).contains("Visionneur d'images"))
 			accueil->openTab("Visionneur d'images");
 
@@ -1341,7 +1341,7 @@ void FenPrincipale::MajDisponible()
 
 		emplacementTelechargementNouvelleVersion = QFileDialog::getSaveFileName(this, "Multiuso",
 				Multiuso::lastPath() + "/" + infosFichier.fileName(), "Fichier (*)");
-				
+
 		Multiuso::setLastPath(emplacementTelechargementNouvelleVersion);
 
 		if (emplacementTelechargementNouvelleVersion.isEmpty())
@@ -1362,7 +1362,7 @@ void FenPrincipale::MajDisponible()
 
 void FenPrincipale::erreurDL(QNetworkReply::NetworkError)
 {
-	QSettings connecteReseau(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings connecteReseau(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		connecteReseau.setValue("reseau/internet", false);
 }
 

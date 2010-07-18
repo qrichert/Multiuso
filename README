@@ -1,3 +1,5 @@
+BUILDING :
+
 You must have the framework Qt installed on your computer, if not see <http://qt.nokia.com/downloads>
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -6,7 +8,7 @@ You must have the framework Qt installed on your computer, if not see <http://qt
 
 First, open a terminal and change the directory to Multiuso's project folder (for example : "/home/Multiuso") : "cd /home/Multiuso"
 	
-Next run "qmake-qt4" (or "qmake" on Windows)
+Next run "qmake"
 
 To finish, just run "make" (or "mingw32-make" on Windows)
 

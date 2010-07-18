@@ -21,7 +21,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 Chronometre::Chronometre(QWidget *parent = 0) : QWidget(parent)
 {
-	QSettings reglagesChronometre(Multiuso::appDirPath() + "/reglages/chronometre.ini", QSettings::IniFormat);
+	QSettings reglagesChronometre(Multiuso::appDirPath() + "/ini/chronometre.ini", QSettings::IniFormat);
 
 	temps = new QTimer(this);
 		connect(temps, SIGNAL(timeout()), this, SLOT(slotActualiser()));
@@ -138,7 +138,7 @@ void Chronometre::slotDemarrer()
 		b_boite_de_dialogue = false;
 	}
 
-	QSettings enregistrerReglagesChronometre(Multiuso::appDirPath() + "/reglages/chronometre.ini", QSettings::IniFormat);
+	QSettings enregistrerReglagesChronometre(Multiuso::appDirPath() + "/ini/chronometre.ini", QSettings::IniFormat);
 		enregistrerReglagesChronometre.setValue("chronometre/afficher", chronometre->isChecked());
 		enregistrerReglagesChronometre.setValue("chronometre/millisecondes_disabled", b_millisecondes);
 		enregistrerReglagesChronometre.setValue("minuterie/afficher", minuterie->isChecked());

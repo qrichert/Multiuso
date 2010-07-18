@@ -49,7 +49,7 @@ FilterWidget::FilterWidget()
 		buttonMirrorHorizontalFilter->setText("Miroir horizontal");
 	//	buttonMirrorHorizontalFilter->setIconSize(QSize(32, 32));
 		connect(buttonMirrorHorizontalFilter, SIGNAL(clicked()), this, SLOT(slotMirrorHorizontalFilter()));
-	
+
 	QPushButton *buttonMirrorVerticalFilter = new QPushButton;
 		buttonMirrorVerticalFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/vertical_mirror.png"));
 		buttonMirrorVerticalFilter->setText("Miroir vertical");
@@ -61,19 +61,19 @@ FilterWidget::FilterWidget()
 		buttonReflectionFilter->setText("Reflet");
 	//	buttonReflectionFilter->setIconSize(QSize(32, 32));
 		connect(buttonReflectionFilter, SIGNAL(clicked()), this, SLOT(slotReflectionFilter()));
-	
+
 	QPushButton *buttonBorderFilter = new QPushButton;
 		buttonBorderFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/border.png"));
 		buttonBorderFilter->setText("Bordure");
 	//	buttonBorderFilter->setIconSize(QSize(32, 32));
 		connect(buttonBorderFilter, SIGNAL(clicked()), this, SLOT(slotBorderFilter()));
-	
+
 	QPushButton *buttonRotationFilter = new QPushButton;
 		buttonRotationFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/rotation.png"));
 		buttonRotationFilter->setText("Rotation");
 	//	buttonRotationFilter->setIconSize(QSize(32, 32));
 		connect(buttonRotationFilter, SIGNAL(clicked()), this, SLOT(slotRotationFilter()));
-		
+
 	QPushButton *buttonResizeFilter = new QPushButton;
 		buttonResizeFilter->setIcon(QIcon(":/icones/visionneur_images/filtres/resize.png"));
 		buttonResizeFilter->setText("Redimensionner");
@@ -107,7 +107,7 @@ FilterWidget::FilterWidget()
 		mainLayout->setAlignment(Qt::AlignTop);
 
 	// Construction of the resize-picture dialog
-	
+
 	m_resizeDialog = new QDialog(this);
 		m_resizeDialog->setWindowTitle("Multiuso");
 		m_resizeDialog->setWindowIcon(QIcon(":/icones/visionneur_images/filtres/resize.png"));
@@ -117,7 +117,7 @@ FilterWidget::FilterWidget()
 		m_pictureX->setRange(1, 1000000);
 		connect(m_pictureX, SIGNAL(editingFinished()), this, SLOT(resizePictureValueChangedX()));
 		m_originalPictureX = 0;
-	
+
 	m_pictureY = new QSpinBox;
 		m_pictureY->setSuffix("px");
 		m_pictureY->setRange(1, 1000000);
@@ -176,10 +176,10 @@ void FilterWidget::slotPhotoFilter()
 		return;
 
 	int borderWidth = 0;
-	
+
 	if (m_pixmap.width() > m_pixmap.height())
 		borderWidth = m_pixmap.height() / 20;
-			
+
 	else
 		borderWidth = m_pixmap.width() / 20;
 
@@ -207,14 +207,14 @@ void FilterWidget::slotPhotoFilter()
 				-(reflectionPixmap.height() + (reflectionPixmap.height() / 3)),
 					reflectionPixmap.width() * 2, reflectionPixmap.height() * 2);
 		painter.end();
-	
+
 		painter.begin(&newPixmap); // Finally we aply the ellipse of the "main" pixmap with rounded corners
 			painter.setRenderHint(QPainter::Antialiasing, true);
 			painter.setPen(Qt::NoPen);
 			painter.setBrush(reflectionPixmap);
 			painter.drawRoundedRect(0, 0, newPixmap.width(), newPixmap.height(), radius, radius);
 		painter.end();
-	
+
 	m_pixmap = QPixmap(newPixmap);
 
 	emit newPictureAvailable(newPixmap);
@@ -237,7 +237,7 @@ void FilterWidget::slotColorFilter()
 
 	if (!ok || opacity == 0)
 		return;
-	
+
 	int radius = QInputDialog::getInt(this, "Multiuso", "Taille du rayon (en px) :<br />"
 		"<em>Pour les coins arrondis (0 pour aucun arrondissement)</em>",
 			0, 0, 250, 1, &ok);
@@ -255,10 +255,10 @@ void FilterWidget::slotColorFilter()
 			painter.setOpacity(opacity);
 			painter.drawRoundedRect(0, 0, m_pixmap.width(), m_pixmap.height(), radius, radius);
 		painter.end();
-	
+
 	emit newPictureAvailable(m_pixmap);
 }
-	
+
 void FilterWidget::slotInvertColorsFilter()
 {
 	if (m_pixmap.isNull() || m_isGif)
@@ -268,7 +268,7 @@ void FilterWidget::slotInvertColorsFilter()
 		image.invertPixels();
 
 	m_pixmap = QPixmap::fromImage(image);
-	
+
 	emit newPictureAvailable(m_pixmap);
 }
 
@@ -281,7 +281,7 @@ void FilterWidget::slotMirrorHorizontalFilter()
 		image = image.mirrored(true, false);
 
 	m_pixmap = QPixmap::fromImage(image);
-	
+
 	emit newPictureAvailable(m_pixmap);
 }
 
@@ -294,7 +294,7 @@ void FilterWidget::slotMirrorVerticalFilter()
 		image = image.mirrored(false, true);
 
 	m_pixmap = QPixmap::fromImage(image);
-	
+
 	emit newPictureAvailable(m_pixmap);
 }
 
@@ -302,12 +302,12 @@ void FilterWidget::slotReflectionFilter()
 {
 	if (m_pixmap.isNull() || m_isGif)
 		return;
-	
+
 	QColor color = QColorDialog::getColor(Qt::white, this, "Choisissez la couleur de fond");
 
 	if (!color.isValid())
 		return;
-	
+
 	bool ok;
 
 	double percentOfPicture = QInputDialog::getDouble(this, "Multiuso",
@@ -353,7 +353,7 @@ void FilterWidget::slotBorderFilter()
 {
 	if (m_pixmap.isNull() || m_isGif)
 		return;
-	
+
 	QColor color = QColorDialog::getColor(Qt::white, this, "Choisissez la couleur de la bordure", QColorDialog::ShowAlphaChannel);
 
 	if (!color.isValid())
@@ -365,7 +365,7 @@ void FilterWidget::slotBorderFilter()
 
 	if (!ok)
 		return;
-	
+
 	int radius = QInputDialog::getInt(this, "Multiuso", "Taille du rayon (en px) :<br />"
 			"<em>Pour les coins arrondis (0 pour aucun arrondissement)</em>",
 				0, 0, 250, 1, &ok);
@@ -384,7 +384,7 @@ void FilterWidget::slotBorderFilter()
 			painter.drawRoundedRect(0, 0, newPixmap.width(), newPixmap.height(), radius, radius);
 			painter.drawPixmap(borderWidth, borderWidth, m_pixmap);
 		painter.end();
-	
+
 	m_pixmap = QPixmap(newPixmap);
 
 	emit newPictureAvailable(m_pixmap);
@@ -411,13 +411,13 @@ void FilterWidget::slotRotationFilter()
 			QComboBox *axis = new QComboBox;
 				axis->addItems(QStringList() << "X" << "Y" << "Z");
 				axis->setCurrentIndex(axis->findText("Z"));
-					
+
 				QHBoxLayout *layout1 = new QHBoxLayout;
 					layout1->addWidget(label1);
 					layout1->addWidget(degrees);
 					layout1->addWidget(label2);
 					layout1->addWidget(axis);
-				
+
 			QPushButton *reject = new QPushButton("Annuler");
 				connect(reject, SIGNAL(clicked()), dialog, SLOT(reject()));
 
@@ -443,7 +443,7 @@ void FilterWidget::slotRotationFilter()
 	}
 
 	// Degrees
-	
+
 	qreal rotationDegrees = (qreal) degrees->value();
 
 	// Axis
@@ -460,7 +460,7 @@ void FilterWidget::slotRotationFilter()
 		rotationAxis = Qt::ZAxis;
 
 	// Construction of the matrix
-	
+
 	QTransform transform;
 		transform.rotate(rotationDegrees, rotationAxis);
 
@@ -490,7 +490,7 @@ void FilterWidget::slotResizeFilter()
 
 	m_pixmap = m_pixmap.scaled(m_pictureX->value(), m_pictureY->value(),
 			Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	
+
 	emit newPictureAvailable(m_pixmap);
 }
 
@@ -499,7 +499,7 @@ void FilterWidget::resizePictureValueChangedX()
 	if (!m_resizeProportional->isChecked())
 		return;
 
-	qreal factor = (qreal) m_pictureX->value() / m_originalPictureX;	
+	qreal factor = (qreal) m_pictureX->value() / m_originalPictureX;
 
 	m_pictureY->setValue(m_originalPictureY * factor);
 }
@@ -508,7 +508,7 @@ void FilterWidget::resizePictureValueChangedY()
 {
 	if (!m_resizeProportional->isChecked())
 		return;
-	
+
 	qreal factor = (qreal) m_pictureY->value() / m_originalPictureY;
 
 	m_pictureX->setValue(m_originalPictureX * factor);
@@ -570,7 +570,7 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		actionZoomNormal->setIcon(QIcon(":/icones/visionneur_images/actionZoomNormal.png"));
 		actionZoomNormal->setShortcut(QKeySequence("Ctrl+0"));
 		connect(actionZoomNormal, SIGNAL(triggered()), this, SLOT(slotZoomNormal()));
-		
+
 	actionZoomIdeal = new QAction("Taille idéale", this);
 		actionZoomIdeal->setIcon(QIcon(":/icones/visionneur_images/actionZoomIdeal.png"));
 		actionZoomIdeal->setShortcut(QKeySequence("F"));
@@ -602,15 +602,15 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		toolBar->addAction(actionRotateRight);
 		toolBar->setObjectName("Options");
 		toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		
+
 	QToolButton *buttonAddTab = new QToolButton;
 		buttonAddTab->setDefaultAction(actionAddTab);
 		buttonAddTab->setAutoRaise(true);
-	
+
 	QToolButton *buttonRemoveTab = new QToolButton;
 		buttonRemoveTab->setDefaultAction(actionRemoveTab);
 		buttonRemoveTab->setAutoRaise(true);
-	
+
 	filterWidget = new FilterWidget;
 		connect(filterWidget, SIGNAL(newPictureAvailable(QPixmap)), this, SLOT(slotApplyEffects(QPixmap)));
 		connect(filterWidget, SIGNAL(savePictureRequested(QPixmap)), this, SLOT(slotSavePicture(QPixmap)));
@@ -621,7 +621,7 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		dockFilters->setObjectName("Filtres");
 		dockFilters->setWidget(filterWidget);
 		addDockWidget(Qt::LeftDockWidgetArea, dockFilters);
-		
+
 	onglets = new QTabWidget;
 		onglets->setMovable(true);
 		onglets->setDocumentMode(true);
@@ -633,7 +633,7 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 
 	setCentralWidget(onglets);
 
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/visionneur_images.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/visionneur_images.ini", QSettings::IniFormat);
 		restoreState(reglages.value("etat_fenetre").toByteArray());
 }
 
@@ -645,7 +645,7 @@ bool VisionneurImages::needNewTab()
 
 	if (picture == 0)
 		return newTab;
-	
+
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -653,7 +653,7 @@ bool VisionneurImages::needNewTab()
 
 	if (picture->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		newTab = false;
-	
+
 	if (picture->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		newTab = false;
 
@@ -679,7 +679,7 @@ void VisionneurImages::slotOuvrir()
 {
 	QString image = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(),
 			"Image (*.*)");
-				
+
 	Multiuso::setLastPath(image);
 
 	if (!image.isNull())
@@ -703,7 +703,7 @@ void VisionneurImages::slotZoomPlus()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
-	
+
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
@@ -722,7 +722,7 @@ void VisionneurImages::slotZoomNormal()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
-	
+
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
@@ -741,7 +741,7 @@ void VisionneurImages::slotZoomIdeal()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
-	
+
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
@@ -751,7 +751,7 @@ void VisionneurImages::slotZoomIdeal()
 		&& currentLabel()->width() < currentScrollArea()->width())
 	{
 		currentLabel()->setZoom(1.0);
-		
+
 		return;
 	}
 
@@ -776,7 +776,7 @@ void VisionneurImages::slotZoomMoins()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
-	
+
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
@@ -795,7 +795,7 @@ void VisionneurImages::slotRotateLeft()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
-	
+
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
@@ -822,7 +822,7 @@ void VisionneurImages::slotRotateRight()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
-	
+
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
@@ -833,7 +833,7 @@ void VisionneurImages::slotRotateRight()
 		newPixmap = newPixmap.transformed(transform);
 
 	currentLabel()->setPixmap(newPixmap);
-	
+
 	slotZoomIdeal();
 }
 
@@ -841,7 +841,7 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 {
 	if (currentLabel()->imgPath() == fichier) // If the open-requested file is the current shown file
 		return;
-	
+
 	QStringList suffixes;
 		suffixes << "png" << "jpg" << "jpeg" << "bmp" << "gif"<< "pbm"
 			<< "pgm" << "ppm" << "xbm" << "xpm" << "svg";
@@ -858,7 +858,7 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 	currentLabel()->adjustSize();
 
 	slotZoomIdeal();
-	
+
 	QString name = QFileInfo(fichier).fileName();
 
 	if (fichier == ":/images/fond_visionneur_images.png")
@@ -885,12 +885,12 @@ void VisionneurImages::slotOpenFileFromDrop(QUrl url)
 
 	if (Multiuso::currentOS() == "windows")
 		slashToAdd = "/";
-	
+
 	if (url.toString().startsWith("file://" + slashToAdd + Multiuso::tempPath())) // If the picture is in the temporary directory
 		return;
-	
+
 	QString urlPath = url.path();
-	
+
 	if (Multiuso::currentOS() == "windows")
 		urlPath = urlPath.right(urlPath.length() - 1);
 
@@ -923,7 +923,7 @@ void VisionneurImages::slotSavePicture(QPixmap pixmap)
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
-	
+
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
@@ -939,7 +939,7 @@ void VisionneurImages::slotCancelChanges()
 
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
 		return;
-	
+
 	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 		return;
 
@@ -963,7 +963,7 @@ void VisionneurImages::ajusterScrollBar(QScrollBar *scrollBar, double facteurZoo
 
 void VisionneurImages::sauvegarderEtat()
 {
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/visionneur_images.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/visionneur_images.ini", QSettings::IniFormat);
 		reglages.setValue("etat_fenetre", saveState());
 }
 
@@ -1015,7 +1015,7 @@ void VisionneurImages::slotTabIndexChanged(int)
 {
 	if (currentLabel()->imgPath().isEmpty())
 		return;
-	
+
 	QString slashToAdd = "";
 
 	if (Multiuso::currentOS() == "windows")
@@ -1029,7 +1029,7 @@ void VisionneurImages::slotTabIndexChanged(int)
 			filterWidget->setIsGif(false);
 		}
 	}
-	
+
 	else if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
 	{
 		if (filterWidget)
@@ -1038,7 +1038,7 @@ void VisionneurImages::slotTabIndexChanged(int)
 			filterWidget->setIsGif(false);
 		}
 	}
-	
+
 	else if (filterWidget && !QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)).isNull())
 	{
 		filterWidget->setPixmap(QPixmap(currentLabel()->imgPath().remove("file://" + slashToAdd)));
@@ -1055,7 +1055,7 @@ void VisionneurImages::slotRemoveTab(int index)
 {
 	onglets->widget(index)->deleteLater();
 	onglets->removeTab(index);
-	
+
 	if (onglets->count() > 1)
 	{
 		onglets->setTabsClosable(true);

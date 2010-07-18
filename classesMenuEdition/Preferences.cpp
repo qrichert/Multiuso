@@ -133,14 +133,14 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 	restaurerOnglets = new QCheckBox;
 
 	QStringList listeDesMoteursDeRecherche;
-		listeDesMoteursDeRecherche << "AltaVista" << "Bing" << "Google" << "Yahoo!" << "Yauba" << "Personnalisé"; 
+		listeDesMoteursDeRecherche << "AltaVista" << "Bing" << "Google" << "Yahoo!" << "Yauba" << "Personnalisé";
 
 	moteurDeRecherche = new QComboBox;
 		moteurDeRecherche->addItems(listeDesMoteursDeRecherche);
 		connect(moteurDeRecherche, SIGNAL(currentIndexChanged(QString)), this, SLOT(changementMoteurDeRecherche(QString)));
 
 	moteurPersonnalise = new QLineEdit;
-	
+
 	nouvelOngletMoteurRecherche = new QCheckBox;
 
 	QHBoxLayout *layoutMoteurRecherche = new QHBoxLayout;
@@ -167,7 +167,7 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 		layoutNavigateurWeb1->addRow("Imprimer les éléments de fond :", imprimerElementsFond);
 		layoutNavigateurWeb1->addRow("Utiliser l'historique de navigation :", utiliserHistorique);
 		layoutNavigateurWeb1->addRow("Restaurer les onglets ouverts à la fermeture :", restaurerOnglets);
-	
+
 	QGridLayout *layoutNavigateurWeb2 = new QGridLayout;
 		layoutNavigateurWeb2->addWidget(effacerCookies, 0, 0, 1, 1);
 		layoutNavigateurWeb2->addWidget(viderCache, 0, 1, 1, 1);
@@ -176,7 +176,7 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 		layoutNavigateurWeb->addLayout(layoutMoteurRecherche);
 		layoutNavigateurWeb->addLayout(layoutNavigateurWeb1);
 		layoutNavigateurWeb->addLayout(layoutNavigateurWeb2);
-		
+
 	// <Stalker (www.siteduzero.com)>
 		adresseProxyHTTP = new QLineEdit;
 		connect(adresseProxyHTTP,SIGNAL(textChanged(QString)),this,SLOT(changementAdresseProxyHTTP(QString)));
@@ -226,7 +226,7 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 
 	QListWidgetItem *itemStyle = new QListWidgetItem("Style");
 		itemStyle->setIcon(QIcon(":/icones/preferences/style.png"));
-		
+
 	// <Stalker (www.siteduzero.com)>
 		QListWidgetItem *itemProxy = new QListWidgetItem("Proxy");
 			itemProxy->setIcon(QIcon(":/icones/preferences/proxy.png"));
@@ -246,8 +246,8 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 
 	QListWidgetItem *itemNavigateurWeb = new QListWidgetItem("Navigateur Web");
 		itemNavigateurWeb->setIcon(QIcon(":/icones/preferences/navigateur_web.png"));
-			
-	QSettings itemActuel(Multiuso::appDirPath() + "/reglages/preferences.ini", QSettings::IniFormat);
+
+	QSettings itemActuel(Multiuso::appDirPath() + "/ini/preferences.ini", QSettings::IniFormat);
 
 	listeOptions = new QListWidget;
 		listeOptions->addItem(itemGeneral);
@@ -284,7 +284,7 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 
 	widgetLayoutNavigateurWeb = new QWidget;
 		widgetLayoutNavigateurWeb->setLayout(layoutNavigateurWeb);
-		
+
 	// <Stalker (www.siteduzero.com)>
 		widgetLayoutProxy = new QWidget;
 			widgetLayoutProxy->setLayout(layoutProxy);
@@ -301,7 +301,7 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 		widgetWidgetsContenu->addWidget(widgetLayoutEditeurDeTexte);
 		widgetWidgetsContenu->addWidget(widgetLayoutEditeurDeCode);
 		widgetWidgetsContenu->addWidget(widgetLayoutNavigateurWeb);
-		
+
 	connect(listeOptions, SIGNAL(currentRowChanged(int)), widgetWidgetsContenu, SLOT(setCurrentIndex(int)));
 
 	QVBoxLayout *layoutWidgetsContenu = new QVBoxLayout;
@@ -366,7 +366,7 @@ void Preferences::slotRemettreAZero()
 
 	if (reponse == QMessageBox::Yes)
 	{
-		QSettings reglagesFenetre(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+		QSettings reglagesFenetre(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 			reglagesFenetre.setValue("last_path", "");
 			reglagesFenetre.setValue("dimensions/largeur", 985);
 			reglagesFenetre.setValue("dimensions/hauteur", 660);
@@ -385,12 +385,12 @@ void Preferences::slotRemettreAZero()
 			reglagesFenetre.setValue("splash_screen/utiliser", true);
 			reglagesFenetre.setValue("remise_a_zero/restart", false);
 			reglagesFenetre.setValue("deplacements/effets", false);
-			
-		QSettings settings(Multiuso::appDirPath() + "/reglages/widgets.ini", QSettings::IniFormat);
+
+		QSettings settings(Multiuso::appDirPath() + "/ini/widgets.ini", QSettings::IniFormat);
 			settings.clear();
 			settings.setValue("first", true);
 
-		QSettings apparenceFenetre(Multiuso::appDirPath() + "/reglages/apparence.ini", QSettings::IniFormat);
+		QSettings apparenceFenetre(Multiuso::appDirPath() + "/ini/apparence.ini", QSettings::IniFormat);
 			apparenceFenetre.setValue("style/style_de_base", true);
 			apparenceFenetre.setValue("style/style_personnalise", false);
 			apparenceFenetre.setValue("style/style_externe", false);
@@ -398,36 +398,36 @@ void Preferences::slotRemettreAZero()
 			apparenceFenetre.setValue("style/style_qt", false);
 			apparenceFenetre.setValue("style/style_qt_utilise", "");
 
-		QSettings reglagesPreferences(Multiuso::appDirPath() + "/reglages/preferences.ini", QSettings::IniFormat);
+		QSettings reglagesPreferences(Multiuso::appDirPath() + "/ini/preferences.ini", QSettings::IniFormat);
 			reglagesPreferences.setValue("dernier_item", 0);
 
-		QSettings reglagesChronometre(Multiuso::appDirPath() + "/reglages/chronometre.ini", QSettings::IniFormat);
+		QSettings reglagesChronometre(Multiuso::appDirPath() + "/ini/chronometre.ini", QSettings::IniFormat);
 			reglagesChronometre.setValue("chronometre/afficher", true);
 			reglagesChronometre.setValue("chronometre/millisecondes_disabled", false);
 			reglagesChronometre.setValue("minuterie/afficher", false);
 			reglagesChronometre.setValue("minuterie/boite_de_dialogue", true);
 			reglagesChronometre.setValue("minuterie/boite_de_dialogue_disabled", true);
 
-		QSettings reglagesGenerer(Multiuso::appDirPath() + "/reglages/generer.ini", QSettings::IniFormat);
+		QSettings reglagesGenerer(Multiuso::appDirPath() + "/ini/generer.ini", QSettings::IniFormat);
 			reglagesGenerer.setValue("cpp/commentaires", false);
 			reglagesGenerer.setValue("cpp/gnu_gpl", true);
 
-		QSettings reglagesEditeurDeTexte(Multiuso::appDirPath() + "/reglages/editeur_de_texte.ini", QSettings::IniFormat);
+		QSettings reglagesEditeurDeTexte(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
 			reglagesEditeurDeTexte.setValue("enregistrement/enregistrement_automatique", false);
 			reglagesEditeurDeTexte.setValue("etat_fenetre", "");
 
-		QSettings reglagesEditeurDeCode(Multiuso::appDirPath() + "/reglages/editeur_de_code.ini", QSettings::IniFormat);
+		QSettings reglagesEditeurDeCode(Multiuso::appDirPath() + "/ini/editeur_de_code.ini", QSettings::IniFormat);
 			reglagesEditeurDeCode.setValue("enregistrement/enregistrement_automatique", false);
 			reglagesEditeurDeCode.setValue("etat_fenetre", "");
 			reglagesEditeurDeCode.setValue("saisie/indentation_automatique", true);
 
-		QSettings reglagesFtp(Multiuso::appDirPath() + "/reglages/ftp.ini", QSettings::IniFormat);
+		QSettings reglagesFtp(Multiuso::appDirPath() + "/ini/ftp.ini", QSettings::IniFormat);
 			reglagesFtp.setValue("etat_fenetre", "");
 
 			for (int i = 1; i <= 5; i++)
 				reglagesFtp.setValue("Historique/historique" + QString::number(i), QStringList() << "(vide)" << "(vide)" << "(vide)" << "(vide)");
 
-		QSettings reglagesNavigateur(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+		QSettings reglagesNavigateur(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 			reglagesNavigateur.setValue("page_accueil", QCoreApplication::organizationDomain());
 			reglagesNavigateur.setValue("nouvel_onglet_recherche_moteur_recherche", true);
 			reglagesNavigateur.setValue("contenu_editable", false);
@@ -443,16 +443,16 @@ void Preferences::slotRemettreAZero()
 			reglagesNavigateur.setValue("index_dernier_onglet", 0);
 			reglagesNavigateur.setValue("moteur_de_recherche", "Google");
 			reglagesNavigateur.setValue("moteur_personnalise", "");
-			
-		QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/reglages/nav_fichiers.ini", QSettings::IniFormat);
+
+		QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 			reglagesNavigateurFichiers.setValue("etat_fenetre", "");
 			reglagesNavigateurFichiers.setValue("dossier_accueil", "");
-			
-		QSettings reglagesVisionneurImages(Multiuso::appDirPath() + "/reglages/visionneur_images.ini", QSettings::IniFormat);
+
+		QSettings reglagesVisionneurImages(Multiuso::appDirPath() + "/ini/visionneur_images.ini", QSettings::IniFormat);
 			reglagesVisionneurImages.setValue("etat_fenetre", "");
-			
+
 		// <Stalker (www.siteduzero.com)>
-			QSettings reglagesProxy(Multiuso::appDirPath() + "/reglages/proxy.ini", QSettings::IniFormat);
+			QSettings reglagesProxy(Multiuso::appDirPath() + "/ini/proxy.ini", QSettings::IniFormat);
 				reglagesProxy.setValue("activer",false);
 				reglagesProxy.setValue("parametres_identiques",false);
 				reglagesProxy.setValue("adresse_http","");
@@ -468,14 +468,14 @@ void Preferences::slotRemettreAZero()
 
 		if (choixRedemarrerApresRemiseAZero->isChecked())
 			QProcess::startDetached(Multiuso::openCommand() + Multiuso::appDirPath() + "/Multiuso" + Multiuso::currentSuffix());
-		
+
 		Multiuso::quit();
 	}
 }
 
 void Preferences::afficherPreferences()
 {
-	QSettings reglagesFenetre(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings reglagesFenetre(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 		if (reglagesFenetre.value("fermeture/systemTray").toBool())
 			choixFermerFenetre->setCheckState(Qt::Checked);
@@ -490,22 +490,22 @@ void Preferences::afficherPreferences()
 
 		if (reglagesFenetre.value("accueil/fond_screenshot").toBool())
 			fondScreenshot->setCheckState(Qt::Checked);
-			
+
 		if (reglagesFenetre.value("splash_screen/utiliser").toBool())
 			choixUtiliserSplashScreen->setCheckState(Qt::Checked);
-			
+
 		if (reglagesFenetre.value("remise_a_zero/restart").toBool())
 			choixRedemarrerApresRemiseAZero->setCheckState(Qt::Checked);
-		
-	QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/reglages/nav_fichiers.ini", QSettings::IniFormat);
+
+	QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 		welcomeFolder->setText(reglagesNavigateurFichiers.value("dossier_accueil").toString());
 
-	QSettings reglagesEditeurDeTexte(Multiuso::appDirPath() + "/reglages/editeur_de_texte.ini", QSettings::IniFormat);
+	QSettings reglagesEditeurDeTexte(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
 
 		if (reglagesEditeurDeTexte.value("enregistrement/enregistrement_automatique").toBool())
 			enregistrementAutomatique->setCheckState(Qt::Checked);
 
-	QSettings reglagesEditeurDeCode(Multiuso::appDirPath() + "/reglages/editeur_de_code.ini", QSettings::IniFormat);
+	QSettings reglagesEditeurDeCode(Multiuso::appDirPath() + "/ini/editeur_de_code.ini", QSettings::IniFormat);
 
 		if (reglagesEditeurDeCode.value("enregistrement/enregistrement_automatique").toBool())
 			enregistrementAutomatiqueCode->setCheckState(Qt::Checked);
@@ -513,7 +513,7 @@ void Preferences::afficherPreferences()
 		if (reglagesEditeurDeCode.value("saisie/indentation_automatique").toBool())
 			indentationAutomatiqueCode->setCheckState(Qt::Checked);
 
-	QSettings apparenceFenetre(Multiuso::appDirPath() + "/reglages/apparence.ini", QSettings::IniFormat);
+	QSettings apparenceFenetre(Multiuso::appDirPath() + "/ini/apparence.ini", QSettings::IniFormat);
 		styleDeBase->setChecked(apparenceFenetre.value("style/style_de_base").toBool());
 		stylePersonnalise->setChecked(apparenceFenetre.value("style/style_personnalise").toBool());
 		styleExterne->setChecked(apparenceFenetre.value("style/style_externe").toBool());
@@ -521,7 +521,7 @@ void Preferences::afficherPreferences()
 		stylesQt->setChecked(apparenceFenetre.value("style/style_qt").toBool());
 		listeStylesQt->setCurrentIndex(listeStylesQt->findText(apparenceFenetre.value("style/style_qt_utilise").toString()));
 
-	QSettings reglagesNavigateur(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings reglagesNavigateur(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 		pageAccueil->setText(reglagesNavigateur.value("page_accueil").toString());
 
 		if (reglagesNavigateur.value("nouvel_onglet_recherche_moteur_recherche").toBool())
@@ -544,23 +544,23 @@ void Preferences::afficherPreferences()
 
 		if (reglagesNavigateur.value("settings/imprimer_elements_fond").toBool())
 			imprimerElementsFond->setCheckState(Qt::Checked);
-		
+
 		if (reglagesNavigateur.value("utiliser_historique").toBool())
 			utiliserHistorique->setCheckState(Qt::Checked);
-			
+
 		if (reglagesNavigateur.value("restaurer_onglets").toBool())
 			restaurerOnglets->setCheckState(Qt::Checked);
 
 		moteurDeRecherche->setCurrentIndex(moteurDeRecherche->findText(reglagesNavigateur.value("moteur_de_recherche").toString()));
-		
+
 		if (reglagesNavigateur.value("moteur_de_recherche").toString() != "Personnalisé")
 			moteurPersonnalise->setDisabled(true);
 
 		moteurPersonnalise->setText(reglagesNavigateur.value("moteur_personnalise").toString());
 
 	// <Stalker (www.siteduzero.com)>
-		QSettings reglagesProxy(Multiuso::appDirPath() + "/reglages/proxy.ini", QSettings::IniFormat);
-		
+		QSettings reglagesProxy(Multiuso::appDirPath() + "/ini/proxy.ini", QSettings::IniFormat);
+
 		if (reglagesProxy.value("activer",false).toBool())
 			groupboxParametresProxy->setChecked(true);
 
@@ -581,7 +581,7 @@ void Preferences::afficherPreferences()
 
 void Preferences::enregistrerPreferences()
 {
-	QSettings reglagesFenetre(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings reglagesFenetre(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		reglagesFenetre.setValue("fermeture/systemTray", choixFermerFenetre->isChecked());
 		reglagesFenetre.setValue("ouverture/agrandi", choixOuvertureFenetre->isChecked());
 		reglagesFenetre.setValue("deplacements/effets", choixEffetsDeDeplacement->isChecked());
@@ -590,17 +590,17 @@ void Preferences::enregistrerPreferences()
 		reglagesFenetre.setValue("splash_screen/utiliser", choixUtiliserSplashScreen->isChecked());
 		reglagesFenetre.setValue("remise_a_zero/restart", choixRedemarrerApresRemiseAZero->isChecked());
 
-	QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/reglages/nav_fichiers.ini", QSettings::IniFormat);
+	QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 		reglagesNavigateurFichiers.setValue("dossier_accueil", welcomeFolder->text());
 
-	QSettings reglagesEditeurDeTexte(Multiuso::appDirPath() + "/reglages/editeur_de_texte.ini", QSettings::IniFormat);
+	QSettings reglagesEditeurDeTexte(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
 		reglagesEditeurDeTexte.setValue("enregistrement/enregistrement_automatique", enregistrementAutomatique->isChecked());
 
-	QSettings reglagesEditeurDeCode(Multiuso::appDirPath() + "/reglages/editeur_de_code.ini", QSettings::IniFormat);
+	QSettings reglagesEditeurDeCode(Multiuso::appDirPath() + "/ini/editeur_de_code.ini", QSettings::IniFormat);
 		reglagesEditeurDeCode.setValue("enregistrement/enregistrement_automatique", enregistrementAutomatiqueCode->isChecked());
 		reglagesEditeurDeCode.setValue("saisie/indentation_automatique", indentationAutomatiqueCode->isChecked());
 
-	QSettings apparenceFenetre(Multiuso::appDirPath() + "/reglages/apparence.ini", QSettings::IniFormat);
+	QSettings apparenceFenetre(Multiuso::appDirPath() + "/ini/apparence.ini", QSettings::IniFormat);
 		apparenceFenetre.setValue("style/style_de_base", styleDeBase->isChecked());
 		apparenceFenetre.setValue("style/style_personnalise", stylePersonnalise->isChecked());
 		apparenceFenetre.setValue("style/style_externe", styleExterne->isChecked());
@@ -608,7 +608,7 @@ void Preferences::enregistrerPreferences()
 		apparenceFenetre.setValue("style/style_qt", stylesQt->isChecked());
 		apparenceFenetre.setValue("style/style_qt_utilise", listeStylesQt->currentText());
 
-	QSettings reglagesNavigateur(Multiuso::appDirPath() + "/reglages/navigateur.ini", QSettings::IniFormat);
+	QSettings reglagesNavigateur(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 		reglagesNavigateur.setValue("page_accueil", pageAccueil->text());
 		reglagesNavigateur.setValue("nouvel_onglet_recherche_moteur_recherche", nouvelOngletMoteurRecherche->isChecked());
 		reglagesNavigateur.setValue("contenu_editable", contenuEditable->isChecked());
@@ -621,9 +621,9 @@ void Preferences::enregistrerPreferences()
 		reglagesNavigateur.setValue("restaurer_onglets", restaurerOnglets->isChecked());
 		reglagesNavigateur.setValue("moteur_de_recherche", moteurDeRecherche->currentText());
 		reglagesNavigateur.setValue("moteur_personnalise", moteurPersonnalise->text());
-		
+
 	// <Stalker (www.siteduzero.com)>
-		QSettings reglagesProxy(Multiuso::appDirPath() + "/reglages/proxy.ini", QSettings::IniFormat);
+		QSettings reglagesProxy(Multiuso::appDirPath() + "/ini/proxy.ini", QSettings::IniFormat);
 			reglagesProxy.setValue("activer",groupboxParametresProxy->isChecked());
 			reglagesProxy.setValue("parametres_identiques",activerParametresIdentiquesProxy->isChecked());
 			reglagesProxy.setValue("adresse_http",adresseProxyHTTP->text());
@@ -654,7 +654,7 @@ void Preferences::reglagesParDefaut()
 	styleDeBase->setChecked(true);
 
 	fondScreenshot->setCheckState(Qt::Unchecked);
-	
+
 	welcomeFolder->setText(QDir::homePath());
 
 	enregistrementAutomatique->setCheckState(Qt::Unchecked);
@@ -674,7 +674,7 @@ void Preferences::reglagesParDefaut()
 	imprimerElementsFond->setCheckState(Qt::Unchecked);
 	utiliserHistorique->setCheckState(Qt::Checked);
 	restaurerOnglets->setCheckState(Qt::Checked);
-	
+
 	// <Stalker (www.siteduzero.com)>
 		groupboxParametresProxy->setChecked(false);
 		activerParametresIdentiquesProxy->setCheckState(Qt::Unchecked);
@@ -730,7 +730,7 @@ void Preferences::slotParcourirDossierAccueil()
 
 void Preferences::slotChangementItem(int item)
 {
-	QSettings itemActuel(Multiuso::appDirPath() + "/reglages/preferences.ini", QSettings::IniFormat);
+	QSettings itemActuel(Multiuso::appDirPath() + "/ini/preferences.ini", QSettings::IniFormat);
 		itemActuel.setValue("dernier_item", item);
 }
 
@@ -810,7 +810,7 @@ void Preferences::slotEffacerCookies()
 			portHoteSOCKS->setEnabled(false);
 			portHoteSOCKS->setValue(portProxyHTTP->value());
 		}
-		
+
 		else
 		{
 			adresseProxyFTP->setEnabled(true);
@@ -820,8 +820,8 @@ void Preferences::slotEffacerCookies()
 			portProxySSL->setEnabled(true);
 			portHoteSOCKS->setEnabled(true);
 		}
-	}	
-	
+	}
+
 	void Preferences::changementAdresseProxyHTTP(QString adresse)
 	{
 		if (activerParametresIdentiquesProxy->checkState() == Qt::Checked)

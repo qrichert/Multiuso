@@ -25,7 +25,7 @@ CreerReadme::CreerReadme(QWidget *parent = 0) : QDialog(parent)
 	setWindowIcon(QIcon(":/icones/actions/actionCreerReadme.png"));
 	resize(700, 370);
 
-	QSettings infos(Multiuso::appDirPath() + "/reglages/creer_readme.ini", QSettings::IniFormat);
+	QSettings infos(Multiuso::appDirPath() + "/ini/creer_readme.ini", QSettings::IniFormat);
 
 		nomDuProgramme = new QLineEdit(infos.value("programme/nom_du_programme").toString());
 		version = new QLineEdit(infos.value("programme/version").toString());
@@ -52,7 +52,7 @@ CreerReadme::CreerReadme(QWidget *parent = 0) : QDialog(parent)
 
 void CreerReadme::genererReadme()
 {
-	QSettings infos(Multiuso::appDirPath() + "/reglages/creer_readme.ini", QSettings::IniFormat);
+	QSettings infos(Multiuso::appDirPath() + "/ini/creer_readme.ini", QSettings::IniFormat);
 		infos.setValue("programme/nom_du_programme", nomDuProgramme->text());
 		infos.setValue("programme/version", version->text());
 		infos.setValue("programme/site_web", siteWebProgramme->text());
@@ -127,7 +127,7 @@ void CreerReadme::genererReadme()
 void CreerReadme::enregistrerReadme()
 {
 	QString fichier = QFileDialog::getSaveFileName(this, "Multiuso", Multiuso::lastPath() + "/README", "Fichier texte (*)");
-	
+
 	Multiuso::setLastPath(fichier);
 
 	if (!fichier.isEmpty())

@@ -21,8 +21,8 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 Ftp::Ftp(QWidget *parent = 0) : QMainWindow(parent), ftp(0), fileToPut(0), fileToGet(0)
 {
-	QSettings settings(Multiuso::appDirPath() + "/reglages/ftp.ini", QSettings::IniFormat);
-	
+	QSettings settings(Multiuso::appDirPath() + "/ini/ftp.ini", QSettings::IniFormat);
+
 	createActions();
 	createWidgets();
 	createMenus();
@@ -40,14 +40,14 @@ Ftp::Ftp(QWidget *parent = 0) : QMainWindow(parent), ftp(0), fileToPut(0), fileT
 		displayStatus->addPermanentWidget(labelLights);
 
 	// Main splitter (vertical)
-		
+
 	QSplitter *mainSplitter = new QSplitter(Qt::Vertical);
 		mainSplitter->addWidget(textOutput);
 		mainSplitter->addWidget(splitterViews);
 		mainSplitter->addWidget(tableDownloads);
 
 	setCentralWidget(mainSplitter);
-	
+
 	currentComputerPath = "";
 	currentServerPath = "";
 	fakeServerPath = "";
@@ -175,17 +175,17 @@ void Ftp::createViews()
 		tableServer->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(tableServer, SIGNAL(itemDoubleClicked(QTableWidgetItem *)), this, SLOT(listFtp(QTableWidgetItem *)));
 		connect(tableServer, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(openFtpMenu(QPoint)));
-	
+
 	QVBoxLayout *serverLayout = new QVBoxLayout;
 		serverLayout->addWidget(lineServerPath);
 		serverLayout->addWidget(tableServer);
 		serverLayout->setContentsMargins(0, 0, 0, 0);
-		
+
 	QWidget *serverWidget = new QWidget;
 		serverWidget->setLayout(serverLayout);
 
 	// Splitter
-	
+
 	splitterViews = new QSplitter(Qt::Horizontal);
 		splitterViews->addWidget(computerWidget);
 		splitterViews->addWidget(serverWidget);
@@ -208,7 +208,7 @@ void Ftp::loadHistory()
 {
 	history.clear();
 
-	QSettings settings(Multiuso::appDirPath() + "/reglages/ftp.ini", QSettings::IniFormat);
+	QSettings settings(Multiuso::appDirPath() + "/ini/ftp.ini", QSettings::IniFormat);
 
 	for (int i = 1; i <= 5; i++)
 	{
@@ -254,7 +254,7 @@ void Ftp::addInformation(QString msg)
 
 void Ftp::sauvegarderEtat()
 {
-	QSettings enregistrer(Multiuso::appDirPath() + "/reglages/ftp.ini", QSettings::IniFormat);
+	QSettings enregistrer(Multiuso::appDirPath() + "/ini/ftp.ini", QSettings::IniFormat);
 		enregistrer.setValue("etat_fenetre", saveState());
 }
 
@@ -287,7 +287,7 @@ void Ftp::openHistory()
 
 void Ftp::removeHistory()
 {
-	QSettings settings(Multiuso::appDirPath() + "/reglages/ftp.ini", QSettings::IniFormat);
+	QSettings settings(Multiuso::appDirPath() + "/ini/ftp.ini", QSettings::IniFormat);
 
 	for (int i = 1; i <= 5; i++)
 	{
@@ -299,7 +299,7 @@ void Ftp::removeHistory()
 		menuActions->removeAction(action);
 
 	loadHistory();
-		
+
 	menuActions->addAction(actionConnect);
 	menuActions->addAction(actionDisconnect);
 	menuActions->addSeparator();
@@ -323,7 +323,7 @@ void Ftp::listComputerFiles(QTableWidgetItem *item)
 {
 	QTableWidgetItem *indexItem = tableComputer->item(item->row(), 0);
 		QString fileName = indexItem->data(Qt::DisplayRole).toString();
-	
+
 	QTableWidgetItem *typeItem = tableComputer->item(item->row(), 2);
 		QString fileType = typeItem->data(Qt::DisplayRole).toString();
 
@@ -345,7 +345,7 @@ void Ftp::listComputerFiles(QTableWidgetItem *item)
 			transferQueue.enqueue(newTransfer);
 
 			continueDownloads();
-			
+
 			updateTransferLabel();
 		}
 	}
@@ -353,7 +353,7 @@ void Ftp::listComputerFiles(QTableWidgetItem *item)
 	else
 	{
 		QDir dir(currentComputerPath + fileName);
-	
+
 		if (dir.exists())
 			listComputerFiles(dir);
 	}
@@ -385,7 +385,7 @@ void Ftp::listComputerFiles(QDir dir)
 	QTableWidgetItem *itemCdUp = new QTableWidgetItem("..");
 		itemCdUp->setFlags(itemCdUp->flags() & ~Qt::ItemIsEditable); // "&" → et | "~" → non/pas
 		itemCdUp->setIcon(QIcon(":/icones/ftp/dossier_precedent.png"));
-			
+
 	QTableWidgetItem *itemFill1 = new QTableWidgetItem("");
 		itemFill1->setFlags(itemFill1->flags() & ~Qt::ItemIsEditable);
 
@@ -449,10 +449,10 @@ void Ftp::connectOrDisconnect()
 		ftp->abort();
 		ftp->deleteLater();
 		ftp = 0;
-		
+
 		actionConnect->setVisible(true);
 		actionDisconnect->setVisible(false);
-		
+
 		lineServerPath->setText("");
 		currentServerPath = "";
 
@@ -467,10 +467,10 @@ void Ftp::connectOrDisconnect()
 		transferQueue.clear();
 		downloadIsInProgress = false;
 		labelStatus->setText("File d'attente : 0 fichier");
-	
+
 		labelLightsMovie->stop();
 		labelLights->setMovie(new QMovie);
-		
+
 		QStringList downloadsHeaderLabels;
 			downloadsHeaderLabels << "Nom" << "Direction" << "Progression" << "Statut";
 
@@ -489,7 +489,7 @@ void Ftp::connectOrDisconnect()
 
 			return;
 		}
-		
+
 		if (linePort->text().isEmpty())
 		{
 			addError("Veuillez entrer le numéro du port !");
@@ -500,8 +500,8 @@ void Ftp::connectOrDisconnect()
 		ftp = new QFtp(this);
 			connect(ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(ftpCommandFinished(int, bool)));
 			connect(ftp, SIGNAL(listInfo(QUrlInfo)), this, SLOT(addToList(QUrlInfo)));
-			connect(ftp, SIGNAL(dataTransferProgress(qint64, qint64)), this, SLOT(ftpUpdateTransferProgress(qint64, qint64)));	
-		
+			connect(ftp, SIGNAL(dataTransferProgress(qint64, qint64)), this, SLOT(ftpUpdateTransferProgress(qint64, qint64)));
+
 		ftp->connectToHost(lineHost->text(), (qint64) linePort->text().toInt());
 
 		if (lineLogin->text().isEmpty())
@@ -515,7 +515,7 @@ void Ftp::connectOrDisconnect()
 
 		addInformation("Tentative de connexion au serveur...");
 
-		QSettings settings(Multiuso::appDirPath() + "/reglages/ftp.ini", QSettings::IniFormat);
+		QSettings settings(Multiuso::appDirPath() + "/ini/ftp.ini", QSettings::IniFormat);
 
 		QString currentEntry = lineHost->text() + lineLogin->text() +
 				linePassword->text() + linePort->text();
@@ -525,7 +525,7 @@ void Ftp::connectOrDisconnect()
 		for (int i = 1; i <= 5; i++)
 		{
 			QStringList entries = settings.value("Historique/historique" + QString::number(i)).value<QStringList>();;
-			
+
 			if (entries.value(0) == "(vide)")
 			{
 				if (lastEntries.contains(currentEntry))
@@ -548,12 +548,12 @@ void Ftp::connectOrDisconnect()
 					entries.value(2) + entries.value(3);
 			}
 		}
-		
+
 		foreach (QAction *action, menuActions->actions())
 			menuActions->removeAction(action);
 
 		loadHistory();
-		
+
 		menuActions->addAction(actionConnect);
 		menuActions->addAction(actionDisconnect);
 		menuActions->addSeparator();
@@ -586,10 +586,10 @@ void Ftp::listFtp(QTableWidgetItem *item)
 {
 	if (!ftp)
 		return;
-	
+
 	QTableWidgetItem *indexItem = tableServer->item(item->row(), 0);
 		QString fileName = indexItem->data(Qt::DisplayRole).toString();
-	
+
 	QTableWidgetItem *typeItem = tableServer->item(item->row(), 2);
 		QString fileType = typeItem->data(Qt::DisplayRole).toString();
 
@@ -607,7 +607,7 @@ void Ftp::listFtp(QTableWidgetItem *item)
 				newTransfer.firstFile = currentServerPath + fileName;
 				newTransfer.secondFile = currentComputerPath + fileName;
 				newTransfer.type = GET_FILE;
-					
+
 			transferQueue.enqueue(newTransfer);
 
 			continueDownloads();
@@ -636,7 +636,7 @@ void Ftp::listFtp(QString dirName)
 		tableServer->setRowCount(0);
 		tableServer->setHorizontalHeaderLabels(filesViewsHeaderLabels);
 		tableServer->setDisabled(false);
-		
+
 		QTableWidgetItem *itemCdUp = new QTableWidgetItem("..");
 			itemCdUp->setFlags(itemCdUp->flags() & ~Qt::ItemIsEditable); // "&" → et | "~" → non/pas
 			itemCdUp->setIcon(QIcon(":/icones/ftp/dossier_precedent.png"));
@@ -661,7 +661,7 @@ void Ftp::listFtp(QString dirName)
 		tableServer->selectRow(0);
 
 		ftp->list(dirName);
-		
+
 		addInformation("Tentative de listage...");
 	}
 }
@@ -701,7 +701,7 @@ void Ftp::ftpCommandFinished(int, bool error)
 			}
 		}
 		break;
-		
+
 		case QFtp::Cd:
 		{
 			if (error)
@@ -719,7 +719,7 @@ void Ftp::ftpCommandFinished(int, bool error)
 			}
 		}
 		break;
-		
+
 		case QFtp::Put:
 		{
 			QProgressBar *progress = qobject_cast<QProgressBar *>(tableDownloads->cellWidget(0, 2));
@@ -751,14 +751,14 @@ void Ftp::ftpCommandFinished(int, bool error)
 			cdFtp(currentServerPath);
 
 			downloadIsInProgress = false;
-			
+
 			labelLightsMovie->stop();
 			labelLights->setMovie(new QMovie);
 
 			continueDownloads();
 		}
 		break;
-		
+
 		case QFtp::Get:
 		{
 			QProgressBar *progress = qobject_cast<QProgressBar *>(tableDownloads->cellWidget(0, 2));
@@ -790,7 +790,7 @@ void Ftp::ftpCommandFinished(int, bool error)
 			fileToGet = NULL;
 
 			listComputerFiles(QDir(currentComputerPath));
-			
+
 			downloadIsInProgress = false;
 
 			labelLightsMovie->stop();
@@ -814,7 +814,7 @@ void Ftp::ftpCommandFinished(int, bool error)
 			}
 		}
 		break;
-		
+
 		case QFtp::List:
 		{
 			if (error)
@@ -840,7 +840,7 @@ void Ftp::ftpCommandFinished(int, bool error)
 			}
 		}
 		break;
-		
+
 		case QFtp::Rename:
 		{
 			if (error)
@@ -912,7 +912,7 @@ void Ftp::updateTransferLabel(bool minus)
 
 	if (minus)
 		waitingFiles--;
-	
+
 	QString plural = "s";
 
 	if (waitingFiles < 2)
@@ -952,7 +952,7 @@ void Ftp::continueDownloads()
 			QString secondPutFile(secondFile);
 
 			ftp->put(fileToPut, secondPutFile);
-			
+
 			addInformation("Envoi de « " + QFileInfo(firstFile).fileName() + " »");
 		}
 		break;
@@ -960,7 +960,7 @@ void Ftp::continueDownloads()
 		case GET_FILE:
 		{
 			direction = "←";
-			
+
 			if (fileToGet)
 			{
 				delete fileToGet;
@@ -972,7 +972,7 @@ void Ftp::continueDownloads()
 
 			if (fileToGet->open(QIODevice::WriteOnly))
 				ftp->get(firstGetFile, fileToGet);
-			
+
 			addInformation("Téléchargement de « " + QFileInfo(firstFile).fileName() + " »");
 		}
 		break;
@@ -989,10 +989,10 @@ void Ftp::continueDownloads()
 	QTableWidgetItem *itemName = new QTableWidgetItem(QFileInfo(firstFile).fileName());
 		itemName->setFlags(itemName->flags() & ~Qt::ItemIsEditable);
 		itemName->setIcon(QIcon(Multiuso::iconForFile(QFileInfo(firstFile).fileName(), "")));
-		
+
 	QTableWidgetItem *itemDirection = new QTableWidgetItem(direction);
 		itemDirection->setFlags(itemDirection->flags() & ~Qt::ItemIsEditable);
-	
+
 	QProgressBar *itemProgress = new QProgressBar;
 		itemProgress->setValue(0);
 
@@ -1004,7 +1004,7 @@ void Ftp::continueDownloads()
 	tableDownloads->setItem(0, 1, itemDirection);
 	tableDownloads->setCellWidget(0, 2, itemProgress);
 	tableDownloads->setItem(0, 3, itemState);
-	
+
 	tableDownloads->resizeColumnsToContents();
 	tableDownloads->horizontalHeader()->setStretchLastSection(true);
 
@@ -1045,12 +1045,12 @@ void Ftp::openComputerMenu(QPoint)
 			remove->setIcon(QIcon(":/icones/ftp/supprimer.png"));
 			connect(remove, SIGNAL(triggered()), this, SLOT(removeOnComputer()));
 				menu.addAction(remove);
-				
+
 		QAction *rename = new QAction("Renommer", this);
 			rename->setIcon(QIcon(":/icones/ftp/renommer.png"));
 			connect(rename, SIGNAL(triggered()), this, SLOT(renameOnComputer()));
 				menu.addAction(rename);
-		
+
 		menu.addSeparator();
 	}
 
@@ -1074,15 +1074,15 @@ void Ftp::openFtpMenu(QPoint)
 			remove->setIcon(QIcon(":/icones/ftp/supprimer.png"));
 			connect(remove, SIGNAL(triggered()), this, SLOT(removeOnServer()));
 				menu.addAction(remove);
-				
+
 		QAction *rename = new QAction("Renommer", this);
 			rename->setIcon(QIcon(":/icones/ftp/renommer.png"));
 			connect(rename, SIGNAL(triggered()), this, SLOT(renameOnServer()));
 				menu.addAction(rename);
-	
+
 		menu.addSeparator();
 	}
-	
+
 	QAction *addFolder = new QAction("Créer un dossier", this);
 		addFolder->setIcon(QIcon(":/icones/ftp/creerDossier.png"));
 		connect(addFolder, SIGNAL(triggered()), this, SLOT(addServerFolder()));
@@ -1094,7 +1094,7 @@ void Ftp::openFtpMenu(QPoint)
 void Ftp::removeOnComputer()
 {
 	QString type = tableComputer->item(tableComputer->currentRow(), 2)->text();
-	
+
 	if (type != "Fichier" && type != "Dossier")
 		return;
 
@@ -1123,7 +1123,7 @@ void Ftp::removeOnComputer()
 void Ftp::renameOnComputer()
 {
 	QString type = tableComputer->item(tableComputer->currentRow(), 2)->text();
-	
+
 	if (type != "Fichier" && type != "Dossier")
 		return;
 
@@ -1153,7 +1153,7 @@ void Ftp::addComputerFolder()
 
 	if (QDir().mkdir(currentComputerPath + name))
 		listComputerFiles(QDir(currentComputerPath));
-}		
+}
 
 void Ftp::removeOnServer()
 {
@@ -1161,7 +1161,7 @@ void Ftp::removeOnServer()
 		return;
 
 	QString type = tableServer->item(tableServer->currentRow(), 2)->text();
-	
+
 	if (type != "Fichier" && type != "Dossier")
 		return;
 
@@ -1191,9 +1191,9 @@ void Ftp::renameOnServer()
 {
 	if (!ftp)
 		return;
-	
+
 	QString type = tableServer->item(tableServer->currentRow(), 2)->text();
-	
+
 	if (type != "Fichier" && type != "Dossier")
 		return;
 
@@ -1221,6 +1221,6 @@ void Ftp::addServerFolder()
 		return;
 
 	ftp->mkdir(currentServerPath + name);
-	
+
 	addInformation("Tentative de création d'un répertoire...");
 }

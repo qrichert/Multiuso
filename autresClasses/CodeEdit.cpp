@@ -45,7 +45,7 @@ CodeEdit::CodeEdit(QObject *parent = 0)
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(surlignerLigneCourante()));
 
 	MajLargeurAireLignes(0);
-	
+
 	connect(this, SIGNAL(textChanged()), this, SLOT(codeChanged()));
 
 	colorisationSyntaxiqueAutoIT = new HighlighterAutoIT(new QTextDocument);
@@ -196,16 +196,16 @@ void CodeEdit::keyPressEvent(QKeyEvent *event)
 {
 	QPlainTextEdit::keyPressEvent(event);
 
-	if (!QSettings(Multiuso::appDirPath() + "/reglages/editeur_de_code.ini", QSettings::IniFormat).value("saisie/indentation_automatique").toBool())
+	if (!QSettings(Multiuso::appDirPath() + "/ini/editeur_de_code.ini", QSettings::IniFormat).value("saisie/indentation_automatique").toBool())
 		return;
-	
+
 	switch (event->key())
 	{
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
 			indent();
 		break;
-	}		
+	}
 }
 
 void CodeEdit::indent()
@@ -265,10 +265,10 @@ void CodeEdit::changeHighlighter(int highlighter)
 
 	if (highlighter == codeEditor->highlighterIndex("AutoIT"))
 		colorisationSyntaxiqueAutoIT->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("Brainfuck"))
 		colorisationSyntaxiqueBF->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("C"))
 		colorisationSyntaxiqueC->setDocument(document());
 
@@ -280,7 +280,7 @@ void CodeEdit::changeHighlighter(int highlighter)
 
 	else if (highlighter == codeEditor->highlighterIndex("C#"))
 		colorisationSyntaxiqueCSharp->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("CSS"))
 		colorisationSyntaxiqueCSS->setDocument(document());
 
@@ -292,7 +292,7 @@ void CodeEdit::changeHighlighter(int highlighter)
 
 	else if (highlighter == codeEditor->highlighterIndex("F#"))
 		colorisationSyntaxiqueFSharp->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("GLSL"))
 		colorisationSyntaxiqueGLSL->setDocument(document());
 
@@ -301,25 +301,25 @@ void CodeEdit::changeHighlighter(int highlighter)
 
 	else if (highlighter == codeEditor->highlighterIndex("HTML / (x)HTML / XML"))
 		colorisationSyntaxiqueHTML->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("INI"))
 		colorisationSyntaxiqueINI->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("Intercal"))
 		colorisationSyntaxiqueIntercal->setDocument(document());
 
 	else if (highlighter == codeEditor->highlighterIndex("Java"))
 		colorisationSyntaxiqueJava->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("Lex et Yacc"))
 		colorisationSyntaxiqueLexYacc->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("Lisp"))
 		colorisationSyntaxiqueLisp->setDocument(document());
 
 	else if (highlighter == codeEditor->highlighterIndex("Perl"))
 		colorisationSyntaxiquePerl->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("PHP"))
 		colorisationSyntaxiquePHP->setDocument(document());
 
@@ -331,7 +331,7 @@ void CodeEdit::changeHighlighter(int highlighter)
 
 	else if (highlighter == codeEditor->highlighterIndex("SQL"))
 		colorisationSyntaxiqueSQL->setDocument(document());
-		
+
 	else if (highlighter == codeEditor->highlighterIndex("ActionScript"))
 		colorisationSyntaxiqueActionScript->setDocument(document());
 

@@ -23,7 +23,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 {
 	parentPointer = parent;
-	
+
 	setAcceptDrops(true);
 
 // Picture
@@ -44,7 +44,7 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 		layoutButtonsLabel->addWidget(buttonsLabel);
 		layoutButtonsLabel->setContentsMargins(0, 0, 0, 25);
 
-// Buttons	
+// Buttons
 	fileBrowser = new OpenButton;
 		fileBrowser->setIcon(QIcon(":/icones/accueil/filebrowser.png"));
 		fileBrowser->setObjectName("filebrowser");
@@ -105,7 +105,7 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 		layoutOpen1l->addWidget(widgets);
 		layoutOpen1l->addWidget(pictureViewer);
 		layoutOpen1l->addWidget(textEdit);
-		
+
 	QHBoxLayout *layoutOpen2l = new QHBoxLayout; // 2nd line
 		layoutOpen2l->addWidget(codeEdit);
 		layoutOpen2l->addWidget(ftp);
@@ -133,7 +133,7 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 	aireCentrale = new QMdiArea;
 		aireCentrale->setLayout(layoutCentralArea);
 
-	QSettings optionsAccueil(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings optionsAccueil(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 		if (optionsAccueil.value("accueil/fond_screenshot").toBool())
 		{
@@ -178,7 +178,7 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 
 void Accueil::restoreOpenedTabs()
 {
-	QSettings optionsAccueil(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings optionsAccueil(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	QStringList openedTabs = optionsAccueil.value("ouverture/onglets").value<QStringList>();
 
@@ -251,18 +251,18 @@ void Accueil::dropEvent(QDropEvent *event)
 	foreach (QUrl url, dropData->urls())
 	{
 		QString urlPath = url.path();
-		
+
 		if (Multiuso::currentOS() == "windows")
 			urlPath = urlPath.right(urlPath.length() - 1);
 
 		if (QFileInfo(urlPath).exists())
 			fenP->ouvrirFichier(urlPath);
-	}	
+	}
 }
 
 void Accueil::actualiserFond()
 {
-	QSettings optionsAccueil(Multiuso::appDirPath() + "/reglages/config.ini", QSettings::IniFormat);
+	QSettings optionsAccueil(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 		if (optionsAccueil.value("accueil/fond_screenshot").toBool())
 		{
@@ -288,7 +288,7 @@ void Accueil::buttonClicked()
 
 	if (fenP == 0)
 		return;
-	
+
 	OpenButton *button = qobject_cast<OpenButton *>(sender());
 
 	if (button == 0)
@@ -307,7 +307,7 @@ void Accueil::buttonClicked()
 		button->setActive(true);
 		button->setIcon(QIcon(":/icones/accueil/activated_" + objtName + ".png"));
 	}
-	
+
 	fenP->showTab(objtName, button->isActive());
 }
 
@@ -319,7 +319,7 @@ void Accueil::showButtons()
 	transitionInProgress = true;
 
 	oldCentralWidgetPos = widgetCentralArea->pos();
-	
+
 	QPropertyAnimation *anim = new QPropertyAnimation(widgetCentralArea, "pos");
 		anim->setDuration(ANIMATION_DURATION);
 		anim->setKeyValueAt(0, oldCentralWidgetPos);
@@ -332,7 +332,7 @@ void Accueil::showButtons()
 void Accueil::showButtons2()
 {
 	widgetCentralArea->setCurrentIndex(1);
-	
+
 	QPropertyAnimation *anim = new QPropertyAnimation(widgetCentralArea, "pos");
 		anim->setDuration(ANIMATION_DURATION);
 		anim->setKeyValueAt(0, QPoint(oldCentralWidgetPos.x(), -(widgetCentralArea->height())));
@@ -355,7 +355,7 @@ void Accueil::showPicture()
 		return;
 
 	transitionInProgress = true;
-	
+
 	oldCentralWidgetPos = widgetCentralArea->pos();
 
 	showPictureButton->hide();
@@ -365,7 +365,7 @@ void Accueil::showPicture()
 		anim->setKeyValueAt(0, oldCentralWidgetPos);
 		anim->setKeyValueAt(1, QPoint(oldCentralWidgetPos.y(), -(widgetCentralArea->height())));
 		anim->start();
-	
+
 	QTimer::singleShot(ANIMATION_DURATION, this, SLOT(showPicture2()));
 }
 

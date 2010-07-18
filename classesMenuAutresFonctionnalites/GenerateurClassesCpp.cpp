@@ -26,7 +26,7 @@ GenerateurClassesCpp::GenerateurClassesCpp(QWidget *parent = 0) : QDialog(parent
 	setWindowIcon(QIcon(":/icones/actions/actionGenerateurClassesCpp.png"));
 	resize(500, 450);
 
-	QSettings reglagesCpp(Multiuso::appDirPath() + "/reglages/generer.ini", QSettings::IniFormat);
+	QSettings reglagesCpp(Multiuso::appDirPath() + "/ini/generer.ini", QSettings::IniFormat);
 
 	nomDeLaClasse = new QLineEdit;
 	classeMere = new QLineEdit;
@@ -86,7 +86,7 @@ GenerateurClassesCpp::GenerateurClassesCpp(QWidget *parent = 0) : QDialog(parent
 
 void GenerateurClassesCpp::slotGenerer()
 {
-	QSettings reglages(Multiuso::appDirPath() + "/reglages/generer.ini", QSettings::IniFormat);
+	QSettings reglages(Multiuso::appDirPath() + "/ini/generer.ini", QSettings::IniFormat);
 		reglages.setValue("cpp/auteur", auteur->text());
 		reglages.setValue("cpp/commentaires", groupeCommentaires->isChecked());
 		reglages.setValue("cpp/nom_du_programme", nomDuProgramme->text());
