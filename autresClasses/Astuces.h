@@ -30,7 +30,7 @@ class Astuces : public QDialog
 		Astuces(QWidget *parent = 0);
 
 	protected:
-		void closeEvent(QCloseEvent *event);
+		void closeEvent(QCloseEvent *);
 
 	public slots:
 		void selectionnerAstuce();

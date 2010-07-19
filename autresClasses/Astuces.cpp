@@ -86,16 +86,16 @@ Astuces::Astuces(QWidget *parent) : QDialog(parent)
 
 void Astuces::selectionnerAstuce()
 {
-	QDir dir = Multiuso::appDirPath() + "/textes/astuces/";
+	QDir dir(":/astuces/");
 
-	const int MIN = 1, MAX = dir.count() - 2;
+	const int MIN = 1, MAX = dir.count();
 
-	nombreDeFichiers = dir.count() - 2;
+	nombreDeFichiers = MAX;
 
 	srand(time(NULL));
 	astuceActuelle = (rand() % (MAX - MIN + 1)) + MIN;
 
-	QFile fichier(Multiuso::appDirPath() + "/textes/astuces/astuce" + QString::number(astuceActuelle) + ".mltsastuce");
+	QFile fichier(":/astuces/astuce" + QString::number(astuceActuelle) + ".mltsastuce");
 
 	if (fichier.open(QIODevice::ReadOnly | QIODevice::Text))
 		astuce->setText(fichier.readAll());
@@ -129,7 +129,7 @@ void Astuces::slotPrecedent()
 		else
 			suivant->setDisabled(false);
 
-		QFile fichier(Multiuso::appDirPath() + "/textes/astuces/astuce" + QString::number(astuceActuelle) + ".mltsastuce");
+		QFile fichier(":/astuces/astuce" + QString::number(astuceActuelle) + ".mltsastuce");
 
 		if (fichier.open(QIODevice::ReadOnly | QIODevice::Text))
 			astuce->setText(fichier.readAll());
@@ -159,7 +159,7 @@ void Astuces::slotSuivant()
 			precedent->setDisabled(false);
 
 
-		QFile fichier(Multiuso::appDirPath() + "/textes/astuces/astuce" + QString::number(astuceActuelle) + ".mltsastuce");
+		QFile fichier(":/astuces/astuce" + QString::number(astuceActuelle) + ".mltsastuce");
 
 		if (fichier.open(QIODevice::ReadOnly | QIODevice::Text))
 			astuce->setText(fichier.readAll());
@@ -178,10 +178,7 @@ void Astuces::slotCloseTips()
 	accept();
 }
 
-void Astuces::closeEvent(QCloseEvent *event)
+void Astuces::closeEvent(QCloseEvent *)
 {
-	QSettings reglages(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
-		reglages.setValue("ouverture/astuces", afficherAuDemarrage->isChecked());
-
-	event->accept();
+	slotCloseTips();
 }
