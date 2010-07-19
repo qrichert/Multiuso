@@ -219,21 +219,25 @@ void APropos::slotEasterEgg()
 
 	if (passages == 1)
 	{
-		QMessageBox::information(this, "Multiuso", "Désolé, il n'y a pas d'easter egg ici ;p");
+		qDebug() << "Désolé, il n'y a pas d'easter egg ici ;p";
 	}
 
 	else if (passages == 2)
 	{
-		QMessageBox::warning(this, "Multiuso", "Attention, je vais m'énerver, vous êtes prévenu !");
+		qDebug() << "Attention, je vais m'énerver, vous êtes prévenu !";
 	}
 
 	else if (passages == 3)
 	{
-		QMessageBox::critical(this, "Multiuso", "Puisque je vous dis qu'il n'y a pas d'easter egg ici ! :@");
+		qDebug() << "Puisque je vous dis qu'il n'y a pas d'easter egg ici ! :@";
 	}
 
 	else if (passages == 4)
 	{
+		/* Image de gâteau en ASCII */
+		qDebug() << "The cake is a lie";
+	}
+	/* ENLEVER 42 des astuces si non utilisé
 		int nombreEntre = QInputDialog::getInt(this, "Multiuso", "Bon ok, vous avez gagné !\nEntrez un nombre pour voir ;p");
 
 		if (nombreEntre == 42)
@@ -259,7 +263,7 @@ void APropos::slotEasterEgg()
 			else
 				QMessageBox::critical(this, "Multiuso", "Je n'aime pas ce nombre !<br />Avez-vous lu les astuces O.o ?");
 		}
-	}
+	}*/
 }
 
 // </Easter Egg>
