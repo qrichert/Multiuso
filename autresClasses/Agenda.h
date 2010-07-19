@@ -34,7 +34,7 @@ class Agenda : public QDialog
 
 	private:
 		QTextEdit *champDeSaisie;
-		QString cheminDuFichier;
+		QString groupName;
 };
 
 #endif

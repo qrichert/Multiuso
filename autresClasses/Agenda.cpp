@@ -23,6 +23,9 @@ Agenda::Agenda(QWidget *parent = 0, const QDate *date = 0) : QDialog(parent)
 {
 	QString dateChoisie = date->toString();
 
+	groupName = dateChoisie;
+		groupName.replace(" ", "_");
+
 		QString jour = QString::number(date->dayOfWeek());
 
 			if (jour == "1") { jour = "Lundi"; }
@@ -53,31 +56,14 @@ Agenda::Agenda(QWidget *parent = 0, const QDate *date = 0) : QDialog(parent)
 
 	QString dateComplete = jour + ", " + jourDuMois + " " + mois + " " + annee;
 
-	cheminDuFichier = Multiuso::appDirPath() + "/textes/agenda/" + dateChoisie + ".mltsnotes";
-
 	setWindowTitle("Multiuso - Agenda : " + dateComplete);
 	setWindowIcon(QIcon(":/icones/widgets/agenda.png"));
 
 	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
 
-	QString texte = "";
+	QSettings settings(Multiuso::appDirPath() + "/ini/agenda.ini", QSettings::IniFormat);
 
-	QFile fichier(cheminDuFichier);
-
-	if (fichier.exists())
-	{
-		fichier.open(QIODevice::ReadOnly | QIODevice::Text);
-			texte = fichier.readAll();
-	}
-
-	else
-	{
-		QString texteTemporaire = "";
-		fichier.open(QIODevice::WriteOnly | QIODevice::Text);
-			fichier.write(texteTemporaire.toAscii());
-	}
-
-	fichier.close();
+	QString texte = settings.value(groupName + "/content").toString();
 
 	champDeSaisie = new QTextEdit;
 		champDeSaisie->setPlainText(texte);
@@ -90,13 +76,6 @@ Agenda::Agenda(QWidget *parent = 0, const QDate *date = 0) : QDialog(parent)
 
 void Agenda::slotChangementDeTexte()
 {
-	QFile fichier(cheminDuFichier);
-
-	if (!fichier.open(QIODevice::WriteOnly | QIODevice::Text))
-		QMessageBox::warning(this, "Multiuso", "Impossible d'enregistrer le dernier changement apporté au texte !");
-
-	else
-		fichier.write(champDeSaisie->toPlainText().toAscii());
-
-	fichier.close();
+	QSettings settings(Multiuso::appDirPath() + "/ini/agenda.ini", QSettings::IniFormat);
+		settings.setValue(groupName + "/content", champDeSaisie->toPlainText());	
 }
