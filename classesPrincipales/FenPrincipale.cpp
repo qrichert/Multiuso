@@ -1113,16 +1113,8 @@ void FenPrincipale::appliquerReglages()
 
 	else if (apparenceFenetre.value("style/style_personnalise").toBool())
 	{
-		QFile fichierStyle(Multiuso::appDirPath() + "/textes/style/style.mltsstyle");
-
-		if (fichierStyle.open(QIODevice::ReadOnly | QIODevice::Text))
-			style = fichierStyle.readAll();
-
-		else
-			QMessageBox::critical(this, "Multiuso", "Impossible d'ouvrir le fichier contenant le style.<br />"
-					"Le style de base va être appliqué.");
-
-		fichierStyle.close();
+		QSettings settings(Multiuso::appDirPath() + "/ini/apparence.ini", QSettings::IniFormat);
+			style = settings.value("style_perso/content").toString();
 	}
 
 	else if (apparenceFenetre.value("style/style_externe").toBool())

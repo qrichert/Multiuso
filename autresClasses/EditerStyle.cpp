@@ -36,44 +36,18 @@ EditerStyle::EditerStyle(QWidget *parent = 0) : QDialog(parent)
 		layoutEditerStyle->addWidget(enregistrer);
 		layoutEditerStyle->setContentsMargins(0, 0, 0, 0);
 
-	QFile fichier(Multiuso::appDirPath() + "/textes/style/style.mltsstyle");
+	QSettings settings(Multiuso::appDirPath() + "/ini/apparence.ini", QSettings::IniFormat);
+		texteVerif = settings.value("style_perso/content").toString();
 
-	texteVerif = "";
-
-	if (fichier.open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		texteVerif = fichier.readAll();
-		style->setPlainText(texteVerif);
-	}
-
-	else
-	{
-		QMessageBox::critical(this, "Multiuso", "Impossible d'ouvrir le fichier contenant le style !");
-		this->accept();
-	}
-
-	fichier.close();
+	style->setPlainText(texteVerif);
 }
 
 void EditerStyle::slotEnregistrer()
 {
-	QFile fichier(Multiuso::appDirPath() + "/textes/style/style.mltsstyle");
+	texteVerif = style->toPlainText();
 
-	if (fichier.open(QIODevice::WriteOnly | QIODevice::Text))
-	{
-		texteVerif = style->toPlainText();
-		fichier.write(texteVerif.toAscii());
-	}
-
-	else
-	{
-		QMessageBox::critical(this, "Multiuso", "Impossible d'enregistrer le style !");
-		this->accept();
-	}
-
-	fichier.close();
-
-	accept();
+	QSettings settings(Multiuso::appDirPath() + "/ini/apparence.ini", QSettings::IniFormat);
+		settings.setValue("style_perso/content", texteVerif);
 }
 
 void EditerStyle::closeEvent(QCloseEvent *event)
