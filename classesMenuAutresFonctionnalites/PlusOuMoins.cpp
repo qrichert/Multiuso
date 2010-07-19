@@ -73,14 +73,9 @@ PlusOuMoins::PlusOuMoins(QWidget *parent = 0) : QDialog(parent)
 
 	scores = new QTextEdit;
 		scores->setReadOnly(true);
-
-	QFile fichier(Multiuso::appDirPath() + "/textes/plus_ou_moins/scores.mltsscores");
-
-	if (fichier.open(QIODevice::ReadOnly | QIODevice::Text))
-		scores->setText(fichier.readAll());
-
-	fichier.close();
-
+		
+	QSettings settings(Multiuso::appDirPath() + "/ini/plus_ou_moins.ini", QSettings::IniFormat);
+		scores->setPlainText(settings.value("scores").toString());;
 
 	QPushButton *effacer = new QPushButton("&Effacer les scores");
 		connect(effacer, SIGNAL(clicked()), this, SLOT(effacerScores()));
@@ -179,10 +174,6 @@ void PlusOuMoins::effacerScores()
 
 void PlusOuMoins::sauverScores()
 {
-	QFile fichier(Multiuso::appDirPath() + "/textes/plus_ou_moins/scores.mltsscores");
-
-	if (fichier.open(QIODevice::WriteOnly | QIODevice::Text))
-		fichier.write(scores->toPlainText().toAscii());
-
-	fichier.close();
+	QSettings settings(Multiuso::appDirPath() + "/ini/plus_ou_moins.ini", QSettings::IniFormat);
+		settings.setValue("scores", scores->toPlainText());
 }
