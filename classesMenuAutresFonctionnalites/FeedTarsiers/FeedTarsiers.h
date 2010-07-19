@@ -191,14 +191,12 @@ class ScoreDialog : public QDialog
 
 			m_score = score;
 
-			QDir().mkpath(Multiuso::appDirPath() + "/textes/feed_tarsiers/");
+			QSettings settings(Multiuso::appDirPath() + "/ini/feed_tarsiers.ini", QSettings::IniFormat);
+				
+			QString scores = settings.value("scores").toString();
+				scores.append("<strong>" + QString::number(m_score) + "</strong> pts<br />");
 
-			QFile file(Multiuso::appDirPath() + "/textes/feed_tarsiers/scores.mltsscores");
-
-				if (file.open(QIODevice::Append | QIODevice::Text))
-					file.write(QString("<strong>" + QString::number(m_score) + "</strong> pts<br />").toAscii());
-
-				file.close();
+			settings.setValue("scores", scores);
 
 			QLabel *label = new QLabel(
 				"<center>"
@@ -222,14 +220,8 @@ class ScoreDialog : public QDialog
 	public slots:
 		void showScores()
 		{
-			QString scores = "<span style='color:red;'>Impossible d'ouvrir le fichier contenant les scores !</span>";
-
-			QFile file(Multiuso::appDirPath() + "/textes/feed_tarsiers/scores.mltsscores");
-
-				if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-					scores = file.readAll();
-
-				file.close();
+			QSettings settings(Multiuso::appDirPath() + "/ini/feed_tarsiers.ini", QSettings::IniFormat);
+				QString scores = settings.value("scores").toString();
 
 			QDialog newDialog(this);
 				newDialog.setWindowTitle("Scores");
@@ -329,33 +321,28 @@ class SceneHome : public QGraphicsScene
 	public slots:
 		void showScores()
 		{
-			QString scores = "<span style='color:red;'>Impossible d'ouvrir le fichier contenant les scores !</span>";
+			QSettings settings(Multiuso::appDirPath() + "/ini/feed_tarsiers.ini", QSettings::IniFormat);
+				QString scores = settings.value("scores").toString();
 
-			QFile file(Multiuso::appDirPath() + "/textes/feed_tarsiers/scores.mltsscores");
+			QDialog *newDialog = new QDialog;
+				newDialog->setWindowTitle("Scores");
+				newDialog->setWindowIcon(QIcon(":/icones/feed_tarsiers/tarsier_l_3.png"));
 
-				if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-					scores = file.readAll();
+				QTextEdit *showScores = new QTextEdit;
+					showScores->setHtml(scores);
+					showScores->setReadOnly(true);
 
-				file.close();
+				JungleButton *closeDialog = new JungleButton("Fermer");
+					connect(closeDialog, SIGNAL(clicked()), newDialog, SLOT(accept()));
 
-			QDialog newDialog;
-				newDialog.setWindowTitle("Scores");
-				newDialog.setWindowIcon(QIcon(":/icones/feed_tarsiers/tarsier_l_3.png"));
+				QVBoxLayout *layout = new QVBoxLayout;
+					layout->addWidget(showScores);
+					layout->addWidget(new QLabel("<hr />"));
+					layout->addWidget(closeDialog);
 
-				QTextEdit showScores;
-					showScores.setHtml(scores);
-					showScores.setReadOnly(true);
-
-				JungleButton closeDialog("Fermer");
-					connect(&closeDialog, SIGNAL(clicked()), &newDialog, SLOT(accept()));
-
-				QVBoxLayout layout;
-					layout.addWidget(&showScores);
-					layout.addWidget(new QLabel("<hr />"));
-					layout.addWidget(&closeDialog);
-
-			newDialog.setLayout(&layout);
-			newDialog.exec();
+			newDialog->setLayout(layout);
+			newDialog->exec();
+			newDialog->deleteLater();
 		}
 
 	signals:
