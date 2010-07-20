@@ -41,6 +41,36 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationName("Quentin RICHERT");
 	QCoreApplication::setOrganizationDomain("http://multiuso.sourceforge.net/");
 
+	QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
+
+	if (config.value("mot_de_passe").toBool())
+	{
+		bool ok;
+
+		QString mdp = QInputDialog::getText(new QWidget, "Multiuso", "Veuillez saisir le mot de passe :", QLineEdit::Password, "", &ok);
+
+		if (!ok)
+			return EXIT_SUCCESS;
+
+		QSettings reglagesPassword(Multiuso::appDirPath() + "/ini/PWD.ini", QSettings::IniFormat);
+			QByteArray verif = reglagesPassword.value("pwd").toByteArray();
+
+
+		mdp = "ér97&_Èhz" + mdp + "~odE987sDe!";
+
+		QByteArray ba = mdp.toAscii();
+			ba = QCryptographicHash::hash(ba, QCryptographicHash::Sha1);
+
+		if (ba != verif)
+		{
+			QMessageBox::critical(NULL, "Multiuso", "Mot de passe incorrect !");
+
+			return EXIT_SUCCESS;
+		}
+
+		//decrypt
+	}
+
 	checkFiles();
 
 	bool showTips = false;
@@ -80,8 +110,6 @@ int main(int argc, char *argv[])
 		translator.load(QString("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 
 		app.installTranslator(&translator);
-
-	QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	if (config.value("ouverture/crash").toBool())
 	{	
