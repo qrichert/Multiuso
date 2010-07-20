@@ -32,7 +32,9 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 	choixEffetsDeDeplacement = new QCheckBox;
 	choixUtiliserSplashScreen = new QCheckBox;
 	choixRedemarrerApresRemiseAZero = new QCheckBox;
+
 	choixUtiliserMdp = new QCheckBox;
+		connect(choixUtiliserMdp, SIGNAL(toggled(bool)), this, SLOT(checkUsePassword(bool)));
 
 	QPushButton *parcourirDossierDL = new QPushButton("Parcourir...");
 		connect(parcourirDossierDL, SIGNAL(clicked()), this, SLOT(slotParcourirDossierDL()));
@@ -701,6 +703,17 @@ void Preferences::slotEffacerCookies()
 	QFile::remove(Multiuso::appDirPath() + "/navigateurWeb/autre/cookies.mltscookie");
 
 	QMessageBox::information(this, "Multiuso", "Les cookies on été effacés !");
+}
+
+void Preferences::checkUsePassword(bool toogled)
+{
+	if (toogled)
+	{
+		PasswordDialog *pwd = new PasswordDialog(this);
+			pwd->exec();
+			pwd->deleteLater();
+	}
+	//else supprimer mdp
 }
 
 // <Stalker (www.siteduzero.com)>

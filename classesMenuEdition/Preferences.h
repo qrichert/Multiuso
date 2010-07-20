@@ -24,6 +24,126 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "../CurrentIncludes.h"
 #include "classesPrincipales/FenPrincipale.h"
 
+enum Level
+{
+	VERY_HIGH,
+	HIGH,
+	GOOD,
+	LOW,
+	VERY_LOW,
+	NUL
+};
+
+class SecurityLevel : public QWidget
+{
+	Q_OBJECT
+
+	public:
+		SecurityLevel()
+		{
+			setFixedHeight(25);
+			m_level = NUL;
+		}
+
+		void setLevel(Level level)
+		{
+			m_level = level;
+
+			update();
+		}
+
+	protected:
+		void paintEvent(QPaintEvent *)
+		{
+			float level = 0.0;
+			int minus = 2;
+
+			switch (m_level)
+			{
+				case VERY_HIGH : level = 1; minus = 0; break;
+				case HIGH : level = 0.75; break;
+				case GOOD : level = 0.5; break;
+				case LOW : level = 0.25; break;
+				case VERY_LOW: level = 0.1; break;
+				case NUL : level = 0; break;
+			}
+
+			QLinearGradient gradient(0, 0, width(), 0);
+				gradient.setColorAt(0, Qt::darkGreen);
+				gradient.setColorAt(0.1, "#27c103");
+				gradient.setColorAt(0.25, Qt::green);
+				gradient.setColorAt(0.5, Qt::yellow);
+				gradient.setColorAt(0.75, "#ff6c00");
+				gradient.setColorAt(1, Qt::red);
+
+			QPainter painter(this);
+				painter.setPen("#303030");
+				painter.setBrush(gradient);
+					painter.drawRect(0, 0, width() - 1, height() - 1);
+
+				painter.setPen(Qt::NoPen);
+					painter.fillRect(QRectF(1 + (width() * level), 1, (width() - (width() * level)) - minus, 23), Qt::white);
+		}
+
+	private:
+		Level m_level;
+};
+
+class PasswordDialog : public QDialog
+{
+	Q_OBJECT
+
+	public:
+		PasswordDialog(QWidget *parent) : QDialog(parent)
+		{
+			password = new QLineEdit;
+				password->setEchoMode(QLineEdit::Password);
+				connect(password, SIGNAL(textChanged(QString)), this, SLOT(slotPasswordChanged(QString)));
+
+			passwordCheck = new QLineEdit;
+				passwordCheck->setEchoMode(QLineEdit::Password);
+
+			level = new SecurityLevel;
+
+			QVBoxLayout *layout = new QVBoxLayout(this);
+				layout->addWidget(password);
+				layout->addWidget(passwordCheck);
+				layout->addWidget(level);
+		}
+
+	public slots:
+		void slotPasswordChanged(QString pwd)
+		{
+			QRegExp rx1 = QRegExp("^[0-9]{2, 20}$");
+			QRegExp rx2 = QRegExp("^([a-z]{4, 20} | [A-Z]{2, 20})$");
+			QRegExp rx3 = QRegExp("^[^0-9a-zA-Z]{2, 20}$");
+
+			if (pwd.contains("1"))
+				level->setLevel(VERY_LOW);
+
+			else if (pwd.contains("2"))
+				level->setLevel(LOW);
+
+			else if (pwd.contains("3"))
+				level->setLevel(GOOD);
+
+			else if (pwd.contains("4") && pwd.contains("4"))
+				level->setLevel(HIGH);
+
+			else if (pwd.contains("5") && pwd.contains("5") && pwd.contains("5"))
+				level->setLevel(VERY_HIGH);
+
+			else
+				level->setLevel(NUL);
+		}
+
+	private:
+		QLineEdit *password;
+		QLineEdit *passwordCheck;
+
+		SecurityLevel *level;
+};
+
 class Preferences : public QDialog
 {
 	Q_OBJECT
@@ -50,6 +170,7 @@ class Preferences : public QDialog
 	public slots:
 		void changementMoteurDeRecherche(QString newOne);
 		void changementEtatStyle(bool);
+		void checkUsePassword(bool toggled);
 		
 	// <Stalker (www.siteduzero.com)>
 		private slots:
@@ -59,7 +180,6 @@ class Preferences : public QDialog
 	// </Stalker (www.siteduzero.com)>
 
 	private:
-
 	// Général
 		QCheckBox *choixFermerFenetre;
 		QCheckBox *choixOuvertureFenetre;
