@@ -32,6 +32,7 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 	choixEffetsDeDeplacement = new QCheckBox;
 	choixUtiliserSplashScreen = new QCheckBox;
 	choixRedemarrerApresRemiseAZero = new QCheckBox;
+	choixUtiliserMdp = new QCheckBox;
 
 	QPushButton *parcourirDossierDL = new QPushButton("Parcourir...");
 		connect(parcourirDossierDL, SIGNAL(clicked()), this, SLOT(slotParcourirDossierDL()));
@@ -50,6 +51,7 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 		layoutGeneral->addRow("Utiliser le splash screen :", choixUtiliserSplashScreen);
 		layoutGeneral->addRow("Redémarrer Multiuso après une remise à zéro :", choixRedemarrerApresRemiseAZero);
 		layoutGeneral->addRow("\"Multiuso - Téléchargements\" se trouve dans :", layoutParcourirDossierDL);
+		layoutGeneral->addRow("Protéger vos données avec un mot de passe :", choixUtiliserMdp);
 
 	fondScreenshot = new QCheckBox;
 
@@ -400,6 +402,9 @@ void Preferences::afficherPreferences()
 
 		if (reglagesFenetre.value("remise_a_zero/restart").toBool())
 			choixRedemarrerApresRemiseAZero->setCheckState(Qt::Checked);
+		
+		if (reglagesFenetre.value("mot_de_passe").toBool())
+			choixUtiliserMdp->setCheckState(Qt::Checked);
 
 	QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 		welcomeFolder->setText(reglagesNavigateurFichiers.value("dossier_accueil").toString());
@@ -493,6 +498,7 @@ void Preferences::enregistrerPreferences()
 		reglagesFenetre.setValue("accueil/fond_screenshot", fondScreenshot->isChecked());
 		reglagesFenetre.setValue("splash_screen/utiliser", choixUtiliserSplashScreen->isChecked());
 		reglagesFenetre.setValue("remise_a_zero/restart", choixRedemarrerApresRemiseAZero->isChecked());
+		reglagesFenetre.setValue("mot_de_passe", choixUtiliserMdp->isChecked());
 
 	QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 		reglagesNavigateurFichiers.setValue("dossier_accueil", welcomeFolder->text());
@@ -553,6 +559,7 @@ void Preferences::reglagesParDefaut()
 	choixEffetsDeDeplacement->setCheckState(Qt::Unchecked);
 	choixUtiliserSplashScreen->setCheckState(Qt::Checked);
 	choixRedemarrerApresRemiseAZero->setCheckState(Qt::Unchecked);
+	choixUtiliserMdp->setCheckState(Qt::Unchecked);
 	dossierTelechargements->setText(QDir::homePath());
 
 	styleDeBase->setChecked(true);

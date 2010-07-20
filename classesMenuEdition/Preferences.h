@@ -66,6 +66,7 @@ class Preferences : public QDialog
 		QCheckBox *choixEffetsDeDeplacement;
 		QCheckBox *choixUtiliserSplashScreen;
 		QCheckBox *choixRedemarrerApresRemiseAZero;
+		QCheckBox *choixUtiliserMdp;
 
 		QLineEdit *dossierTelechargements;
 
