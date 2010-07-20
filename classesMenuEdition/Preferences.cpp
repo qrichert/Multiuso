@@ -359,112 +359,16 @@ void Preferences::slotRemettreAZero()
 	if (choixRedemarrerApresRemiseAZero->isChecked())
 		futureAction = "redémarré";
 
-	int reponse = QMessageBox::warning(this, "Multiuso", "Cette action réinitialisera Multiuso,<br />"
-			"toutes les modifications apportées à l'interface/au fonctionnement seront annulées.<br />"
-			"<em>Multiuso sera " + futureAction + " automatiquement</em><br />"
+	int reponse = QMessageBox::warning(this, "Multiuso", "Cette action réinitialisera Multiuso.<br />"
+			"Toutes les données enregistrées seront définitivement perdues.<br />"
+			"<em>Multiuso sera " + futureAction + " automatiquement.</em><br />"
 			"Continuer ?", QMessageBox::Yes | QMessageBox::Cancel);
 
 	if (reponse == QMessageBox::Yes)
 	{
-		QSettings reglagesFenetre(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
-			reglagesFenetre.setValue("last_path", "");
-			reglagesFenetre.setValue("dimensions/largeur", 985);
-			reglagesFenetre.setValue("dimensions/hauteur", 660);
-			reglagesFenetre.setValue("ouverture/agrandi", false);
-			reglagesFenetre.setValue("ouverture/crash", false);
-			reglagesFenetre.setValue("ouverture/astuces", true);
-			reglagesFenetre.setValue("ouverture/onglets", "");
-			reglagesFenetre.setValue("ouverture/page", 0);
-			reglagesFenetre.setValue("fermeture/systemTray", false);
-			reglagesFenetre.setValue("systemTray/afficher", true);
-			reglagesFenetre.setValue("pagesDuProgramme/dernierePage", 0);
-			reglagesFenetre.setValue("accueil/fond_screenshot", false);
-			reglagesFenetre.setValue("statusBar/afficher", false);
-			reglagesFenetre.setValue("modeMalvoyant/utiliser", false);
-			reglagesFenetre.setValue("telechargements/dossier", "");
-			reglagesFenetre.setValue("splash_screen/utiliser", true);
-			reglagesFenetre.setValue("remise_a_zero/restart", false);
-			reglagesFenetre.setValue("deplacements/effets", false);
-
-		QSettings settings(Multiuso::appDirPath() + "/ini/widgets.ini", QSettings::IniFormat);
-			settings.clear();
-			settings.setValue("first", true);
-
-		QSettings apparenceFenetre(Multiuso::appDirPath() + "/ini/apparence.ini", QSettings::IniFormat);
-			apparenceFenetre.setValue("style/style_de_base", true);
-			apparenceFenetre.setValue("style/style_personnalise", false);
-			apparenceFenetre.setValue("style/style_externe", false);
-			apparenceFenetre.setValue("style/nom_style_externe", "");
-			apparenceFenetre.setValue("style/style_qt", false);
-			apparenceFenetre.setValue("style/style_qt_utilise", "");
-
-		QSettings reglagesPreferences(Multiuso::appDirPath() + "/ini/preferences.ini", QSettings::IniFormat);
-			reglagesPreferences.setValue("dernier_item", 0);
-
-		QSettings reglagesChronometre(Multiuso::appDirPath() + "/ini/chronometre.ini", QSettings::IniFormat);
-			reglagesChronometre.setValue("chronometre/afficher", true);
-			reglagesChronometre.setValue("chronometre/millisecondes_disabled", false);
-			reglagesChronometre.setValue("minuterie/afficher", false);
-			reglagesChronometre.setValue("minuterie/boite_de_dialogue", true);
-			reglagesChronometre.setValue("minuterie/boite_de_dialogue_disabled", true);
-
-		QSettings reglagesGenerer(Multiuso::appDirPath() + "/ini/generer.ini", QSettings::IniFormat);
-			reglagesGenerer.setValue("cpp/commentaires", false);
-			reglagesGenerer.setValue("cpp/gnu_gpl", true);
-
-		QSettings reglagesEditeurDeTexte(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
-			reglagesEditeurDeTexte.setValue("enregistrement/enregistrement_automatique", false);
-			reglagesEditeurDeTexte.setValue("etat_fenetre", "");
-
-		QSettings reglagesEditeurDeCode(Multiuso::appDirPath() + "/ini/editeur_de_code.ini", QSettings::IniFormat);
-			reglagesEditeurDeCode.setValue("enregistrement/enregistrement_automatique", false);
-			reglagesEditeurDeCode.setValue("etat_fenetre", "");
-			reglagesEditeurDeCode.setValue("saisie/indentation_automatique", true);
-
-		QSettings reglagesFtp(Multiuso::appDirPath() + "/ini/ftp.ini", QSettings::IniFormat);
-			reglagesFtp.setValue("etat_fenetre", "");
-
-			for (int i = 1; i <= 5; i++)
-				reglagesFtp.setValue("Historique/historique" + QString::number(i), QStringList() << "(vide)" << "(vide)" << "(vide)" << "(vide)");
-
-		QSettings reglagesNavigateur(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
-			reglagesNavigateur.setValue("page_accueil", QCoreApplication::organizationDomain());
-			reglagesNavigateur.setValue("nouvel_onglet_recherche_moteur_recherche", true);
-			reglagesNavigateur.setValue("contenu_editable", false);
-			reglagesNavigateur.setValue("etat_fenetre", "");
-			reglagesNavigateur.setValue("settings/javascript", true);
-			reglagesNavigateur.setValue("settings/java", true);
-			reglagesNavigateur.setValue("settings/flash", true);
-			reglagesNavigateur.setValue("settings/zoom_text_only", false);
-			reglagesNavigateur.setValue("settings/imprimer_elements_fond", false);
-			reglagesNavigateur.setValue("utiliser_historique", true);
-			reglagesNavigateur.setValue("restaurer_onglets", true);
-			reglagesNavigateur.setValue("derniers_onglets", QStringList() << QCoreApplication::organizationDomain());
-			reglagesNavigateur.setValue("index_dernier_onglet", 0);
-			reglagesNavigateur.setValue("moteur_de_recherche", "Google");
-			reglagesNavigateur.setValue("moteur_personnalise", "");
-
-		QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
-			reglagesNavigateurFichiers.setValue("etat_fenetre", "");
-			reglagesNavigateurFichiers.setValue("dossier_accueil", "");
-
-		QSettings reglagesVisionneurImages(Multiuso::appDirPath() + "/ini/visionneur_images.ini", QSettings::IniFormat);
-			reglagesVisionneurImages.setValue("etat_fenetre", "");
-
-		// <Stalker (www.siteduzero.com)>
-			QSettings reglagesProxy(Multiuso::appDirPath() + "/ini/proxy.ini", QSettings::IniFormat);
-				reglagesProxy.setValue("activer",false);
-				reglagesProxy.setValue("parametres_identiques",false);
-				reglagesProxy.setValue("adresse_http","");
-				reglagesProxy.setValue("port_http",0);
-				reglagesProxy.setValue("adresse_ftp","");
-				reglagesProxy.setValue("port_ftp",0);
-				reglagesProxy.setValue("adresse_ssl","");
-				reglagesProxy.setValue("port_ssl",0);
-				reglagesProxy.setValue("adresse_socks","");
-				reglagesProxy.setValue("port_socks",0);
-				reglagesProxy.setValue("pas_proxy","");
-		// </Stalker (www.siteduzero.com)>
+		Multiuso::removeDirectory(Multiuso::appDirPath() + "/extensions");
+		Multiuso::removeDirectory(Multiuso::appDirPath() + "/ini");
+		Multiuso::removeDirectory(Multiuso::appDirPath() + "/navigateurWeb");
 
 		if (choixRedemarrerApresRemiseAZero->isChecked())
 			QProcess::startDetached(Multiuso::openCommand() + Multiuso::appDirPath() + "/Multiuso" + Multiuso::currentSuffix());
