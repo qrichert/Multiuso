@@ -96,19 +96,40 @@ class PasswordDialog : public QDialog
 	public:
 		PasswordDialog(QWidget *parent) : QDialog(parent)
 		{
+			setWindowTitle("Définition du mot de passe");
+			setWindowIcon(QIcon(":/icones/preferences/password.png"));
+
 			password = new QLineEdit;
 				password->setEchoMode(QLineEdit::Password);
 				connect(password, SIGNAL(textChanged(QString)), this, SLOT(slotPasswordChanged(QString)));
 
 			passwordCheck = new QLineEdit;
 				passwordCheck->setEchoMode(QLineEdit::Password);
+				connect(passwordCheck, SIGNAL(textChanged(QString)), this, SLOT(slotPasswordCheck(QString)));
 
 			level = new SecurityLevel;
 
-			QVBoxLayout *layout = new QVBoxLayout(this);
-				layout->addWidget(password);
-				layout->addWidget(passwordCheck);
-				layout->addWidget(level);
+			QFormLayout *layout = new QFormLayout;
+				layout->addRow("Mot de passe :", password);
+				layout->addRow("Confirmation :", passwordCheck);
+				layout->addRow("Niveau de sécurité :", level);
+
+			QPushButton *rejectButton = new QPushButton("Annuler");
+				connect(rejectButton, SIGNAL(clicked()), this, SLOT(reject()));
+
+			QHBoxLayout *buttons = new QHBoxLayout;
+				buttons->addWidget(rejectButton);
+				buttons->addWidget(Multiuso::closeButton(this, "OK"));
+				buttons->setAlignment(Qt::AlignRight);
+
+			QVBoxLayout *mainLayout = new QVBoxLayout(this);
+				mainLayout->addLayout(layout);
+				mainLayout->addLayout(buttons);
+		}
+
+		QString getPassword()
+		{
+			return password->text();
 		}
 
 	public slots:
@@ -135,6 +156,34 @@ class PasswordDialog : public QDialog
 
 			else
 				level->setLevel(NUL);
+
+			slotPasswordCheck(passwordCheck->text());
+		}
+
+		void slotPasswordCheck(QString pwd)
+		{
+			if (pwd == password->text())
+				passwordCheck->setStyleSheet("background-color : #bbffbb");
+				
+			else
+				passwordCheck->setStyleSheet("background-color : #ffb3b3");
+		}
+
+		void accept()
+		{
+			if (password->text() == passwordCheck->text())
+			{
+				if (!password->text().isEmpty())
+					QDialog::accept();
+
+				else
+					QMessageBox::critical(this, "Multiuso", "Il faut entrer un mot de passe !");
+			}
+
+			else
+			{
+				QMessageBox::critical(this, "Multiuso", "Les mots de passe diffèrent !");
+			}
 		}
 
 	private:

@@ -18,6 +18,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <QCryptographicHash>
 #include "Preferences.h"
 #include "autresClasses/EditerStyle.h"
 
@@ -500,7 +501,6 @@ void Preferences::enregistrerPreferences()
 		reglagesFenetre.setValue("accueil/fond_screenshot", fondScreenshot->isChecked());
 		reglagesFenetre.setValue("splash_screen/utiliser", choixUtiliserSplashScreen->isChecked());
 		reglagesFenetre.setValue("remise_a_zero/restart", choixRedemarrerApresRemiseAZero->isChecked());
-		reglagesFenetre.setValue("mot_de_passe", choixUtiliserMdp->isChecked());
 
 	QSettings reglagesNavigateurFichiers(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
 		reglagesNavigateurFichiers.setValue("dossier_accueil", welcomeFolder->text());
@@ -707,13 +707,31 @@ void Preferences::slotEffacerCookies()
 
 void Preferences::checkUsePassword(bool toogled)
 {
+	QSettings reglages(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
+		reglages.setValue("mot_de_passe", toogled);
+		
 	if (toogled)
 	{
 		PasswordDialog *pwd = new PasswordDialog(this);
-			pwd->exec();
+
+			if (pwd->exec() == QDialog::Accepted)
+			{
+				QString password = "ér97&_Èhz" + pwd->getPassword() + "~odE987sDe!";
+					
+				QByteArray ba = password.toAscii();
+					ba = QCryptographicHash::hash(ba, QCryptographicHash::Sha1);
+
+				QSettings reglagesPassword(Multiuso::appDirPath() + "/ini/PWD.ini", QSettings::IniFormat);
+					reglagesPassword.setValue("pwd", ba);
+			}
+
 			pwd->deleteLater();
 	}
-	//else supprimer mdp
+
+	else
+	{
+		QFile::remove(Multiuso::appDirPath() + "/ini/PWD.ini");
+	}
 }
 
 // <Stalker (www.siteduzero.com)>
