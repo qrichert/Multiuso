@@ -28,6 +28,8 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 	setWindowIcon(QIcon(":/icones/actions/actionPreferences.png"));
 	setFixedSize(760, 400);
 
+	loaded = false;
+
 	choixFermerFenetre = new QCheckBox;
 	choixOuvertureFenetre = new QCheckBox;
 	choixEffetsDeDeplacement = new QCheckBox;
@@ -355,6 +357,8 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 	widgetWidgetsContenu->setCurrentIndex(itemActuel.value("dernier_item").toInt());
 
 	pointeurSurParent = parent;
+
+	loaded = true;
 }
 
 void Preferences::slotRemettreAZero()
@@ -707,6 +711,9 @@ void Preferences::slotEffacerCookies()
 
 void Preferences::checkUsePassword(bool toogled)
 {
+	if (!loaded)
+		return;
+
 	QSettings reglages(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		reglages.setValue("mot_de_passe", toogled);
 		

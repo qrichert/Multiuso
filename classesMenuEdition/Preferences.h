@@ -342,6 +342,8 @@ class Preferences : public QDialog
 		QVBoxLayout *layoutPreferences;
 
 		FenPrincipale *pointeurSurParent; // Pour accéder à la fenêtre parent
+		
+		bool loaded;
 };
 
 #endif
