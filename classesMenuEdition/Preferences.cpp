@@ -715,7 +715,6 @@ void Preferences::checkUsePassword(bool toogled)
 		return;
 
 	QSettings reglages(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
-		reglages.setValue("mot_de_passe", toogled);
 		
 	if (toogled)
 	{
@@ -732,6 +731,13 @@ void Preferences::checkUsePassword(bool toogled)
 					reglagesPassword.setValue("pwd", ba);
 			}
 
+			else
+			{
+				choixUtiliserMdp->setCheckState(Qt::Unchecked);
+
+				toogled = false;
+			}
+
 			pwd->deleteLater();
 	}
 
@@ -739,6 +745,8 @@ void Preferences::checkUsePassword(bool toogled)
 	{
 		QFile::remove(Multiuso::appDirPath() + "/ini/PWD.ini");
 	}
+
+	reglages.setValue("mot_de_passe", toogled);
 }
 
 // <Stalker (www.siteduzero.com)>

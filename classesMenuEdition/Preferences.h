@@ -135,24 +135,36 @@ class PasswordDialog : public QDialog
 	public slots:
 		void slotPasswordChanged(QString pwd)
 		{
-			QRegExp rx1 = QRegExp("^[0-9]{2, 20}$");
-			QRegExp rx2 = QRegExp("^([a-z]{4, 20} | [A-Z]{2, 20})$");
-			QRegExp rx3 = QRegExp("^[^0-9a-zA-Z]{2, 20}$");
+			QRegExp rx1 = QRegExp("[0-9]+");
+			QRegExp rx2 = QRegExp("[a-z]+");
+			QRegExp rx3 = QRegExp("[A-Z]+");
+			QRegExp rx4 = QRegExp("[^0-9a-zA-Z]+");
 
-			if (pwd.contains("1"))
-				level->setLevel(VERY_LOW);
+			if (pwd.contains(rx1) && pwd.contains(rx2) && pwd.contains(rx3) // 4 of them && >= 8
+				&& pwd.contains(rx4) && pwd.length() >= 8)
+					level->setLevel(VERY_HIGH);
 
-			else if (pwd.contains("2"))
-				level->setLevel(LOW);
+			else if (pwd.contains(rx1) && pwd.contains(rx2) // 4 of them
+				&& pwd.contains(rx3) && pwd.contains(rx4))
+					level->setLevel(HIGH);
 
-			else if (pwd.contains("3"))
-				level->setLevel(GOOD);
+			else if ((pwd.contains(rx1) && pwd.contains(rx2) && pwd.contains(rx3)) // 3 of them
+				|| (pwd.contains(rx1) && pwd.contains(rx2) && pwd.contains(rx4))
+				|| (pwd.contains(rx1) && pwd.contains(rx3) && pwd.contains(rx4))
+				|| (pwd.contains(rx2) && pwd.contains(rx3) && pwd.contains(rx4)))
+					level->setLevel(GOOD);
 
-			else if (pwd.contains("4") && pwd.contains("4"))
-				level->setLevel(HIGH);
+			else if ((pwd.contains(rx1) && (pwd.contains(rx2))) // 2 of them
+				|| (pwd.contains(rx1) && pwd.contains(rx3))
+				|| (pwd.contains(rx1) && pwd.contains(rx4))
+				|| (pwd.contains(rx2) && pwd.contains(rx3))
+				|| (pwd.contains(rx2) && pwd.contains(rx4))
+				|| (pwd.contains(rx3) && pwd.contains(rx4)))
+					level->setLevel(LOW);
 
-			else if (pwd.contains("5") && pwd.contains("5") && pwd.contains("5"))
-				level->setLevel(VERY_HIGH);
+			else if (pwd.contains(rx1) || pwd.contains(rx2) // 1 of them
+				|| pwd.contains(rx3) || pwd.contains(rx4))
+					level->setLevel(VERY_LOW);
 
 			else
 				level->setLevel(NUL);
