@@ -9,6 +9,5 @@ qrc_*.cpp
 *.db
 *.so
 tmp/*
-navigateurWeb/autre/*
-navigateurWeb/cache/*
-navigateurWeb/favoris/*
+ini/*
+navigateurWeb/*

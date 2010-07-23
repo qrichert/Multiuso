@@ -161,4 +161,70 @@ void checkFiles()
 	QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/html");
 	QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/speedDial");
 		QDir().mkpath(Multiuso::appDirPath() + "/navigateurWeb/pictures");
+
+	QStringList allFiles;
+	// INI
+		allFiles << ":/default_files/ini/apparence.ini"
+			<< ":/default_files/ini/chronometre.ini"
+			<< ":/default_files/ini/config.ini"
+			<< ":/default_files/ini/creer_readme.ini"
+			<< ":/default_files/ini/editeur_de_code.ini"
+			<< ":/default_files/ini/editeur_de_texte.ini"
+			<< ":/default_files/ini/ftp.ini"
+			<< ":/default_files/ini/generer.ini"
+			<< ":/default_files/ini/nav_fichiers.ini"
+			<< ":/default_files/ini/navigateur.ini"
+			<< ":/default_files/ini/preferences.ini"
+			<< ":/default_files/ini/proxy.ini"
+			<< ":/default_files/ini/visionneur_images.ini"
+			<< ":/default_files/ini/widgets.ini";
+	// Web browser
+		allFiles << ":/default_files/navigateurWeb/html/page_vierge.html"
+			<< ":/default_files/navigateurWeb/html/page_vierge.png"
+			<< ":/default_files/navigateurWeb/html/pas_de_connexion.html"
+			<< ":/default_files/navigateurWeb/html/pas_de_connexion.png"
+
+			<< ":/default_files/navigateurWeb/speedDial/speedDial.html"
+
+			<< ":/default_files/navigateurWeb/speedDial/pictures/actionSpeedDial.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/background_gradient.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/background_link_head.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/delete_active.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/delete_alpha.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/delete_hover.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/delete.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/empty.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/error.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/logo.png"
+			<< ":/default_files/navigateurWeb/speedDial/pictures/wait.gif";
+
+	foreach (QString fileName, allFiles)
+	{
+		QFile file(fileName);
+		QFileInfo fileInfo(fileName);
+		QFile newFile(Multiuso::appDirPath() + fileInfo.filePath().remove(":/default_files"));
+
+		if (!newFile.exists())
+		{
+			if (fileInfo.suffix().toLower() == "png")
+			{
+				QPixmap pixmap(fileInfo.filePath());
+					pixmap.save(QFileInfo(newFile).filePath());
+			}
+
+			else if (fileInfo.suffix().toLower() == "gif")
+			{
+				file.copy(QFileInfo(newFile).filePath());
+			}
+
+			else
+			{
+				file.open(QIODevice::ReadOnly | QIODevice::Text);
+					newFile.open(QIODevice::WriteOnly | QIODevice::Text);
+						newFile.write(file.readAll());
+					newFile.close();
+				file.close();
+			}
+		}
+	}
 }
