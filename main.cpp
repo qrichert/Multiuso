@@ -41,31 +41,57 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationName("Quentin RICHERT");
 	QCoreApplication::setOrganizationDomain("http://multiuso.sourceforge.net/");
 
+	QApplication::setQuitOnLastWindowClosed(false);
+
+	QString locale = QLocale::system().name();
+
+	QTranslator translator;
+		translator.load(QString("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+			app.installTranslator(&translator);
+
 	QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	if (config.value("mot_de_passe").toBool())
 	{
-		bool ok;
+		bool retry = true;
+		int steps = 0;
 
-		QString mdp = QInputDialog::getText(new QWidget, "Multiuso", "Veuillez saisir le mot de passe :", QLineEdit::Password, "", &ok);
-
-		if (!ok)
-			return EXIT_SUCCESS;
-
-		QSettings reglagesPassword(Multiuso::appDirPath() + "/ini/PWD.ini", QSettings::IniFormat);
-			QByteArray verif = reglagesPassword.value("pwd").toByteArray();
-
-
-		mdp = "ér97&_Èhz" + mdp + "~odE987sDe!";
-
-		QByteArray ba = mdp.toAscii();
-			ba = QCryptographicHash::hash(ba, QCryptographicHash::Sha1);
-
-		if (ba != verif)
+		while (retry)
 		{
-			QMessageBox::critical(NULL, "Multiuso", "Mot de passe incorrect !");
+			steps++;
 
-			return EXIT_SUCCESS;
+			bool ok;
+
+			QString mdp = QInputDialog::getText(new QWidget, "Multiuso", "Veuillez saisir le mot de passe :", QLineEdit::Password, "", &ok);
+
+			if (!ok)
+				return EXIT_SUCCESS;
+
+			QSettings reglagesPassword(Multiuso::appDirPath() + "/ini/PWD.ini", QSettings::IniFormat);
+				QByteArray verif = reglagesPassword.value("pwd").toByteArray();
+
+
+			mdp = "ér97&_Èhz" + mdp + "~odE987sDe!";
+
+			QByteArray ba = mdp.toAscii();
+				ba = QCryptographicHash::hash(ba, QCryptographicHash::Sha1);
+
+			if (ba != verif)
+			{
+				if (steps == 3)
+					return EXIT_SUCCESS;
+
+				int answer = QMessageBox::critical(NULL, "Multiuso", "<strong>Mot de passe incorrect !</strong><br />"
+						"<em>Voulez-vous réessayer ?</em>", QMessageBox::Yes | QMessageBox::No);
+
+				if (answer == QMessageBox::No)
+					return EXIT_SUCCESS;
+			}
+
+			else
+			{
+				retry = false;
+			}
 		}
 
 		//decrypt
@@ -102,18 +128,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	QApplication::setQuitOnLastWindowClosed(false);
-
-	QString locale = QLocale::system().name();
-
-	QTranslator translator;
-		translator.load(QString("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-
-		app.installTranslator(&translator);
-
-	if (config.value("ouverture/crash").toBool())
-	{	
-	}
+	if (config.value("ouverture/crash").toBool()){}
 
 	config.setValue("ouverture/crash", true);
 
