@@ -383,16 +383,47 @@ class Multiuso
 					iniFiles.removeOne(".");
 					iniFiles.removeOne("..");
 					iniFiles.removeOne("PWD.ini");
-
+					
 				foreach(QString iniFile, iniFiles)
 				{
 					QFile file(Multiuso::appDirPath() + "/ini/" + iniFile);
 						file.open(QIODevice::ReadOnly | QIODevice::Text);
-							QString content = Multiuso::encrypt(file.readAll());
+							QString content = encrypt(file.readAll());
 						file.close();
 						file.open(QIODevice::WriteOnly | QIODevice::Text);
 							file.write(content.toAscii());
 						file.close();
+				}
+
+				QStringList webBrowserFiles1 = QDir(Multiuso::appDirPath() + "/navigateurWeb/autre").entryList();
+						webBrowserFiles1.removeOne(".");
+						webBrowserFiles1.removeOne("..");
+						webBrowserFiles1.removeOne("cookies.mltscookie");
+				
+				foreach(QString webBrowserFile, webBrowserFiles1)
+				{
+					QFile file(Multiuso::appDirPath() + "/navigateurWeb/autre/" + webBrowserFile);
+						file.open(QIODevice::ReadOnly | QIODevice::Text);
+							QString content = encrypt(file.readAll());
+						file.close();
+						file.open(QIODevice::WriteOnly | QIODevice::Text);
+							file.write(content.toAscii());
+						file.close();
+				}
+
+				QStringList webBrowserFiles2 = QDir(Multiuso::appDirPath() + "/navigateurWeb/favoris").entryList();
+						webBrowserFiles2.removeOne(".");
+						webBrowserFiles2.removeOne("..");
+
+				foreach(QString webBrowserFile, webBrowserFiles2)
+				{
+					QFile file(Multiuso::appDirPath() + "/navigateurWeb/favoris/" + webBrowserFile);
+					file.open(QIODevice::ReadOnly | QIODevice::Text);
+						QString content = encrypt(file.readAll());
+					file.close();
+					file.open(QIODevice::WriteOnly | QIODevice::Text);
+						file.write(content.toAscii());
+					file.close();
 				}
 			}
 			
