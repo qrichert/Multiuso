@@ -24,12 +24,16 @@ Calendrier::Calendrier(QWidget *parent = 0) : QCalendarWidget(parent)
 {
 	setGridVisible(true);
 
-	connect(this, SIGNAL(activated(const QDate &)), this, SLOT(slotDateChoisie(const QDate &)));
+	connect(this, SIGNAL(activated(QDate)), this, SLOT(slotDateChoisie(QDate)));
 }
 
-void Calendrier::slotDateChoisie(const QDate &date)
+void Calendrier::slotDateChoisie(QDate date)
 {
-	Agenda *agenda = new Agenda(this, &date);
-		agenda->exec();
+	Agenda *agenda = new Agenda(this, date);
+		
+		if (agenda->exec() == QDialog::Accepted)
+		{
+		}
+		
 		agenda->deleteLater();
 }

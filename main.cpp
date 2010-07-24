@@ -47,11 +47,20 @@ int main(int argc, char *argv[])
 
 	QTranslator translator;
 		translator.load(QString("qt_") + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-			app.installTranslator(&translator);
+			app.installTranslator(&translator);	
 
-	QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
+	// Reading config file
+		bool usePassword = false;
 
-	if (config.value("mot_de_passe").toBool())
+		QFile configFile(Multiuso::appDirPath() + "/ini/config.ini");
+			configFile.open(QIODevice::ReadOnly | QIODevice::Text);
+
+				if (configFile.readAll().startsWith("ENCRYPTED"))
+					usePassword = true;
+
+			configFile.close();
+
+	if (usePassword)
 	{
 		bool retry = true;
 		int steps = 0;
@@ -94,7 +103,21 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		//decrypt
+		QStringList iniFiles = QDir(Multiuso::appDirPath() + "/ini").entryList();
+			iniFiles.removeOne(".");
+			iniFiles.removeOne("..");
+			iniFiles.removeOne("PWD.ini");
+
+		foreach(QString iniFile, iniFiles)
+		{
+			QFile file(Multiuso::appDirPath() + "/ini/" + iniFile);
+				file.open(QIODevice::ReadOnly | QIODevice::Text);
+					QString content = Multiuso::decrypt(file.readAll());
+				file.close();
+				file.open(QIODevice::WriteOnly | QIODevice::Text);
+					file.write(content.toAscii());
+				file.close();
+		}
 	}
 
 	checkFiles();
@@ -127,6 +150,8 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+
+	QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	if (config.value("ouverture/crash").toBool()){}
 

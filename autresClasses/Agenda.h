@@ -27,7 +27,22 @@ class Agenda : public QDialog
 	Q_OBJECT
 
 	public:
-		Agenda(QWidget *parent, const QDate *date);
+		Agenda(QWidget *parent = 0, QDate date = QDate());
+
+	protected:
+		void accept()
+		{
+			if (champDeSaisie->toPlainText().isEmpty())
+				QDialog::reject();
+
+			else
+				QDialog::accept();
+		}
+
+		void reject()
+		{
+			accept();
+		}
 
 	public slots:
 		void slotChangementDeTexte();

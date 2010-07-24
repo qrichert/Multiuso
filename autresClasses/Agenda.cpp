@@ -19,14 +19,14 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Agenda.h"
 
-Agenda::Agenda(QWidget *parent = 0, const QDate *date = 0) : QDialog(parent)
+Agenda::Agenda(QWidget *parent, QDate date) : QDialog(parent)
 {
-	QString dateChoisie = date->toString();
+	QString dateChoisie = date.toString();
 
 	groupName = dateChoisie;
 		groupName.replace(" ", "_");
 
-		QString jour = QString::number(date->dayOfWeek());
+		QString jour = QString::number(date.dayOfWeek());
 
 			if (jour == "1") { jour = "Lundi"; }
 			else if (jour == "2") { jour = "Mardi"; }
@@ -36,7 +36,7 @@ Agenda::Agenda(QWidget *parent = 0, const QDate *date = 0) : QDialog(parent)
 			else if (jour == "6") { jour = "Samedi"; }
 			else if (jour == "7") { jour = "Dimanche"; }
 
-		QString mois = QString::number(date->month());
+		QString mois = QString::number(date.month());
 
 			if (mois == "1") { mois = "janvier"; }
 			else if (mois == "2") { mois = "février"; }
@@ -51,8 +51,8 @@ Agenda::Agenda(QWidget *parent = 0, const QDate *date = 0) : QDialog(parent)
 			else if (mois == "11") { mois = "novembre"; }
 			else if (mois == "12") { mois = "décembre"; }
 
-		QString jourDuMois = QString::number(date->day());
-		QString annee = QString::number(date->year());
+		QString jourDuMois = QString::number(date.day());
+		QString annee = QString::number(date.year());
 
 	QString dateComplete = jour + ", " + jourDuMois + " " + mois + " " + annee;
 

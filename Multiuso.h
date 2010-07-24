@@ -189,12 +189,27 @@ class Multiuso
 			return suffix;
 		}
 		
+		static QByteArray decrypt(QByteArray ba)
+		{
+			ba = ba.remove(0, 9);
+			ba = QByteArray::fromBase64(ba);
+
+			return QByteArray::fromHex(ba);
+		}
+
 		static QAction *emptyAction(QWidget *parent)
 		{
 			QAction *action = new QAction("(vide)", parent);
 				action->setDisabled(true);
 
 			return action;
+		}
+
+		static QByteArray encrypt(QByteArray ba)
+		{
+			ba = ba.toHex();
+
+			return QByteArray("ENCRYPTED") + ba.toBase64();
 		}
 
 		static QString firstLetterToUpper(QString str)
@@ -360,6 +375,27 @@ class Multiuso
 
 		static void quit()
 		{
+			QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
+
+			if (config.value("mot_de_passe").toBool())
+			{
+				QStringList iniFiles = QDir(Multiuso::appDirPath() + "/ini").entryList();
+					iniFiles.removeOne(".");
+					iniFiles.removeOne("..");
+					iniFiles.removeOne("PWD.ini");
+
+				foreach(QString iniFile, iniFiles)
+				{
+					QFile file(Multiuso::appDirPath() + "/ini/" + iniFile);
+						file.open(QIODevice::ReadOnly | QIODevice::Text);
+							QString content = Multiuso::encrypt(file.readAll());
+						file.close();
+						file.open(QIODevice::WriteOnly | QIODevice::Text);
+							file.write(content.toAscii());
+						file.close();
+				}
+			}
+			
 			removeDirectory(tempPath());
 
 			qApp->quit();

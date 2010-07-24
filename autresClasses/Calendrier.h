@@ -30,7 +30,7 @@ class Calendrier : public QCalendarWidget
 		Calendrier(QWidget *parent);
 
 	public slots:
-		void slotDateChoisie(const QDate &date);
+		void slotDateChoisie(QDate date);
 
 	private:
 
