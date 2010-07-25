@@ -164,8 +164,9 @@ int main(int argc, char *argv[])
 		{
 			if (arguments.value(i) == "-v" || arguments.value(i) == "--version")
 			{
-				qDebug() << "Multiuso version " << QCoreApplication::applicationVersion() << " for " << Multiuso::currentOSCompleteStr();
-				qDebug() << "Using Qt version " << qVersion();
+				std::cout << "Multiuso version " << QCoreApplication::applicationVersion().toStdString()
+					<< " for " << Multiuso::currentOSCompleteStr().toStdString() << "\n"
+					<< "Using Qt version " << qVersion() << "\n";
 
 				return EXIT_SUCCESS;
 			}
