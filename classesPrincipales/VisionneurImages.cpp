@@ -870,6 +870,10 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 	if (name.length() > 20)
 		name = name.left(17) + "...";
 
+	if (name != "(aucune image)" && name != "(erreur)")
+		name += " (" + QString::number(QPixmap(fichier).width()) + "×"
+				+ QString::number(QPixmap(fichier).height()) + ")";
+
 	onglets->setTabText(onglets->currentIndex(), name);
 	onglets->setTabIcon(onglets->currentIndex(), image);
 
@@ -909,6 +913,14 @@ void VisionneurImages::slotOpenFileFromDrop(QUrl url)
 void VisionneurImages::slotApplyEffects(QPixmap pixmap)
 {
 	currentLabel()->setPixmap(pixmap);
+
+	QString name = QFileInfo(currentLabel()->imgPath()).fileName();
+
+	if (name.length() > 20)
+		name = name.left(17) + "...";
+	
+	onglets->setTabText(onglets->currentIndex(), name + " (" + QString::number(pixmap.width()) + "×"
+									+ QString::number(pixmap.height()) + ")");
 	onglets->setTabIcon(onglets->currentIndex(), pixmap);
 
 	slotZoomIdeal();
