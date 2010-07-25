@@ -17,5 +17,6 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <iostream>
 #include <QtGui>
 #include "Multiuso.h"

@@ -219,51 +219,58 @@ void APropos::slotEasterEgg()
 
 	if (passages == 1)
 	{
-		qDebug() << "Désolé, il n'y a pas d'easter egg ici ;p";
+		std::cout << "Désolé, il n'y a pas d'easter egg ici ;p\n";
 	}
 
 	else if (passages == 2)
 	{
-		qDebug() << "Attention, je vais m'énerver, vous êtes prévenu !";
+		std::cout << "Attention, je vais m'énerver, vous êtes prévenu !\n";
 	}
 
 	else if (passages == 3)
 	{
-		qDebug() << "Puisque je vous dis qu'il n'y a pas d'easter egg ici ! :@";
+		std::cout << "Puisque je vous dis qu'il n'y a pas d'easter egg ici ! :@\n";
 	}
 
 	else if (passages == 4)
 	{
-		/* Image de gâteau en ASCII */
-		qDebug() << "The cake is a lie";
-	}
-	/* ENLEVER 42 des astuces si non utilisé
-		int nombreEntre = QInputDialog::getInt(this, "Multiuso", "Bon ok, vous avez gagné !\nEntrez un nombre pour voir ;p");
+		std::cout << "Bon ok, vous avez gagné !\nEntrez un nombre pour voir : ";
+			int nombreEntre;
+			std::cin >> nombreEntre;
 
 		if (nombreEntre == 42)
 		{
-			QLabel *label = new QLabel("<img src=':/easter_eggs/easter_egg_the_cake_is_a_lie.jpg'/>");
-
-			QVBoxLayout *layout = new QVBoxLayout;
-				layout->addWidget(label);
-				layout->setContentsMargins(0, 0, 0, 0);
-
-			QDialog dialogEasterEgg;
-				dialogEasterEgg.setWindowTitle("The cake is a lie");
-				dialogEasterEgg.setWindowIcon(windowIcon());
-				dialogEasterEgg.setLayout(layout);
-				dialogEasterEgg.exec();
+			std::cout << "          „\n  _¸˛_¸˛_||_¸˛_¸˛_\n (////////////////)\n"
+				<< " (- - - - - - - - )\n (////////////////)\n--------------------\n"
+				<< " THE CAKE IS A LIE\n\n";
 		}
 
 		else
 		{
 			if (nombreEntre <= 9)
-				QMessageBox::critical(this, "Multiuso", "Je n'aime pas ce chiffre !<br />Avez-vous lu les astuces O.o ?");
+				std::cout << "\nJe n'aime pas ce chiffre !\nAvez-vous lu les astuces O.o ?\n";
 
 			else
-				QMessageBox::critical(this, "Multiuso", "Je n'aime pas ce nombre !<br />Avez-vous lu les astuces O.o ?");
+				std::cout << "\nJe n'aime pas ce nombre !\nAvez-vous lu les astuces O.o ?\n";
+
+			passages = 7;
 		}
-	}*/
+	}
+
+	else if (passages == 5)
+	{
+		std::cout << "C'est bon, vous l'avez vu maintenant ! Allez, du vent !\n";
+	}
+
+	else if (passages == 6)
+	{
+		std::cout << "Encore vous --' Bon ben je fais grève...\n";
+	}
+
+	else
+	{
+		std::cout << "/!\\ EN GRÈVE /!\\\n";
+	}
 }
 
 // </Easter Egg>
