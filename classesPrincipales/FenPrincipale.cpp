@@ -21,6 +21,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "classesMenuEdition/Preferences.h"
 #include "classesMenuAutresFonctionnalites/BlocNotes.h"
 #include "classesMenuAutresFonctionnalites/Organisateur.h"
+#include "classesMenuAutresFonctionnalites/Messagerie.h"
 #include "classesMenuAutresFonctionnalites/CompteurDeLignes.h"
 #include "classesMenuAutresFonctionnalites/CompresseurDeCode.h"
 #include "classesMenuAutresFonctionnalites/GenerateurPageWeb.h"
@@ -470,6 +471,11 @@ void FenPrincipale::creerActions()
 		actionOrganisateur->setIcon(QIcon(":/icones/actions/actionOrganisateur.png"));
 		actionOrganisateur->setStatusTip("Gérer une liste des tâches à faire");
 		connect(actionOrganisateur, SIGNAL(triggered()), this, SLOT(slotOrganisateur()));
+		
+	actionMessagerie = new QAction("&Messagerie", this);
+		actionMessagerie->setIcon(QIcon(":/icones/actions/actionMessagerie.png"));
+		actionMessagerie->setStatusTip("Envoyez des messages à vos amis");
+		connect(actionMessagerie, SIGNAL(triggered()), this, SLOT(slotMessagerie()));
 
 	actionCompteurDeLignes = new QAction("Compteur de &lignes", this);
 		actionCompteurDeLignes->setIcon(QIcon(":/icones/actions/actionCompteurDeLignes.png"));
@@ -580,6 +586,7 @@ void FenPrincipale::creerMenus()
 	menuAutresFonctionnalites->addSeparator();
 	menuAutresFonctionnalites->addAction(actionBlocNotes);
 	menuAutresFonctionnalites->addAction(actionOrganisateur);
+	menuAutresFonctionnalites->addAction(actionMessagerie);
 	menuAutresFonctionnalites->addAction(actionCompteurDeLignes);
 	menuAutresFonctionnalites->addAction(actionCreerFichier);
 	menuAutresFonctionnalites->addAction(actionCreerReadme);
@@ -1003,6 +1010,13 @@ void FenPrincipale::slotOrganisateur()
 	Organisateur *fenOrganisateur = new Organisateur(this);
 		fenOrganisateur->exec();
 		fenOrganisateur->deleteLater();
+}
+
+void FenPrincipale::slotMessagerie()
+{
+	Messagerie *fenMessagerie = new Messagerie(this);
+		fenMessagerie->exec();
+		fenMessagerie->deleteLater();
 }
 
 void FenPrincipale::slotCompteurDeLignes()

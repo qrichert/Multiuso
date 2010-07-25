@@ -81,6 +81,7 @@ class FenPrincipale : public QMainWindow
 		void slotPleinEcran();
 		void slotBlocNotes();
 		void slotOrganisateur();
+		void slotMessagerie();
 		void slotCompteurDeLignes();
 		void slotCompresseurDeCode();
 		void slotGenerateurPageWeb();
@@ -178,6 +179,7 @@ class FenPrincipale : public QMainWindow
 		QAction *actionBlocNotes;
 		QAction *actionOrganisateur;
 		QAction *actionCompteurDeLignes;
+		QAction *actionMessagerie;
 		QAction *actionCompresseurDeCode;
 		QAction *actionGenerateurPageWeb;
 		QAction *actionGenerateurClassesCpp;
