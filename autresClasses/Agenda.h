@@ -33,10 +33,17 @@ class Agenda : public QDialog
 		void accept()
 		{
 			if (champDeSaisie->toPlainText().isEmpty())
+			{
+				QSettings settings(Multiuso::appDirPath() + "/ini/agenda.ini", QSettings::IniFormat);
+					settings.remove(groupName);
+
 				QDialog::reject();
+			}
 
 			else
+			{
 				QDialog::accept();
+			}
 		}
 
 		void reject()
@@ -46,6 +53,7 @@ class Agenda : public QDialog
 
 	public slots:
 		void slotChangementDeTexte();
+		void deleteNote();
 
 	private:
 		QTextEdit *champDeSaisie;

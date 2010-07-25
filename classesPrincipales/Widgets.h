@@ -32,6 +32,7 @@ class Widgets : public QWidget
 
 		void newSubWindow(MdiSubWindow *newSubWindow);
 		void showWindow(QString title);
+		void openTodayNotes();
 
 	public slots:
 		void creerFenetreCalendrier();

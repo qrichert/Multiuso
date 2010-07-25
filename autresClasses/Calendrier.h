@@ -29,11 +29,14 @@ class Calendrier : public QCalendarWidget
 	public:
 		Calendrier(QWidget *parent);
 
+		void updateDates();
+		void openTodayNotes();
+
 	public slots:
-		void slotDateChoisie(QDate date);
+		void slotChosenDate(QDate date);
 
 	private:
-
+		bool currentDateUsed;
 };
 
 #endif

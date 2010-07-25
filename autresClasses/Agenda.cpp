@@ -62,6 +62,7 @@ Agenda::Agenda(QWidget *parent, QDate date) : QDialog(parent)
 	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
 
 	QSettings settings(Multiuso::appDirPath() + "/ini/agenda.ini", QSettings::IniFormat);
+		settings.setValue(groupName + "/date", date);	
 
 	QString texte = settings.value(groupName + "/content").toString();
 
@@ -69,13 +70,28 @@ Agenda::Agenda(QWidget *parent, QDate date) : QDialog(parent)
 		champDeSaisie->setPlainText(texte);
 		connect(champDeSaisie, SIGNAL(textChanged()), this, SLOT(slotChangementDeTexte()));
 
+	QPushButton *deleteButton = new QPushButton("Supprimer");
+		connect(deleteButton, SIGNAL(clicked()), this, SLOT(deleteNote()));
+
+	QHBoxLayout *layoutButtons = new QHBoxLayout;
+		layoutButtons->addWidget(deleteButton);
+		layoutButtons->addWidget(Multiuso::closeButton(this));
+		layoutButtons->setAlignment(Qt::AlignRight);
+
 	QVBoxLayout *layoutAgenda = new QVBoxLayout(this);
 		layoutAgenda->addWidget(champDeSaisie);
-		layoutAgenda->addWidget(Multiuso::closeButton(this));
+		layoutAgenda->addLayout(layoutButtons);
 }
 
 void Agenda::slotChangementDeTexte()
 {
 	QSettings settings(Multiuso::appDirPath() + "/ini/agenda.ini", QSettings::IniFormat);
 		settings.setValue(groupName + "/content", champDeSaisie->toPlainText());	
+}
+
+void Agenda::deleteNote()
+{
+	champDeSaisie->clear();
+
+	accept();
 }

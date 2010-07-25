@@ -342,6 +342,8 @@ FenPrincipale::FenPrincipale()
 
 	qApp->processEvents();
 
+	widgets->openTodayNotes();
+
 	if (useSplashScreen)
 		splash.finish(this);
 

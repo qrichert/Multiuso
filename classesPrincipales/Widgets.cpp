@@ -124,3 +124,8 @@ void Widgets::showWindow(QString title)
 	else if (title == "Chronomètre/Minuterie")
 		fenetreChronometre->show();
 }
+
+void Widgets::openTodayNotes()
+{
+	fenetreCalendrier->findChild<Calendrier *>()->openTodayNotes();
+}

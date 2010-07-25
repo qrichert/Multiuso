@@ -24,16 +24,52 @@ Calendrier::Calendrier(QWidget *parent = 0) : QCalendarWidget(parent)
 {
 	setGridVisible(true);
 
-	connect(this, SIGNAL(activated(QDate)), this, SLOT(slotDateChoisie(QDate)));
+	connect(this, SIGNAL(activated(QDate)), this, SLOT(slotChosenDate(QDate)));
+
+	updateDates();
 }
 
-void Calendrier::slotDateChoisie(QDate date)
+void Calendrier::updateDates()
+{
+	currentDateUsed = false;
+
+	QSettings settings(Multiuso::appDirPath() + "/ini/agenda.ini", QSettings::IniFormat);
+
+	foreach (QString group, settings.childGroups())
+	{
+		QDate date = settings.value(group + "/date").toDate();
+
+		QBrush brush(Qt::darkCyan);
+
+		QTextCharFormat textCharFormat = dateTextFormat(date);
+			textCharFormat.setBackground(brush);
+
+		setDateTextFormat(date, textCharFormat);
+
+		if (date == QDate::currentDate())
+			currentDateUsed = true;
+	}	
+}
+
+void Calendrier::openTodayNotes()
+{
+	if (currentDateUsed)
+		slotChosenDate(QDate::currentDate());
+}
+
+void Calendrier::slotChosenDate(QDate date)
 {
 	Agenda *agenda = new Agenda(this, date);
+
+	QBrush brush(Qt::white);
 		
 		if (agenda->exec() == QDialog::Accepted)
-		{
-		}
-		
-		agenda->deleteLater();
+			brush.setColor(Qt::darkCyan);
+	
+	agenda->deleteLater();	
+
+	QTextCharFormat textCharFormat = dateTextFormat(date);
+		textCharFormat.setBackground(brush);
+
+	setDateTextFormat(date, textCharFormat);
 }
