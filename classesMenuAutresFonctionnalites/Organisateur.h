@@ -85,13 +85,7 @@ class Organisateur : public QDialog
 	private:
 		QComboBox *m_sortBy;
 		QTableWidget *mainTable;
-
-		struct Pair
-		{
-			int first;
-			int second;
-		};
-
+	
 		QList<Pair> pairs;
 
 		QList<QStringList> priorityVeryHigh;

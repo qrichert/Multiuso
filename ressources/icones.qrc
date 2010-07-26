@@ -32,6 +32,7 @@
 		<file>icones/actions/actionGenerateurPageWeb.png</file>
 		<file>icones/actions/actionGestionnaireDesPlugins.png</file>
 		<file>icones/actions/actionGoToHome.png</file>
+		<file>icones/actions/actionMessagerie.png</file>
 		<file>icones/actions/actionObtenirPlugins.png</file>
 		<file>icones/actions/actionOrganisateur.png</file>
 		<file>icones/actions/actionPleinEcran.png</file>
@@ -145,6 +146,9 @@
 
 		<file>icones/menus/sousMenuMiniJeux.png</file>
 		<file>icones/menus/sousMenuProgrammation.png</file>
+		
+		<file>icones/messagerie/delete_msg.png</file>
+		<file>icones/messagerie/logout.png</file>
 
 		<file>icones/mime/axx.png</file>
 		<file>icones/mime/c.png</file>

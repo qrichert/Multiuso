@@ -88,6 +88,7 @@ class ConnectionWidget : public QWidget
 				connect(labelSuscribe, SIGNAL(clicked()), this, SLOT(suscribe()));
 
 			QPushButton *buttonConnect = new QPushButton("Se connecter");
+				connect(buttonConnect, SIGNAL(clicked()), this, SIGNAL(connectRequest()));
 			
 			QVBoxLayout *mainLayout = new QVBoxLayout(this);
 				mainLayout->addWidget(groupConnection);
@@ -199,6 +200,8 @@ class ConnectionWidget : public QWidget
 
 		void suscribe(QString pseudo, QString pwd, QString firstName, QString lastName)
 		{
+			pwd = QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Sha1);
+
 			QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=suscribe"
 												"&pseudo=" + pseudo +
 												"&pwd=" + pwd +
@@ -251,6 +254,9 @@ class ConnectionWidget : public QWidget
 			QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page d'inscription, réessayez plus tard.");
 		}
 
+	signals:
+		void connectRequest();
+
 	private:
 		QLineEdit *m_pseudo;
 		QLineEdit *m_password;
@@ -261,6 +267,176 @@ class ConnectionWidget : public QWidget
 		QNetworkReply *suscribeReply;
 };
 
+struct Message
+{
+	QString id;
+	QString from;
+	QString date;
+	QString message;
+};
+
+class MessagesWidget : public QMainWindow
+{
+	Q_OBJECT
+
+	public:
+		MessagesWidget()
+		{
+			QAction *actionLogOut = new QAction("Se déconnecter", this);
+				actionLogOut->setIcon(QIcon(":/icones/messagerie/logout.png"));
+				actionLogOut->setToolTip("Se déconnecter");
+
+			QLabel *connectedAs = new QLabel(" Vous êtes connecté en tant que ");
+				m_pseudo = new QLabel("");
+			QLabel *openParenthesis = new QLabel(" (");
+				m_firstName = new QLabel("");
+			QLabel *space = new QLabel(" ");
+				m_lastName = new QLabel("");
+			QLabel *closeParenthesis = new QLabel(")");
+
+			QToolBar *mainToolBar = new QToolBar("Informations");
+				mainToolBar->setMovable(false);
+				mainToolBar->addAction(actionLogOut);
+				mainToolBar->addWidget(connectedAs);
+				mainToolBar->addWidget(m_pseudo);
+				mainToolBar->addWidget(openParenthesis);
+				mainToolBar->addWidget(m_firstName);
+				mainToolBar->addWidget(space);
+				mainToolBar->addWidget(m_lastName);
+				mainToolBar->addWidget(closeParenthesis);
+
+			addToolBar(Qt::TopToolBarArea, mainToolBar);
+			
+			QStringList headerLabels;
+				headerLabels << "#" << "-" << "De" << "Date" << "Message";
+
+			mainTable = new QTableWidget(0, headerLabels.size());
+				mainTable->setShowGrid(false);
+				mainTable->setHorizontalHeaderLabels(headerLabels);
+				mainTable->verticalHeader()->hide();
+				mainTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+				mainTable->setSelectionMode(QAbstractItemView::SingleSelection);
+				mainTable->resizeColumnsToContents();
+				mainTable->horizontalHeader()->setStretchLastSection(true);
+				connect(mainTable, SIGNAL(itemDoubleClicked(QTableWidgetItem *)), this, SLOT(slotShowMessage(QTableWidgetItem *)));
+			
+			QVBoxLayout *mainLayout = new QVBoxLayout;
+				mainLayout->addWidget(mainTable);
+				mainLayout->setContentsMargins(0, 0, 0, 0);
+
+			QWidget *mainWidget = new QWidget;
+				mainWidget->setLayout(mainLayout);
+
+			setCentralWidget(mainWidget);
+		}
+
+		void setPseudo(QString pseudo)
+		{
+			m_pseudo->setText("<strong>" + pseudo + "</strong>");
+		}
+
+		void setFirstName(QString firstName)
+		{
+			m_firstName->setText(firstName);
+		}
+
+		void setLastName(QString lastName)
+		{
+			m_lastName->setText(lastName);
+		}
+
+		void setMessages(QList<Message> messages)
+		{
+			QStringList headerLabels;
+				headerLabels << "#" << "-" << "De" << "Date" << "Message";
+
+			mainTable->clear();
+			mainTable->setRowCount(0);
+			mainTable->setHorizontalHeaderLabels(headerLabels);
+
+			m_messages = messages;
+
+			pairs.clear();
+
+			foreach (Message message, m_messages)
+			{
+				QString msgToShow = message.message;
+					
+				if (msgToShow.length() > 40)
+					msgToShow = msgToShow.left(37) + "...";
+
+				int newRowCount = mainTable->rowCount() + 1;
+
+				Pair pair;
+					pair.first = newRowCount - 1;
+					pair.second = message.id.toInt();
+
+				pairs << pair;	
+
+				QTableWidgetItem *itemNumber = new QTableWidgetItem(QString::number(newRowCount));
+					itemNumber->setFlags(itemNumber->flags() & ~Qt::ItemIsEditable);
+
+				QPushButton *deleteMsg = new QPushButton;
+					deleteMsg->setIcon(QIcon(":/icones/messagerie/delete_msg.png"));
+					deleteMsg->setFixedSize(20, 20);
+					deleteMsg->setObjectName(QString::number(newRowCount - 1));
+
+				QVBoxLayout *deleteMsgLayout = new QVBoxLayout;
+					deleteMsgLayout->addWidget(deleteMsg);
+
+				QWidget *deleteMsgWidget = new QWidget;
+					deleteMsgWidget->setLayout(deleteMsgLayout);
+
+				QTableWidgetItem *itemFrom = new QTableWidgetItem(message.from);
+					itemFrom->setFlags(itemFrom->flags() & ~Qt::ItemIsEditable);
+			
+				QTableWidgetItem *itemDate = new QTableWidgetItem(message.date);
+					itemDate->setFlags(itemDate->flags() & ~Qt::ItemIsEditable);
+			
+				QTableWidgetItem *itemMessage = new QTableWidgetItem(msgToShow);
+					itemMessage->setFlags(itemMessage->flags() & ~Qt::ItemIsEditable);
+
+				mainTable->setRowCount(newRowCount);
+					mainTable->setItem(newRowCount - 1, 0, itemNumber);
+					mainTable->setCellWidget(newRowCount - 1, 1, deleteMsgWidget);
+					mainTable->setItem(newRowCount - 1, 2, itemFrom);
+					mainTable->setItem(newRowCount - 1, 3, itemDate);
+					mainTable->setItem(newRowCount - 1, 4, itemMessage);
+			}
+			
+			mainTable->resizeColumnsToContents();
+			mainTable->horizontalHeader()->setStretchLastSection(true);
+		}
+
+	public slots:
+		void slotShowMessage(QTableWidgetItem *item)
+		{	
+			Message message = m_messages.value(item->row());
+
+				QDialog *dialog = new QDialog(this);
+					dialog->setWindowTitle("De " + message.from
+							+ " le " + message.date);
+					dialog->resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
+
+				QTextBrowser *text = new QTextBrowser;
+					text->setPlainText(message.message);
+
+				QVBoxLayout *layout = new QVBoxLayout(dialog);
+					layout->addWidget(text);
+					layout->addWidget(Multiuso::closeButton(dialog));
+
+				dialog->exec();
+		}
+
+	private:
+		QLabel *m_pseudo;
+		QLabel *m_firstName;
+		QLabel *m_lastName;
+		QTableWidget *mainTable;
+		QList<Message> m_messages;
+		QList<Pair> pairs;
+};
+
 class Messagerie : public QDialog
 {
 	Q_OBJECT
@@ -268,10 +444,28 @@ class Messagerie : public QDialog
 	public:
 		Messagerie(QWidget *parent);
 
+		void updateMessagesWidget();
+
+	public slots:
+		void connectPeople();
+		void getConnectionReply();
+		void getConnectionReply(QNetworkReply::NetworkError);
+
 	private:
 		ConnectionWidget *connectionWidget;
+		MessagesWidget *messagesWidget;
 
 		QStackedWidget *mainWidget;
+
+		QVBoxLayout *mainLayout;
+
+		QString currentPseudo;
+		QString currentFirstName;
+		QString currentLastName;
+	
+		QList<Message> messages;
+
+		QNetworkReply *replyConnection;
 };
 
 #endif

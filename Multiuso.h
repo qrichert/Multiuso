@@ -23,6 +23,12 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui>
 #include "time.h"
 
+struct Pair
+{
+	int first;
+	int second;
+};
+
 class Multiuso
 {
 	public:
