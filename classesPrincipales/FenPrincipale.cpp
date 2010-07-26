@@ -1292,7 +1292,7 @@ void FenPrincipale::verificationMajProgresse(qint64 recu, qint64 total)
 
 void FenPrincipale::comparerMaj()
 {
-	QFile tmp(Multiuso::appDirPath() + "/MAJ.ini");
+	QFile tmp(Multiuso::tempPath() + "/MAJ.ini");
 
 		if (tmp.exists())
 			tmp.remove();
@@ -1301,7 +1301,7 @@ void FenPrincipale::comparerMaj()
 		tmp.write(fichierMaj->readAll());
 		tmp.close();
 
-		QSettings derVersion(Multiuso::appDirPath() + "/MAJ.ini", QSettings::IniFormat);
+		QSettings derVersion(Multiuso::tempPath() + "/MAJ.ini", QSettings::IniFormat);
 			derniereMaj = derVersion.value("version_actuelle").toString();
 
 		tmp.remove();
