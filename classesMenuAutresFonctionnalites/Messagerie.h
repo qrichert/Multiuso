@@ -315,17 +315,25 @@ class MessagesWidget : public QMainWindow
 				actionLogOut->setToolTip("Se déconnecter");
 				connect(actionLogOut, SIGNAL(triggered()), this, SLOT(slotDisconnect()));
 
+			QAction *actionReload = new QAction("Recharger", this);
+				actionReload->setIcon(QIcon(":/icones/messagerie/reload.png"));
+				actionReload->setToolTip("Recharger");
+				connect(actionReload, SIGNAL(triggered()), this, SLOT(reload()));
+
 			QAction *actionAddContact = new QAction("Ajouter un contact", this);
 				actionAddContact->setIcon(QIcon(":/icones/messagerie/add_contact.png"));
 				actionAddContact->setToolTip("Ajouter un contact");
 				connect(actionAddContact, SIGNAL(triggered()), this, SLOT(slotAddContact()));
 
+			m_contactsList = new QComboBox;
+			
 			QToolBar *actionsToolBar = addToolBar("Actions");
 				actionsToolBar->setMovable(false);
 				actionsToolBar->addAction(actionLogOut);
 				actionsToolBar->addSeparator();
 				actionsToolBar->addAction(actionAddContact);
-			
+				actionsToolBar->addWidget(m_contactsList);
+	
 			QStringList headerLabels;
 				headerLabels << "#" << "-" << "De" << "Date" << "Message";
 
@@ -430,6 +438,9 @@ class MessagesWidget : public QMainWindow
 		void setContacts(QList<Contact> contacts)
 		{
 			m_contacts = contacts;
+
+			foreach (Contact contact, m_contacts)
+				m_contactsList->addItem(contact.pseudo + " (" + contact.firstName + " " + contact.lastName + ")");
 		}
 
 	public slots:
@@ -459,6 +470,7 @@ class MessagesWidget : public QMainWindow
 			m_lastName->setText("");
 			mainTable->clear();
 			m_messages.clear();
+			m_contacts.clear();
 			pairs.clear();
 
 			emit disconnected();
@@ -477,14 +489,29 @@ class MessagesWidget : public QMainWindow
 			emit addContactRequested(pseudo);
 		}
 
+		void reload()
+		{
+			m_pseudo->setText("");
+			m_firstName->setText("");
+			m_lastName->setText("");
+			mainTable->clear();
+			m_messages.clear();
+			m_contacts.clear();
+			pairs.clear();
+
+			emit reloadRequested();
+		}
+
 	signals:
 		void disconnected();
 		void addContactRequested(QString pseudo);
+		void reloadRequested();
 
 	private:
 		QLabel *m_pseudo;
 		QLabel *m_firstName;
 		QLabel *m_lastName;
+		QComboBox *m_contactsList;
 		QTableWidget *mainTable;
 		QList<Message> m_messages;
 		QList<Pair> pairs;

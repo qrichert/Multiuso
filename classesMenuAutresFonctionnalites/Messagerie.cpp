@@ -32,6 +32,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 	messagesWidget = new MessagesWidget;
 		connect(messagesWidget, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
 		connect(messagesWidget, SIGNAL(addContactRequested(QString)), this, SLOT(addContact(QString)));
+		connect(messagesWidget, SIGNAL(reloadRequested()), this, SLOT(connectPeople()));
 
 	mainWidget = new QStackedWidget;
 		mainWidget->addWidget(connectionWidget);
@@ -223,12 +224,17 @@ void Messagerie::getContactReply()
 					case 0: QMessageBox::information(this, "Multiuso", "Contact ajouté avec succès !"); break;
 					case 1: ok = false; QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
 					case 3: ok = false; QMessageBox::critical(this, "Multiuso", "Cet utilisateur n'existe pas !"); break;
+					case 4: ok = false; QMessageBox::critical(this, "Multiuso", "Cet utilisateur fait déjà partie de vos contacts !"); break;
 					default: ok = false; QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
 				}
 			}
 		}
 
-		// reload
+		reply.close();
+		reply.remove();
+
+	if (ok)
+		messagesWidget->reload();
 }
 
 void Messagerie::getContactReply(QNetworkReply::NetworkError)

@@ -150,6 +150,7 @@
 		<file>icones/messagerie/add_contact.png</file>
 		<file>icones/messagerie/delete_msg.png</file>
 		<file>icones/messagerie/logout.png</file>
+		<file>icones/messagerie/reload.png</file>
 
 		<file>icones/mime/axx.png</file>
 		<file>icones/mime/c.png</file>
