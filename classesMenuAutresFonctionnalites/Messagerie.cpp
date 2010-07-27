@@ -23,11 +23,13 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 {
 	setWindowTitle("Multiuso - Messagerie");
 	setWindowIcon(QIcon(":/icones/actions/actionMessagerie.png"));
+	resize (305, 250);
 
 	connectionWidget = new ConnectionWidget;
 		connect(connectionWidget, SIGNAL(connectRequest()), this, SLOT(connectPeople()));
 
 	messagesWidget = new MessagesWidget;
+		connect(messagesWidget, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
 
 	mainWidget = new QStackedWidget;
 		mainWidget->addWidget(connectionWidget);
@@ -35,6 +37,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 
 	mainLayout = new QVBoxLayout(this);
 		mainLayout->addWidget(mainWidget);
+		mainLayout->setContentsMargins(7, 7, 7, 7);
 }
 
 void Messagerie::updateMessagesWidget()
@@ -142,3 +145,11 @@ void Messagerie::getConnectionReply(QNetworkReply::NetworkError)
 {
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de connexion, réessayez plus tard.");
 }
+
+void Messagerie::slotDisconnected()
+{
+	resize (305, 250);
+	mainWidget->setCurrentIndex(0);
+	mainLayout->setContentsMargins(7, 7, 7, 7);
+}
+

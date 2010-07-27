@@ -285,6 +285,7 @@ class MessagesWidget : public QMainWindow
 			QAction *actionLogOut = new QAction("Se déconnecter", this);
 				actionLogOut->setIcon(QIcon(":/icones/messagerie/logout.png"));
 				actionLogOut->setToolTip("Se déconnecter");
+				connect(actionLogOut, SIGNAL(triggered()), this, SLOT(slotDisconnect()));
 
 			QLabel *connectedAs = new QLabel(" Vous êtes connecté en tant que ");
 				m_pseudo = new QLabel("");
@@ -428,6 +429,21 @@ class MessagesWidget : public QMainWindow
 				dialog->exec();
 		}
 
+		void slotDisconnect()
+		{
+			m_pseudo->setText("");
+			m_firstName->setText("");
+			m_lastName->setText("");
+			mainTable->clear();
+			m_messages.clear();
+			pairs.clear();
+
+			emit disconnected();
+		}
+
+	signals:
+		void disconnected();
+
 	private:
 		QLabel *m_pseudo;
 		QLabel *m_firstName;
@@ -450,6 +466,7 @@ class Messagerie : public QDialog
 		void connectPeople();
 		void getConnectionReply();
 		void getConnectionReply(QNetworkReply::NetworkError);
+		void slotDisconnected();
 
 	private:
 		ConnectionWidget *connectionWidget;
