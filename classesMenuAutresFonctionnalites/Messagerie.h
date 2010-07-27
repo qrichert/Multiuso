@@ -275,6 +275,14 @@ struct Message
 	QString message;
 };
 
+struct Contact
+{
+	QString id;
+	QString pseudo;
+	QString firstName;
+	QString lastName;
+};
+
 class MessagesWidget : public QMainWindow
 {
 	Q_OBJECT
@@ -282,11 +290,6 @@ class MessagesWidget : public QMainWindow
 	public:
 		MessagesWidget()
 		{
-			QAction *actionLogOut = new QAction("Se déconnecter", this);
-				actionLogOut->setIcon(QIcon(":/icones/messagerie/logout.png"));
-				actionLogOut->setToolTip("Se déconnecter");
-				connect(actionLogOut, SIGNAL(triggered()), this, SLOT(slotDisconnect()));
-
 			QLabel *connectedAs = new QLabel(" Vous êtes connecté en tant que ");
 				m_pseudo = new QLabel("");
 			QLabel *openParenthesis = new QLabel(" (");
@@ -295,18 +298,33 @@ class MessagesWidget : public QMainWindow
 				m_lastName = new QLabel("");
 			QLabel *closeParenthesis = new QLabel(")");
 
-			QToolBar *mainToolBar = new QToolBar("Informations");
-				mainToolBar->setMovable(false);
-				mainToolBar->addAction(actionLogOut);
-				mainToolBar->addWidget(connectedAs);
-				mainToolBar->addWidget(m_pseudo);
-				mainToolBar->addWidget(openParenthesis);
-				mainToolBar->addWidget(m_firstName);
-				mainToolBar->addWidget(space);
-				mainToolBar->addWidget(m_lastName);
-				mainToolBar->addWidget(closeParenthesis);
+			QToolBar *labelToolBar = addToolBar("Informations");
+				labelToolBar->setMovable(false);
+				labelToolBar->addWidget(connectedAs);
+				labelToolBar->addWidget(m_pseudo);
+				labelToolBar->addWidget(openParenthesis);
+				labelToolBar->addWidget(m_firstName);
+				labelToolBar->addWidget(space);
+				labelToolBar->addWidget(m_lastName);
+				labelToolBar->addWidget(closeParenthesis);
 
-			addToolBar(Qt::TopToolBarArea, mainToolBar);
+			addToolBarBreak();
+			
+			QAction *actionLogOut = new QAction("Se déconnecter", this);
+				actionLogOut->setIcon(QIcon(":/icones/messagerie/logout.png"));
+				actionLogOut->setToolTip("Se déconnecter");
+				connect(actionLogOut, SIGNAL(triggered()), this, SLOT(slotDisconnect()));
+
+			QAction *actionAddContact = new QAction("Ajouter un contact", this);
+				actionAddContact->setIcon(QIcon(":/icones/messagerie/add_contact.png"));
+				actionAddContact->setToolTip("Ajouter un contact");
+				connect(actionAddContact, SIGNAL(triggered()), this, SLOT(slotAddContact()));
+
+			QToolBar *actionsToolBar = addToolBar("Actions");
+				actionsToolBar->setMovable(false);
+				actionsToolBar->addAction(actionLogOut);
+				actionsToolBar->addSeparator();
+				actionsToolBar->addAction(actionAddContact);
 			
 			QStringList headerLabels;
 				headerLabels << "#" << "-" << "De" << "Date" << "Message";
@@ -409,6 +427,11 @@ class MessagesWidget : public QMainWindow
 			mainTable->horizontalHeader()->setStretchLastSection(true);
 		}
 
+		void setContacts(QList<Contact> contacts)
+		{
+			m_contacts = contacts;
+		}
+
 	public slots:
 		void slotShowMessage(QTableWidgetItem *item)
 		{	
@@ -441,8 +464,22 @@ class MessagesWidget : public QMainWindow
 			emit disconnected();
 		}
 
+		void slotAddContact()
+		{
+			bool ok;
+
+			QString pseudo = QInputDialog::getText(this, "Ajouter un contact", "Veuillez saisir le pseudo du contact :",
+					QLineEdit::Normal, QString(), &ok);
+
+			if (!ok || pseudo.isEmpty())
+				return;
+
+			emit addContactRequested(pseudo);
+		}
+
 	signals:
 		void disconnected();
+		void addContactRequested(QString pseudo);
 
 	private:
 		QLabel *m_pseudo;
@@ -451,6 +488,7 @@ class MessagesWidget : public QMainWindow
 		QTableWidget *mainTable;
 		QList<Message> m_messages;
 		QList<Pair> pairs;
+		QList<Contact> m_contacts;
 };
 
 class Messagerie : public QDialog
@@ -468,6 +506,10 @@ class Messagerie : public QDialog
 		void getConnectionReply(QNetworkReply::NetworkError);
 		void slotDisconnected();
 
+		void addContact(QString pseudo);
+		void getContactReply();
+		void getContactReply(QNetworkReply::NetworkError);
+
 	private:
 		ConnectionWidget *connectionWidget;
 		MessagesWidget *messagesWidget;
@@ -477,12 +519,15 @@ class Messagerie : public QDialog
 		QVBoxLayout *mainLayout;
 
 		QString currentPseudo;
+		QString currentPassword;
 		QString currentFirstName;
 		QString currentLastName;
 	
 		QList<Message> messages;
+		QList<Contact> contacts;
 
 		QNetworkReply *replyConnection;
+		QNetworkReply *replyContacts;
 };
 
 #endif
