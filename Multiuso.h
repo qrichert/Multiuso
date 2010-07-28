@@ -37,6 +37,8 @@ class Multiuso
 			#ifdef Q_WS_MAC
 				return QCoreApplication::applicationDirPath().remove("/" + program + ".app/Contents/MacOS");
 			#else
+				Q_UNUSED(program);
+
 				return QCoreApplication::applicationDirPath();
 			#endif
 		}
