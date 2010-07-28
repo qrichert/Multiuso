@@ -325,6 +325,11 @@ class MessagesWidget : public QMainWindow
 				actionAddContact->setToolTip("Ajouter un contact");
 				connect(actionAddContact, SIGNAL(triggered()), this, SLOT(slotAddContact()));
 
+			QAction *actionRemoveContact = new QAction("Supprimer un contact", this);
+				actionRemoveContact->setIcon(QIcon(":/icones/messagerie/remove_contact.png"));
+				actionRemoveContact->setToolTip("Supprimer un contact");
+				connect(actionRemoveContact, SIGNAL(triggered()), this, SLOT(slotRemoveContact()));
+
 			m_contactsList = new QComboBox;
 			
 			QToolBar *actionsToolBar = addToolBar("Actions");
@@ -333,7 +338,7 @@ class MessagesWidget : public QMainWindow
 				actionsToolBar->addAction(actionReload);
 				actionsToolBar->addSeparator();
 				actionsToolBar->addAction(actionAddContact);
-				//actionsToolBar->addAction(actionRemoveContact);
+				actionsToolBar->addAction(actionRemoveContact);
 				actionsToolBar->addSeparator();
 				actionsToolBar->addWidget(m_contactsList);
 	
@@ -478,6 +483,19 @@ class MessagesWidget : public QMainWindow
 
 			emit disconnected();
 		}
+		
+		void reload()
+		{
+			m_pseudo->setText("");
+			m_firstName->setText("");
+			m_lastName->setText("");
+			mainTable->clear();
+			m_messages.clear();
+			m_contacts.clear();
+			pairs.clear();
+
+			emit reloadRequested();
+		}
 
 		void slotAddContact()
 		{
@@ -492,17 +510,28 @@ class MessagesWidget : public QMainWindow
 			emit addContactRequested(pseudo);
 		}
 
-		void reload()
+		void slotRemoveContact()
 		{
-			m_pseudo->setText("");
-			m_firstName->setText("");
-			m_lastName->setText("");
-			mainTable->clear();
-			m_messages.clear();
-			m_contacts.clear();
-			pairs.clear();
+			QStringList contacts;
 
-			emit reloadRequested();
+			foreach (Contact contact, m_contacts)
+				contacts << contact.pseudo;
+
+			if (contacts.isEmpty())
+			{
+				QMessageBox::information(this, "Multiuso", "Votre liste de contacts est vide !");
+
+				return;
+			}
+
+			bool ok;
+
+			QString pseudo = QInputDialog::getItem(this, "Multiuso", "Choisissez le contact à supprimer :", contacts, 0, false, &ok);
+
+			if (!ok)
+				return;
+
+			qDebug() << pseudo;
 		}
 
 	signals:
