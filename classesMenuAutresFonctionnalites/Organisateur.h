@@ -34,7 +34,6 @@ class EditWidget : public QWidget
 				b_edit->setFixedSize(20, 20);
 				connect(b_edit, SIGNAL(clicked()), this, SIGNAL(editRequest()));	
 				
-				
 			QPushButton *b_delete = new QPushButton;
 				b_delete->setIcon(QIcon(":/icones/organisateur/supprimer.png"));
 				b_delete->setFixedSize(20, 20);
