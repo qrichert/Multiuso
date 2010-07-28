@@ -32,11 +32,8 @@ struct Pair
 class Multiuso
 {
 	public:
-		static QString appDirPath(QString program = "")
+		static QString appDirPath(QString program = "Multiuso")
 		{
-			if (program.isEmpty())
-				program = "Multiuso";
-
 			#ifdef Q_WS_MAC
 				return QCoreApplication::applicationDirPath().remove("/" + program + ".app/Contents/MacOS");
 			#else
@@ -50,7 +47,6 @@ class Multiuso
 				str += "/";
 				
 			return str;
-	
 		}
 
 		static QString cdUp(QString str)
