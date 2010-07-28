@@ -147,8 +147,11 @@
 		<file>icones/menus/sousMenuMiniJeux.png</file>
 		<file>icones/menus/sousMenuProgrammation.png</file>
 		
+		<file>icones/messagerie/add_contact.png</file>
 		<file>icones/messagerie/delete_msg.png</file>
 		<file>icones/messagerie/logout.png</file>
+		<file>icones/messagerie/reload.png</file>
+		<file>icones/messagerie/remove_contact.png</file>
 
 		<file>icones/mime/axx.png</file>
 		<file>icones/mime/c.png</file>
