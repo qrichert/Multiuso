@@ -32,6 +32,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 	messagesWidget = new MessagesWidget;
 		connect(messagesWidget, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
 		connect(messagesWidget, SIGNAL(addContactRequested(QString)), this, SLOT(addContact(QString)));
+		connect(messagesWidget, SIGNAL(removeContactRequested(QString)), this, SLOT(removeContact(QString)));
 		connect(messagesWidget, SIGNAL(reloadRequested()), this, SLOT(connectPeople()));
 
 	mainWidget = new QStackedWidget;
@@ -73,6 +74,7 @@ void Messagerie::connectPeople()
 void Messagerie::getConnectionReply()
 {
 	messages.clear();
+	contacts.clear();
 
 	bool ok = true;
 
@@ -164,10 +166,15 @@ void Messagerie::getConnectionReply()
 void Messagerie::getConnectionReply(QNetworkReply::NetworkError)
 {
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de connexion, réessayez plus tard.");
+
+	messagesWidget->slotDisconnect();
 }
 
 void Messagerie::slotDisconnected()
 {
+	messages.clear();
+	contacts.clear();
+
 	resize (305, 250);
 	mainWidget->setCurrentIndex(0);
 	mainLayout->setContentsMargins(7, 7, 7, 7);
@@ -238,6 +245,67 @@ void Messagerie::getContactReply()
 }
 
 void Messagerie::getContactReply(QNetworkReply::NetworkError)
+{
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des contacts, réessayez plus tard.");
+}
+
+void Messagerie::removeContact(QString id)
+{
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=remove_contact"
+									"&pseudo=" + currentPseudo +
+									"&pwd=" + currentPassword +
+									"&contact=" + id);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	replyRContacts = manager->get(request);
+		connect(replyRContacts, SIGNAL(finished()), this, SLOT(getRContactReply()));
+		connect(replyRContacts, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getRContactReply(QNetworkReply::NetworkError)));
+
+}
+
+void Messagerie::getRContactReply()
+{
+	bool ok = true;
+
+	QFile reply(Multiuso::tempPath() + "/reply");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(replyRContacts->readAll());
+		reply.close();
+
+		replyRContacts->deleteLater();
+
+		QTextStream stream(&reply);
+
+		reply.open(QIODevice::ReadOnly | QIODevice::Text);
+
+		while (!stream.atEnd())
+		{
+			QString line = stream.readLine();
+
+			if (line.startsWith("ERROR:"))
+			{
+				int error = line.replace(QRegExp("ERROR:([0-9]+)"), "\\1").toInt();
+				
+				switch (error)
+				{
+					case 0: QMessageBox::information(this, "Multiuso", "Contact supprimé avec succès !"); break;
+					case 1: ok = false; QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					case 5: ok = false; QMessageBox::critical(this, "Multiuso", "Cet utilisateur ne fait pas partie de vos contacts !"); break;
+					default: ok = false; QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
+				}
+			}
+		}
+
+		reply.close();
+		reply.remove();
+
+	if (ok)
+		messagesWidget->reload();
+
+}
+
+void Messagerie::getRContactReply(QNetworkReply::NetworkError)
 {
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des contacts, réessayez plus tard.");
 }

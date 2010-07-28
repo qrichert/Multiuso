@@ -478,6 +478,7 @@ class MessagesWidget : public QMainWindow
 			m_lastName->setText("");
 			mainTable->clear();
 			m_messages.clear();
+			m_contactsList->clear();
 			m_contacts.clear();
 			pairs.clear();
 
@@ -491,6 +492,7 @@ class MessagesWidget : public QMainWindow
 			m_lastName->setText("");
 			mainTable->clear();
 			m_messages.clear();
+			m_contactsList->clear();
 			m_contacts.clear();
 			pairs.clear();
 
@@ -531,13 +533,27 @@ class MessagesWidget : public QMainWindow
 			if (!ok)
 				return;
 
-			qDebug() << pseudo;
+			bool b_continue = true;
+
+			foreach (Contact contact, m_contacts)
+			{
+				if (b_continue == false)
+					continue;
+
+				if (contact.pseudo == pseudo)
+				{
+					b_continue = false;
+
+					emit removeContactRequested(contact.id);
+				}
+			}
 		}
 
 	signals:
 		void disconnected();
 		void addContactRequested(QString pseudo);
 		void reloadRequested();
+		void removeContactRequested(QString id);
 
 	private:
 		QLabel *m_pseudo;
@@ -569,6 +585,10 @@ class Messagerie : public QDialog
 		void getContactReply();
 		void getContactReply(QNetworkReply::NetworkError);
 
+		void removeContact(QString id);
+		void getRContactReply();
+		void getRContactReply(QNetworkReply::NetworkError);
+
 	private:
 		ConnectionWidget *connectionWidget;
 		MessagesWidget *messagesWidget;
@@ -587,6 +607,7 @@ class Messagerie : public QDialog
 
 		QNetworkReply *replyConnection;
 		QNetworkReply *replyContacts;
+		QNetworkReply *replyRContacts;
 };
 
 #endif
