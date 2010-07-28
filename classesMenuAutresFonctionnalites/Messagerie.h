@@ -330,8 +330,11 @@ class MessagesWidget : public QMainWindow
 			QToolBar *actionsToolBar = addToolBar("Actions");
 				actionsToolBar->setMovable(false);
 				actionsToolBar->addAction(actionLogOut);
+				actionsToolBar->addAction(actionReload);
 				actionsToolBar->addSeparator();
 				actionsToolBar->addAction(actionAddContact);
+				//actionsToolBar->addAction(actionRemoveContact);
+				actionsToolBar->addSeparator();
 				actionsToolBar->addWidget(m_contactsList);
 	
 			QStringList headerLabels;
