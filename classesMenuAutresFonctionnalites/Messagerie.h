@@ -283,6 +283,33 @@ struct Contact
 	QString lastName;
 };
 
+class ReplyButton : public QPushButton
+{
+	Q_OBJECT
+
+	public:
+		ReplyButton(QString text) : QPushButton(text), m_receiver("")
+		{
+		}
+
+		void setReceiver(QString receiver)
+		{
+			m_receiver = receiver;
+		}
+
+	protected:
+		void mouseReleaseEvent(QMouseEvent *)
+		{
+			emit b_clicked(m_receiver);
+		}
+
+	signals:
+		void b_clicked(QString receiver);
+
+	private:
+		QString m_receiver;
+};
+
 class MessagesWidget : public QMainWindow
 {
 	Q_OBJECT
@@ -319,6 +346,11 @@ class MessagesWidget : public QMainWindow
 				actionReload->setIcon(QIcon(":/icones/messagerie/reload.png"));
 				actionReload->setToolTip("Recharger");
 				connect(actionReload, SIGNAL(triggered()), this, SLOT(reload()));
+				
+			QAction *actionNewMsg = new QAction("Nouveau message", this);
+				actionNewMsg->setIcon(QIcon(":/icones/messagerie/new_message.png"));
+				actionNewMsg->setToolTip("Nouveau message");
+				connect(actionNewMsg, SIGNAL(triggered()), this, SLOT(slotNewMsg()));
 
 			QAction *actionAddContact = new QAction("Ajouter un contact", this);
 				actionAddContact->setIcon(QIcon(":/icones/messagerie/add_contact.png"));
@@ -336,6 +368,8 @@ class MessagesWidget : public QMainWindow
 				actionsToolBar->setMovable(false);
 				actionsToolBar->addAction(actionLogOut);
 				actionsToolBar->addAction(actionReload);
+				actionsToolBar->addSeparator();
+				actionsToolBar->addAction(actionNewMsg);
 				actionsToolBar->addSeparator();
 				actionsToolBar->addAction(actionAddContact);
 				actionsToolBar->addAction(actionRemoveContact);
@@ -464,9 +498,18 @@ class MessagesWidget : public QMainWindow
 				QTextBrowser *text = new QTextBrowser;
 					text->setPlainText(message.message);
 
+				ReplyButton *reply = new ReplyButton("Répondre");
+					reply->setReceiver(message.from);
+					connect(reply, SIGNAL(b_clicked(QString)), this, SLOT(slotNewMsg(QString)));
+
+				QHBoxLayout *buttonsLayout = new QHBoxLayout;
+					buttonsLayout->addWidget(reply);
+					buttonsLayout->addWidget(Multiuso::closeButton(dialog));
+					buttonsLayout->setAlignment(Qt::AlignRight);
+
 				QVBoxLayout *layout = new QVBoxLayout(dialog);
 					layout->addWidget(text);
-					layout->addWidget(Multiuso::closeButton(dialog));
+					layout->addLayout(buttonsLayout);
 
 				dialog->exec();
 		}
@@ -497,6 +540,58 @@ class MessagesWidget : public QMainWindow
 			pairs.clear();
 
 			emit reloadRequested();
+		}
+
+		void slotNewMsg(QString receiver = QString())
+		{
+			if (m_contactsList->count() == 0 && receiver.isEmpty())
+			{
+				QMessageBox::information(this, "Multiuso", "Votre liste de contacts est vide !");
+
+				return;
+			}
+
+			if (!receiver.isEmpty())
+				receiver.replace(QRegExp("^(.+) \\((.+)\\)$"), "\\1");
+
+			Contact contact = m_contacts.value(m_contactsList->currentIndex());
+
+			if (receiver.isEmpty())
+				receiver = contact.pseudo;
+
+			QDialog *dialog = new QDialog(this);
+				dialog->setWindowTitle("Nouveau message");
+				dialog->resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
+
+				QLabel *labelInfos = new QLabel("De " + m_pseudo->text() +
+						" à <strong>" + receiver + "</strong>");
+
+				QPlainTextEdit *textEdit = new QPlainTextEdit;
+
+				QPushButton *reject = new QPushButton("Annuler");
+					connect(reject, SIGNAL(clicked()), dialog, SLOT(reject()));
+
+				QHBoxLayout *buttonsLayout = new QHBoxLayout;
+					buttonsLayout->addWidget(reject);
+					buttonsLayout->addWidget(Multiuso::closeButton(dialog, "Envoyer"));
+					buttonsLayout->setAlignment(Qt::AlignRight);
+
+				QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
+					dialogLayout->addWidget(labelInfos);
+					dialogLayout->addWidget(textEdit);
+					dialogLayout->addLayout(buttonsLayout);
+
+			if (dialog->exec() == QDialog::Accepted)
+			{
+				QString msg = textEdit->toPlainText();
+					msg.replace("&", "|0088amp;|");
+					msg.replace("<", "|0088lt;|");
+					msg.replace("\n", "<br />");
+
+				emit sendMessageRequested(receiver, msg);
+			}
+
+			dialog->deleteLater();
 		}
 
 		void slotAddContact()
@@ -554,6 +649,7 @@ class MessagesWidget : public QMainWindow
 		void addContactRequested(QString pseudo);
 		void reloadRequested();
 		void removeContactRequested(QString id);
+		void sendMessageRequested(QString pseudo, QString message);
 
 	private:
 		QLabel *m_pseudo;
@@ -589,6 +685,10 @@ class Messagerie : public QDialog
 		void getRContactReply();
 		void getRContactReply(QNetworkReply::NetworkError);
 
+		void sendMessage(QString pseudo, QString message);
+		void getSendMessageReply();
+		void getSendMessageReply(QNetworkReply::NetworkError);
+
 	private:
 		ConnectionWidget *connectionWidget;
 		MessagesWidget *messagesWidget;
@@ -608,6 +708,7 @@ class Messagerie : public QDialog
 		QNetworkReply *replyConnection;
 		QNetworkReply *replyContacts;
 		QNetworkReply *replyRContacts;
+		QNetworkReply *replyMessages;
 };
 
 #endif

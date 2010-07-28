@@ -34,6 +34,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 		connect(messagesWidget, SIGNAL(addContactRequested(QString)), this, SLOT(addContact(QString)));
 		connect(messagesWidget, SIGNAL(removeContactRequested(QString)), this, SLOT(removeContact(QString)));
 		connect(messagesWidget, SIGNAL(reloadRequested()), this, SLOT(connectPeople()));
+		connect(messagesWidget, SIGNAL(sendMessageRequested(QString, QString)), this, SLOT(sendMessage(QString, QString)));
 
 	mainWidget = new QStackedWidget;
 		mainWidget->addWidget(connectionWidget);
@@ -126,8 +127,8 @@ void Messagerie::getConnectionReply()
 						message.date.replace(QRegExp("ID:(.+)FROM:(.+)DATE:(.+)MESSAGE:(.+)"), "\\3");
 						message.message.replace(QRegExp("ID:(.+)FROM:(.+)DATE:(.+)MESSAGE:(.+)"), "\\4");
 							message.message.replace("<br />", "\n");
-							message.message.replace("&lt;", "<");
-							message.message.replace("&amp;", "&");
+							message.message.replace("|0088lt;|", "<");
+							message.message.replace("|0088amp;|", "&");
 
 				messages << message;
 			}
@@ -165,9 +166,12 @@ void Messagerie::getConnectionReply()
 
 void Messagerie::getConnectionReply(QNetworkReply::NetworkError)
 {
-	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de connexion, réessayez plus tard.");
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
-	messagesWidget->slotDisconnect();
+	if (reply != 0)
+		reply->abort();
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de connexion, réessayez plus tard.");
 }
 
 void Messagerie::slotDisconnected()
@@ -246,6 +250,11 @@ void Messagerie::getContactReply()
 
 void Messagerie::getContactReply(QNetworkReply::NetworkError)
 {
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+		reply->abort();
+
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des contacts, réessayez plus tard.");
 }
 
@@ -302,11 +311,74 @@ void Messagerie::getRContactReply()
 
 	if (ok)
 		messagesWidget->reload();
-
 }
 
 void Messagerie::getRContactReply(QNetworkReply::NetworkError)
 {
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+		reply->abort();
+
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des contacts, réessayez plus tard.");
 }
 
+void Messagerie::sendMessage(QString pseudo, QString message)
+{
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=add"
+									"&pseudo=" + currentPseudo +
+									"&pwd=" + currentPassword +
+									"&receiver=" + pseudo +
+									"&msg=" + message);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	replyMessages = manager->get(request);
+		connect(replyMessages, SIGNAL(finished()), this, SLOT(getSendMessageReply()));
+		connect(replyMessages, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getSendMessageReply(QNetworkReply::NetworkError)));
+}
+
+void Messagerie::getSendMessageReply()
+{
+	QFile reply(Multiuso::tempPath() + "/reply");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(replyMessages->readAll());
+		reply.close();
+
+		replyMessages->deleteLater();
+
+		QTextStream stream(&reply);
+
+		reply.open(QIODevice::ReadOnly | QIODevice::Text);
+
+		while (!stream.atEnd())
+		{
+			QString line = stream.readLine();
+
+			if (line.startsWith("ERROR:"))
+			{
+				int error = line.replace(QRegExp("ERROR:([0-9]+)"), "\\1").toInt();
+				
+				switch (error)
+				{
+					case 0: QMessageBox::information(this, "Multiuso", "Message envoyé avec succès !"); break;
+					case 1: QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					case 3: QMessageBox::critical(this, "Multiuso", "Cet utilisateur n'existe pas !"); break;
+					default: QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
+				}
+			}
+		}
+
+		reply.close();
+		reply.remove();
+}
+
+void Messagerie::getSendMessageReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+		reply->abort();
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des messages, réessayez plus tard.");
+}
