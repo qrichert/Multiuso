@@ -35,6 +35,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 		connect(messagesWidget, SIGNAL(removeContactRequested(QString)), this, SLOT(removeContact(QString)));
 		connect(messagesWidget, SIGNAL(reloadRequested()), this, SLOT(connectPeople()));
 		connect(messagesWidget, SIGNAL(sendMessageRequested(QString, QString)), this, SLOT(sendMessage(QString, QString)));
+		connect(messagesWidget, SIGNAL(removeMessageRequested(QString)), this, SLOT(removeMessage(QString)));
 
 	mainWidget = new QStackedWidget;
 		mainWidget->addWidget(connectionWidget);
@@ -56,6 +57,8 @@ void Messagerie::updateMessagesWidget()
 
 void Messagerie::connectPeople()
 {
+	connectionWidget->setDisabled(true);
+
 	currentPseudo = connectionWidget->pseudo();
 	
 	currentPassword = connectionWidget->password();
@@ -171,6 +174,8 @@ void Messagerie::getConnectionReply(QNetworkReply::NetworkError)
 	if (reply != 0)
 		reply->abort();
 
+	connectionWidget->setDisabled(false);
+	
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de connexion, réessayez plus tard.");
 }
 
@@ -182,6 +187,7 @@ void Messagerie::slotDisconnected()
 	resize (305, 250);
 	mainWidget->setCurrentIndex(0);
 	mainLayout->setContentsMargins(7, 7, 7, 7);
+	connectionWidget->setDisabled(false);
 }
 
 void Messagerie::addContact(QString pseudo)
@@ -374,6 +380,69 @@ void Messagerie::getSendMessageReply()
 }
 
 void Messagerie::getSendMessageReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+		reply->abort();
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des messages, réessayez plus tard.");
+}
+
+void Messagerie::removeMessage(QString id)
+{
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=remove"
+									"&pseudo=" + currentPseudo +
+									"&pwd=" + currentPassword +
+									"&id=" + id);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	replyRMessages = manager->get(request);
+		connect(replyRMessages, SIGNAL(finished()), this, SLOT(getRemoveMessageReply()));
+		connect(replyRMessages, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getRemoveMessageReply(QNetworkReply::NetworkError)));
+}
+
+void Messagerie::getRemoveMessageReply()
+{
+	bool ok = true;
+
+	QFile reply(Multiuso::tempPath() + "/reply");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(replyRMessages->readAll());
+		reply.close();
+
+		replyRMessages->deleteLater();
+
+		QTextStream stream(&reply);
+
+		reply.open(QIODevice::ReadOnly | QIODevice::Text);
+
+		while (!stream.atEnd())
+		{
+			QString line = stream.readLine();
+
+			if (line.startsWith("ERROR:"))
+			{
+				int error = line.replace(QRegExp("ERROR:([0-9]+)"), "\\1").toInt();
+				
+				switch (error)
+				{
+					case 0: break;
+					case 1: ok = false; QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					default: ok = false; QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
+				}
+			}
+		}
+
+		reply.close();
+		reply.remove();
+		
+	if (ok)
+		messagesWidget->reload();
+}
+
+void Messagerie::getRemoveMessageReply(QNetworkReply::NetworkError)
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 

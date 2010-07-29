@@ -449,6 +449,7 @@ class MessagesWidget : public QMainWindow
 					deleteMsg->setIcon(QIcon(":/icones/messagerie/delete_msg.png"));
 					deleteMsg->setFixedSize(20, 20);
 					deleteMsg->setObjectName(QString::number(newRowCount - 1));
+					connect(deleteMsg, SIGNAL(clicked()), this, SLOT(slotDeleteMessage()));
 
 				QVBoxLayout *deleteMsgLayout = new QVBoxLayout;
 					deleteMsgLayout->addWidget(deleteMsg);
@@ -644,12 +645,36 @@ class MessagesWidget : public QMainWindow
 			}
 		}
 
+		void slotDeleteMessage()
+		{
+			QPushButton *button = qobject_cast<QPushButton *>(sender());
+
+			if (button == 0)
+				return;
+
+			bool b_continue = true;
+
+			foreach (Pair pair, pairs)
+			{
+				if (b_continue == false)
+					continue;
+
+				if (pair.first == button->objectName().toInt())
+				{
+					emit removeMessageRequested(QString::number(pair.second));
+
+					b_continue = false;
+				}
+			}
+		}
+
 	signals:
 		void disconnected();
 		void addContactRequested(QString pseudo);
 		void reloadRequested();
 		void removeContactRequested(QString id);
 		void sendMessageRequested(QString pseudo, QString message);
+		void removeMessageRequested(QString id);
 
 	private:
 		QLabel *m_pseudo;
@@ -689,6 +714,10 @@ class Messagerie : public QDialog
 		void getSendMessageReply();
 		void getSendMessageReply(QNetworkReply::NetworkError);
 
+		void removeMessage(QString id);
+		void getRemoveMessageReply();
+		void getRemoveMessageReply(QNetworkReply::NetworkError);
+
 	private:
 		ConnectionWidget *connectionWidget;
 		MessagesWidget *messagesWidget;
@@ -709,6 +738,7 @@ class Messagerie : public QDialog
 		QNetworkReply *replyContacts;
 		QNetworkReply *replyRContacts;
 		QNetworkReply *replyMessages;
+		QNetworkReply *replyRMessages;
 };
 
 #endif
