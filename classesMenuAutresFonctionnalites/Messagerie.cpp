@@ -165,6 +165,11 @@ void Messagerie::getConnectionReply()
 		mainLayout->setContentsMargins(0, 0, 0, 0);
 		updateMessagesWidget();
 	}
+
+	else
+	{
+		connectionWidget->setDisabled(false);
+	}
 }
 
 void Messagerie::getConnectionReply(QNetworkReply::NetworkError)
