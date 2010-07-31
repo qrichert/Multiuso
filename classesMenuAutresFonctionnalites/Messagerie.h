@@ -143,6 +143,11 @@ class ConnectionWidget : public QWidget
 			return m_password->text();
 		}
 
+		void setPassword(QString password)
+		{
+			m_password->setText(password);
+		}
+
 	public slots:
 		void suscribe()
 		{
@@ -363,7 +368,19 @@ class MessagesWidget : public QMainWindow
 				connect(actionRemoveContact, SIGNAL(triggered()), this, SLOT(slotRemoveContact()));
 
 			m_contactsList = new QComboBox;
-			
+
+			QAction *actionModifyPwd = new QAction("Modifier mon mot de passe", this);
+				actionModifyPwd->setIcon(QIcon(":/icones/messagerie/modify_mdp.png"));
+				actionModifyPwd->setToolTip("Modifier mon mot de passe");
+				connect(actionModifyPwd, SIGNAL(triggered()), this, SLOT(slotModifyPwd()));
+
+			QMenu *actionsMenu = new QMenu;
+				actionsMenu->addAction(actionModifyPwd);
+
+			QAction *actionMenu = new QAction(this);
+				actionMenu->setIcon(QIcon(":/icones/messagerie/action_menu.png"));
+				actionMenu->setMenu(actionsMenu);
+
 			QToolBar *actionsToolBar = addToolBar("Actions");
 				actionsToolBar->setMovable(false);
 				actionsToolBar->addAction(actionLogOut);
@@ -375,6 +392,8 @@ class MessagesWidget : public QMainWindow
 				actionsToolBar->addAction(actionRemoveContact);
 				actionsToolBar->addSeparator();
 				actionsToolBar->addWidget(m_contactsList);
+				actionsToolBar->addSeparator();
+				actionsToolBar->addAction(actionMenu);
 	
 			QStringList headerLabels;
 				headerLabels << "#" << "-" << "De" << "Date" << "Message";
@@ -668,6 +687,19 @@ class MessagesWidget : public QMainWindow
 			}
 		}
 
+		void slotModifyPwd()
+		{
+			PasswordDialog *pwdDialog = new PasswordDialog(this);
+				pwdDialog->setWindowTitle("Nouveau mot de passe");
+
+			if (pwdDialog->exec() == QDialog::Rejected)
+				return;
+
+			emit modifyPasswordRequested(pwdDialog->getPassword());
+
+			pwdDialog->deleteLater();
+		}
+
 	signals:
 		void disconnected();
 		void addContactRequested(QString pseudo);
@@ -675,6 +707,7 @@ class MessagesWidget : public QMainWindow
 		void removeContactRequested(QString id);
 		void sendMessageRequested(QString pseudo, QString message);
 		void removeMessageRequested(QString id);
+		void modifyPasswordRequested(QString password);
 
 	private:
 		QLabel *m_pseudo;
@@ -717,6 +750,10 @@ class Messagerie : public QDialog
 		void removeMessage(QString id);
 		void getRemoveMessageReply();
 		void getRemoveMessageReply(QNetworkReply::NetworkError);
+		
+		void modifyPassword(QString password);
+		void getModifyPasswordReply();
+		void getModifyPasswordReply(QNetworkReply::NetworkError);
 
 	private:
 		ConnectionWidget *connectionWidget;
@@ -730,6 +767,8 @@ class Messagerie : public QDialog
 		QString currentPassword;
 		QString currentFirstName;
 		QString currentLastName;
+
+		QString tempPassword;
 	
 		QList<Message> messages;
 		QList<Contact> contacts;
@@ -739,6 +778,7 @@ class Messagerie : public QDialog
 		QNetworkReply *replyRContacts;
 		QNetworkReply *replyMessages;
 		QNetworkReply *replyRMessages;
+		QNetworkReply *replyModifyPassword;
 };
 
 #endif

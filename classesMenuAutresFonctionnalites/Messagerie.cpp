@@ -36,6 +36,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 		connect(messagesWidget, SIGNAL(reloadRequested()), this, SLOT(connectPeople()));
 		connect(messagesWidget, SIGNAL(sendMessageRequested(QString, QString)), this, SLOT(sendMessage(QString, QString)));
 		connect(messagesWidget, SIGNAL(removeMessageRequested(QString)), this, SLOT(removeMessage(QString)));
+		connect(messagesWidget, SIGNAL(modifyPasswordRequested(QString)), this, SLOT(modifyPassword(QString)));
 
 	mainWidget = new QStackedWidget;
 		mainWidget->addWidget(connectionWidget);
@@ -455,4 +456,76 @@ void Messagerie::getRemoveMessageReply(QNetworkReply::NetworkError)
 		reply->abort();
 
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des messages, réessayez plus tard.");
+}
+
+void Messagerie::modifyPassword(QString password)
+{
+	tempPassword = password;
+
+	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1);
+
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=modify_pwd"
+									"&pseudo=" + currentPseudo +
+									"&pwd=" + currentPassword +
+									"&new_pwd=" + password);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	replyModifyPassword = manager->get(request);
+		connect(replyModifyPassword, SIGNAL(finished()), this, SLOT(getModifyPasswordReply()));
+		connect(replyModifyPassword, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getModifyPasswordReply(QNetworkReply::NetworkError)));
+}
+
+void Messagerie::getModifyPasswordReply()
+{
+	bool ok = true;
+
+	QFile reply(Multiuso::tempPath() + "/reply");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(replyModifyPassword->readAll());
+		reply.close();
+
+		replyModifyPassword->deleteLater();
+
+		QTextStream stream(&reply);
+
+		reply.open(QIODevice::ReadOnly | QIODevice::Text);
+
+		while (!stream.atEnd())
+		{
+			QString line = stream.readLine();
+
+			if (line.startsWith("ERROR:"))
+			{
+				int error = line.replace(QRegExp("ERROR:([0-9]+)"), "\\1").toInt();
+				
+				switch (error)
+				{
+					case 0: QMessageBox::information(this, "Multiuso", "Le mot de passe a bien été changé."); break;
+					case 1: ok = false; QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					default: ok = false; QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
+				}
+			}
+		}
+
+		reply.close();
+		reply.remove();
+		
+	if (ok)
+	{
+		connectionWidget->setPassword(tempPassword);
+		tempPassword = "";
+		messagesWidget->reload();
+	}
+
+}
+
+void Messagerie::getModifyPasswordReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+		reply->abort();
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion de mot de passe, réessayez plus tard.");
 }
