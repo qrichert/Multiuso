@@ -149,6 +149,7 @@
 		
 		<file>icones/messagerie/action_menu.png</file>
 		<file>icones/messagerie/add_contact.png</file>
+		<file>icones/messagerie/blocked_contacts.png</file>
 		<file>icones/messagerie/delete_msg.png</file>
 		<file>icones/messagerie/logout.png</file>
 		<file>icones/messagerie/modify_mdp.png</file>

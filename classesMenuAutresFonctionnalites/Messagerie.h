@@ -288,6 +288,103 @@ struct Contact
 	QString lastName;
 };
 
+class BlockDialog : public QDialog
+{
+	Q_OBJECT
+
+	public:
+		BlockDialog(QList<Contact> contacts, QStringList blocked, QWidget *parent) : QDialog(parent)
+		{
+			setWindowTitle("Contacts bloqués");
+			setWindowIcon(QIcon(":/icones/messagerie/blocked_contacts.png"));
+
+			foreach(Contact contact, contacts)
+				m_contacts << contact.pseudo;
+
+			m_blocked = blocked;
+				m_blocked.removeOne("BLOCKED_CONTACT:");
+
+			foreach (QString blocked, m_blocked)
+				m_contacts.removeOne(blocked);
+
+			contactsList = new QListWidget;
+
+			foreach (QString contact, m_contacts)
+			{
+				QListWidgetItem *item = new QListWidgetItem(contact);
+					item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+
+				contactsList->addItem(item);
+			}
+
+			blockedList = new QListWidget;
+			
+			foreach (QString blocked, m_blocked)
+			{
+				QListWidgetItem *item = new QListWidgetItem(blocked);
+					item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+
+				blockedList->addItem(item);
+			}
+
+			QPushButton *buttonBlock = new QPushButton(">>");
+				connect(buttonBlock, SIGNAL(clicked()), this, SLOT(slotBlock()));
+
+			QPushButton *buttonUnblock = new QPushButton("<<");
+				connect(buttonUnblock, SIGNAL(clicked()), this, SLOT(slotUnblock()));
+
+			QVBoxLayout *buttonsLayout = new QVBoxLayout;
+				buttonsLayout->addWidget(buttonBlock);
+				buttonsLayout->addWidget(buttonUnblock);
+
+			QGridLayout *layout = new QGridLayout(this);
+				layout->addWidget(new QLabel("Contacts"), 0, 0, 1, 1);
+				layout->addWidget(contactsList, 1, 0, 2, 2);
+				layout->addLayout(buttonsLayout, 1, 2, 2, 1);
+				layout->addWidget(new QLabel("Bloqués"), 0, 3, 1, 1);
+				layout->addWidget(blockedList, 1, 3, 2, 2);
+				layout->addLayout(Multiuso::dialogButtons(this, "Annuler", "OK"), 3, 4, 1, 1);
+		}
+
+		QStringList blockedContacts()
+		{
+			QStringList str;
+
+			for (int i = 0; i < blockedList->count(); i++)
+				str << blockedList->item(i)->text();
+
+			return str;
+		}
+
+	public slots:
+		void slotBlock()
+		{
+			QListWidgetItem *item = contactsList->takeItem(contactsList->currentRow());
+
+			if (item == 0)
+				return;
+
+			blockedList->addItem(item);
+		}
+
+		void slotUnblock()
+		{
+			QListWidgetItem *item = blockedList->takeItem(blockedList->currentRow());
+
+			if (item == 0)
+				return;
+
+			contactsList->addItem(item);
+		}
+
+	private:
+		QStringList m_contacts;
+		QStringList m_blocked;
+
+		QListWidget *contactsList;
+		QListWidget *blockedList;
+};
+
 class ReplyButton : public QPushButton
 {
 	Q_OBJECT
@@ -374,7 +471,16 @@ class MessagesWidget : public QMainWindow
 				actionModifyPwd->setToolTip("Modifier mon mot de passe");
 				connect(actionModifyPwd, SIGNAL(triggered()), this, SLOT(slotModifyPwd()));
 
+			QAction *actionBlockedContacts = new QAction("Contacts bloqués", this);
+				actionBlockedContacts->setIcon(QIcon(":/icones/messagerie/blocked_contacts.png"));
+				actionBlockedContacts->setToolTip("Contacts bloqués");
+				connect(actionBlockedContacts, SIGNAL(triggered()), this, SLOT(slotBlockedContacts()));
+
 			QMenu *actionsMenu = new QMenu;
+				actionsMenu->addAction(actionAddContact);
+				actionsMenu->addAction(actionRemoveContact);
+				actionsMenu->addAction(actionBlockedContacts);
+				actionsMenu->addSeparator();
 				actionsMenu->addAction(actionModifyPwd);
 
 			QAction *actionMenu = new QAction(this);
@@ -387,10 +493,7 @@ class MessagesWidget : public QMainWindow
 				actionsToolBar->addAction(actionReload);
 				actionsToolBar->addSeparator();
 				actionsToolBar->addAction(actionNewMsg);
-				actionsToolBar->addSeparator();
-				actionsToolBar->addAction(actionAddContact);
-				actionsToolBar->addAction(actionRemoveContact);
-				actionsToolBar->addSeparator();
+				actionsToolBar->addWidget(new QLabel(" "));
 				actionsToolBar->addWidget(m_contactsList);
 				actionsToolBar->addSeparator();
 				actionsToolBar->addAction(actionMenu);
@@ -505,6 +608,16 @@ class MessagesWidget : public QMainWindow
 				m_contactsList->addItem(contact.pseudo + " (" + contact.firstName + " " + contact.lastName + ")");
 		}
 
+		void setBlocked(QStringList blocked)
+		{
+			m_blocked = blocked;
+		}
+		
+		void setMainTableDisabled(bool disabled)
+		{
+			mainTable->setDisabled(disabled);
+		}
+
 	public slots:
 		void slotShowMessage(QTableWidgetItem *item)
 		{	
@@ -544,6 +657,8 @@ class MessagesWidget : public QMainWindow
 			m_contactsList->clear();
 			m_contacts.clear();
 			pairs.clear();
+		
+			setMainTableDisabled(true);
 
 			emit disconnected();
 		}
@@ -558,6 +673,8 @@ class MessagesWidget : public QMainWindow
 			m_contactsList->clear();
 			m_contacts.clear();
 			pairs.clear();
+			
+			setMainTableDisabled(true);
 
 			emit reloadRequested();
 		}
@@ -607,6 +724,8 @@ class MessagesWidget : public QMainWindow
 					msg.replace("&", "|0088amp;|");
 					msg.replace("<", "|0088lt;|");
 					msg.replace("\n", "<br />");
+			
+				setMainTableDisabled(true);
 
 				emit sendMessageRequested(receiver, msg);
 			}
@@ -623,6 +742,8 @@ class MessagesWidget : public QMainWindow
 
 			if (!ok || pseudo.isEmpty())
 				return;
+			
+			setMainTableDisabled(true);
 
 			emit addContactRequested(pseudo);
 		}
@@ -658,6 +779,8 @@ class MessagesWidget : public QMainWindow
 				if (contact.pseudo == pseudo)
 				{
 					b_continue = false;
+			
+					setMainTableDisabled(true);
 
 					emit removeContactRequested(contact.id);
 				}
@@ -680,6 +803,8 @@ class MessagesWidget : public QMainWindow
 
 				if (pair.first == button->objectName().toInt())
 				{
+					setMainTableDisabled(true);
+					
 					emit removeMessageRequested(QString::number(pair.second));
 
 					b_continue = false;
@@ -694,10 +819,38 @@ class MessagesWidget : public QMainWindow
 
 			if (pwdDialog->exec() == QDialog::Rejected)
 				return;
+			
+			setMainTableDisabled(true);
 
 			emit modifyPasswordRequested(pwdDialog->getPassword());
 
 			pwdDialog->deleteLater();
+		}
+
+		void slotBlockedContacts()
+		{
+			QStringList contacts;
+
+			foreach (Contact contact, m_contacts)
+				contacts << contact.pseudo;
+
+			if (contacts.isEmpty())
+			{
+				QMessageBox::information(this, "Multiuso", "Votre liste de contacts est vide !");
+
+				return;
+			}
+
+			BlockDialog *dialog = new BlockDialog(m_contacts, m_blocked, this);
+			
+			if (dialog->exec() == QDialog::Accepted)
+			{
+				setMainTableDisabled(true);
+
+				emit blockRequested(dialog->blockedContacts());
+			}
+
+			dialog->deleteLater();
 		}
 
 	signals:
@@ -708,6 +861,7 @@ class MessagesWidget : public QMainWindow
 		void sendMessageRequested(QString pseudo, QString message);
 		void removeMessageRequested(QString id);
 		void modifyPasswordRequested(QString password);
+		void blockRequested(QStringList contacts);
 
 	private:
 		QLabel *m_pseudo;
@@ -718,6 +872,7 @@ class MessagesWidget : public QMainWindow
 		QList<Message> m_messages;
 		QList<Pair> pairs;
 		QList<Contact> m_contacts;
+		QStringList m_blocked;
 };
 
 class Messagerie : public QDialog
@@ -755,6 +910,10 @@ class Messagerie : public QDialog
 		void getModifyPasswordReply();
 		void getModifyPasswordReply(QNetworkReply::NetworkError);
 
+		void block(QStringList contacts);
+		void getBlockReply();
+		void getBlockReply(QNetworkReply::NetworkError);
+
 	private:
 		ConnectionWidget *connectionWidget;
 		MessagesWidget *messagesWidget;
@@ -772,6 +931,7 @@ class Messagerie : public QDialog
 	
 		QList<Message> messages;
 		QList<Contact> contacts;
+		QStringList blocked;
 
 		QNetworkReply *replyConnection;
 		QNetworkReply *replyContacts;
@@ -779,6 +939,7 @@ class Messagerie : public QDialog
 		QNetworkReply *replyMessages;
 		QNetworkReply *replyRMessages;
 		QNetworkReply *replyModifyPassword;
+		QNetworkReply *replyBlock;
 };
 
 #endif

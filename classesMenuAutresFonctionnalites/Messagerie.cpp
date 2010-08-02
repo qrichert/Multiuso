@@ -30,6 +30,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 		connect(connectionWidget, SIGNAL(connectRequest()), this, SLOT(connectPeople()));
 
 	messagesWidget = new MessagesWidget;
+		messagesWidget->setMainTableDisabled(true);
 		connect(messagesWidget, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
 		connect(messagesWidget, SIGNAL(addContactRequested(QString)), this, SLOT(addContact(QString)));
 		connect(messagesWidget, SIGNAL(removeContactRequested(QString)), this, SLOT(removeContact(QString)));
@@ -37,6 +38,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 		connect(messagesWidget, SIGNAL(sendMessageRequested(QString, QString)), this, SLOT(sendMessage(QString, QString)));
 		connect(messagesWidget, SIGNAL(removeMessageRequested(QString)), this, SLOT(removeMessage(QString)));
 		connect(messagesWidget, SIGNAL(modifyPasswordRequested(QString)), this, SLOT(modifyPassword(QString)));
+		connect(messagesWidget, SIGNAL(blockRequested(QStringList)), this, SLOT(block(QStringList)));
 
 	mainWidget = new QStackedWidget;
 		mainWidget->addWidget(connectionWidget);
@@ -54,6 +56,8 @@ void Messagerie::updateMessagesWidget()
 	messagesWidget->setLastName(currentLastName);
 	messagesWidget->setMessages(messages);
 	messagesWidget->setContacts(contacts);
+	messagesWidget->setBlocked(blocked);
+	messagesWidget->setMainTableDisabled(false);
 }
 
 void Messagerie::connectPeople()
@@ -80,6 +84,7 @@ void Messagerie::getConnectionReply()
 {
 	messages.clear();
 	contacts.clear();
+	blocked.clear();
 
 	bool ok = true;
 
@@ -152,6 +157,11 @@ void Messagerie::getConnectionReply()
 
 				contacts << contact;
 			}
+
+			else if (line.startsWith("BLOCKED_CONTACT:"))
+			{
+				blocked << line.replace(QRegExp("BLOCKED_CONTACT:(.+)"), "\\1");
+			}
 		}
 
 	reply.close();
@@ -189,6 +199,7 @@ void Messagerie::slotDisconnected()
 {
 	messages.clear();
 	contacts.clear();
+	blocked.clear();
 
 	resize (305, 250);
 	mainWidget->setCurrentIndex(0);
@@ -221,8 +232,6 @@ void Messagerie::addContact(QString pseudo)
 
 void Messagerie::getContactReply()
 {
-	bool ok = true;
-
 	QFile reply(Multiuso::tempPath() + "/reply");
 		reply.open(QIODevice::WriteOnly | QIODevice::Text);
 			reply.write(replyContacts->readAll());
@@ -245,10 +254,10 @@ void Messagerie::getContactReply()
 				switch (error)
 				{
 					case 0: QMessageBox::information(this, "Multiuso", "Contact ajouté avec succès !"); break;
-					case 1: ok = false; QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
-					case 3: ok = false; QMessageBox::critical(this, "Multiuso", "Cet utilisateur n'existe pas !"); break;
-					case 4: ok = false; QMessageBox::critical(this, "Multiuso", "Cet utilisateur fait déjà partie de vos contacts !"); break;
-					default: ok = false; QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
+					case 1: QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					case 3: QMessageBox::critical(this, "Multiuso", "Cet utilisateur n'existe pas !"); break;
+					case 4: QMessageBox::critical(this, "Multiuso", "Cet utilisateur fait déjà partie de vos contacts !"); break;
+					default: QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
 				}
 			}
 		}
@@ -256,8 +265,7 @@ void Messagerie::getContactReply()
 		reply.close();
 		reply.remove();
 
-	if (ok)
-		messagesWidget->reload();
+	messagesWidget->reload();
 }
 
 void Messagerie::getContactReply(QNetworkReply::NetworkError)
@@ -282,13 +290,10 @@ void Messagerie::removeContact(QString id)
 	replyRContacts = manager->get(request);
 		connect(replyRContacts, SIGNAL(finished()), this, SLOT(getRContactReply()));
 		connect(replyRContacts, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getRContactReply(QNetworkReply::NetworkError)));
-
 }
 
 void Messagerie::getRContactReply()
 {
-	bool ok = true;
-
 	QFile reply(Multiuso::tempPath() + "/reply");
 		reply.open(QIODevice::WriteOnly | QIODevice::Text);
 			reply.write(replyRContacts->readAll());
@@ -311,9 +316,9 @@ void Messagerie::getRContactReply()
 				switch (error)
 				{
 					case 0: QMessageBox::information(this, "Multiuso", "Contact supprimé avec succès !"); break;
-					case 1: ok = false; QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
-					case 5: ok = false; QMessageBox::critical(this, "Multiuso", "Cet utilisateur ne fait pas partie de vos contacts !"); break;
-					default: ok = false; QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
+					case 1: QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					case 5: QMessageBox::critical(this, "Multiuso", "Cet utilisateur ne fait pas partie de vos contacts !"); break;
+					default: QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
 				}
 			}
 		}
@@ -321,8 +326,7 @@ void Messagerie::getRContactReply()
 		reply.close();
 		reply.remove();
 
-	if (ok)
-		messagesWidget->reload();
+	messagesWidget->reload();
 }
 
 void Messagerie::getRContactReply(QNetworkReply::NetworkError)
@@ -383,6 +387,8 @@ void Messagerie::getSendMessageReply()
 
 		reply.close();
 		reply.remove();
+
+	messagesWidget->reload();
 }
 
 void Messagerie::getSendMessageReply(QNetworkReply::NetworkError)
@@ -411,8 +417,6 @@ void Messagerie::removeMessage(QString id)
 
 void Messagerie::getRemoveMessageReply()
 {
-	bool ok = true;
-
 	QFile reply(Multiuso::tempPath() + "/reply");
 		reply.open(QIODevice::WriteOnly | QIODevice::Text);
 			reply.write(replyRMessages->readAll());
@@ -435,8 +439,8 @@ void Messagerie::getRemoveMessageReply()
 				switch (error)
 				{
 					case 0: break;
-					case 1: ok = false; QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
-					default: ok = false; QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
+					case 1: QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					default: QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
 				}
 			}
 		}
@@ -444,8 +448,7 @@ void Messagerie::getRemoveMessageReply()
 		reply.close();
 		reply.remove();
 		
-	if (ok)
-		messagesWidget->reload();
+	messagesWidget->reload();
 }
 
 void Messagerie::getRemoveMessageReply(QNetworkReply::NetworkError)
@@ -515,9 +518,9 @@ void Messagerie::getModifyPasswordReply()
 	{
 		connectionWidget->setPassword(tempPassword);
 		tempPassword = "";
-		messagesWidget->reload();
 	}
 
+	messagesWidget->reload();
 }
 
 void Messagerie::getModifyPasswordReply(QNetworkReply::NetworkError)
@@ -528,4 +531,64 @@ void Messagerie::getModifyPasswordReply(QNetworkReply::NetworkError)
 		reply->abort();
 
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion de mot de passe, réessayez plus tard.");
+}
+
+void Messagerie::block(QStringList contacts)
+{
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=block"
+									"&pseudo=" + currentPseudo +
+									"&pwd=" + currentPassword +
+									"&contacts=" + contacts.join(","));
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	replyBlock = manager->get(request);
+		connect(replyBlock, SIGNAL(finished()), this, SLOT(getBlockReply()));
+		connect(replyBlock, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getBlockReply(QNetworkReply::NetworkError)));
+}
+
+void Messagerie::getBlockReply()
+{
+	QFile reply(Multiuso::tempPath() + "/reply");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(replyBlock->readAll());
+		reply.close();
+
+		replyBlock->deleteLater();
+
+		QTextStream stream(&reply);
+
+		reply.open(QIODevice::ReadOnly | QIODevice::Text);
+
+		while (!stream.atEnd())
+		{
+			QString line = stream.readLine();
+
+			if (line.startsWith("ERROR:"))
+			{
+				int error = line.replace(QRegExp("ERROR:([0-9]+)"), "\\1").toInt();
+				
+				switch (error)
+				{
+					case 0: QMessageBox::information(this, "Multiuso", "Le contacts ont bien été modifiés."); break;
+					case 1: QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					default: QMessageBox::critical(this, "Multiuso", "Erreur iconnue !"); break;
+				}
+			}
+		}
+
+		reply.close();
+		reply.remove();
+		
+	messagesWidget->reload();
+}
+
+void Messagerie::getBlockReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+		reply->abort();
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des contacts, réessayez plus tard.");
 }

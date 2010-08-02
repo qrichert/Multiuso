@@ -51,6 +51,22 @@ class Multiuso
 			return str;
 		}
 
+		static QWidget *cancelButton(QDialog *dialog, QString label = "Annuler")
+		{
+			QPushButton *cancel = new QPushButton(label);
+				QObject::connect(cancel, SIGNAL(clicked()), dialog, SLOT(reject()));
+
+			QHBoxLayout *layout = new QHBoxLayout;
+				layout->addWidget(cancel);
+				layout->setAlignment(Qt::AlignRight);
+				layout->setContentsMargins(0, 0, 0, 0);
+
+			QWidget *widget = new QWidget;
+				widget->setLayout(layout);
+
+			return widget;
+		}
+
 		static QString cdUp(QString str)
 		{
 			QDir dir(str);
@@ -69,15 +85,12 @@ class Multiuso
 			return str;
 		}
 
-		static QWidget *closeButton(QDialog *dialog, QString label = "")
+		static QWidget *closeButton(QDialog *dialog, QString label = "Fermer")
 		{
-			if (label.isEmpty())
-				label = "Fermer";
-
 			QPushButton *close = new QPushButton(label);
 				QObject::connect(close, SIGNAL(clicked()), dialog, SLOT(accept()));
 
-			QVBoxLayout *layout = new QVBoxLayout;
+			QHBoxLayout *layout = new QHBoxLayout;
 				layout->addWidget(close);
 				layout->setAlignment(Qt::AlignRight);
 				layout->setContentsMargins(0, 0, 0, 0);
@@ -199,6 +212,16 @@ class Multiuso
 			ba = QByteArray::fromBase64(ba);
 
 			return QByteArray::fromHex(ba);
+		}
+
+		static QHBoxLayout *dialogButtons(QDialog *dialog, QString rejectText = "Annuler", QString acceptText = "Fermer")
+		{
+			QHBoxLayout *layout = new QHBoxLayout;
+				layout->addWidget(cancelButton(dialog, rejectText));
+				layout->addWidget(closeButton(dialog, acceptText));
+				layout->setAlignment(Qt::AlignRight);
+
+			return layout;
 		}
 
 		static QAction *emptyAction(QWidget *parent)
