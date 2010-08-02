@@ -191,6 +191,14 @@ class ConnectionWidget : public QWidget
 				return;
 			}
 
+			else if (linePseudo->text().contains("&")
+					|| linePseudo->text().contains("="))
+			{
+				QMessageBox::critical(this, "Multiuso", "Votre pseudo ne peut contenir de '&' ou de '=' !");
+
+				return;
+			}
+
 			PasswordDialog *pwdDialog = new PasswordDialog(this);
 
 			if (pwdDialog->exec() == QDialog::Rejected)
