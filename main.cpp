@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 			mdp = "ér97&_Èhz" + mdp + "~odE987sDe!";
 
 			QByteArray ba = mdp.toAscii();
-				ba = QCryptographicHash::hash(ba, QCryptographicHash::Sha1);
+				ba = QCryptographicHash::hash(ba, QCryptographicHash::Sha1).toHex();
 
 			if (ba != verif)
 			{

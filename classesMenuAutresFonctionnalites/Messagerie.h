@@ -213,7 +213,7 @@ class ConnectionWidget : public QWidget
 
 		void suscribe(QString pseudo, QString pwd, QString firstName, QString lastName)
 		{
-			pwd = QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Sha1);
+			pwd = QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Sha1).toHex();
 
 			QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=suscribe"
 												"&pseudo=" + pseudo +

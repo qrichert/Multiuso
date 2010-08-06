@@ -725,7 +725,7 @@ void Preferences::checkUsePassword(bool toogled)
 				QString password = "ér97&_Èhz" + pwd->getPassword() + "~odE987sDe!";
 					
 				QByteArray ba = password.toAscii();
-					ba = QCryptographicHash::hash(ba, QCryptographicHash::Sha1);
+					ba = QCryptographicHash::hash(ba, QCryptographicHash::Sha1).toHex();
 
 				QSettings reglagesPassword(Multiuso::appDirPath() + "/ini/PWD.ini", QSettings::IniFormat);
 					reglagesPassword.setValue("pwd", ba);

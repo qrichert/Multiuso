@@ -67,7 +67,7 @@ void Messagerie::connectPeople()
 	currentPseudo = connectionWidget->pseudo();
 	
 	currentPassword = connectionWidget->password();
-		currentPassword = QCryptographicHash::hash(currentPassword.toAscii(), QCryptographicHash::Sha1);
+		currentPassword = QCryptographicHash::hash(currentPassword.toAscii(), QCryptographicHash::Sha1).toHex();
 
 	QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=login"
 									"&pseudo=" + currentPseudo +
@@ -465,7 +465,7 @@ void Messagerie::modifyPassword(QString password)
 {
 	tempPassword = password;
 
-	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1);
+	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1).toHex();
 
 	QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=modify_pwd"
 									"&pseudo=" + currentPseudo +
