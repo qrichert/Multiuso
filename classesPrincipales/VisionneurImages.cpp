@@ -748,7 +748,7 @@ void VisionneurImages::slotZoomIdeal()
 	slotZoomNormal();
 
 	if (currentLabel()->width() < currentScrollArea()->width()
-		&& currentLabel()->width() < currentScrollArea()->width())
+		&& currentLabel()->height() < currentScrollArea()->height())
 	{
 		currentLabel()->setZoom(1.0);
 
@@ -843,7 +843,7 @@ void VisionneurImages::slotOuvrirFichier(QString fichier)
 		return;
 
 	QStringList suffixes;
-		suffixes << "png" << "jpg" << "jpeg" << "bmp" << "gif"<< "pbm"
+		suffixes << "png" << "jpg" << "jpeg" << "bmp" << "gif" << "pbm"
 			<< "pgm" << "ppm" << "xbm" << "xpm" << "svg";
 
 	if (!suffixes.contains(QFileInfo(fichier).suffix().toLower())) // If the file to show isn't a valid picture...
