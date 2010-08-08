@@ -72,6 +72,8 @@ CompteurDeLignes::CompteurDeLignes(QWidget *parent = 0) : QDialog(parent)
 
 void CompteurDeLignes::selectionFichiers()
 {
+	setCursor(Qt::WaitCursor);
+
 	QStringList fichiers = QFileDialog::getOpenFileNames(this, "Multiuso", Multiuso::lastPath() , "Tous les fichiers (*)");
 	
 	Multiuso::setLastPath(fichiers.value(0));
@@ -91,6 +93,8 @@ void CompteurDeLignes::selectionFichiers()
 
 					while (!fluxFichier.atEnd())
 					{
+						QCoreApplication::processEvents();
+
 						QString nouvelleLigne = fluxFichier.readLine();
 						nombreDeLignes++;
 					}
@@ -139,6 +143,8 @@ void CompteurDeLignes::selectionFichiers()
 			}
 		}
 	}
+
+	setCursor(Qt::ArrowCursor);
 }
 
 void CompteurDeLignes::clearAll()

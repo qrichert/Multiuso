@@ -403,6 +403,8 @@ void Ftp::listComputerFiles(QDir dir)
 
 	foreach(QString file, dir.entryList(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot))
 	{
+		QCoreApplication::processEvents();
+
 		QFileInfo infos(Multiuso::addSlash(dir.path()) + file);
 
 		QString fileSize = "";
