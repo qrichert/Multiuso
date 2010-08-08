@@ -184,17 +184,13 @@ FenPrincipale::FenPrincipale()
 			tabVisionneurImages->setLayout(layoutVisionneurImages);
 
 
-	editeurDeCode->setWebBrowser(navigateur);
-
-
-	navFichiers->setVisionneurImages(visionneurImages);
-	navFichiers->setEditeurDeTexte(editeurDeTexte);
-	navFichiers->setEditeurDeCode(editeurDeCode);
 	navFichiers->setNavigateurWeb(navigateur);
+	editeurDeCode->setWebBrowser(navigateur);
 
 
 	if (useSplashScreen)
 		splash.setSplashPicture(80);
+
 
 	QStringList lastOpenedTabs = mainSettings.value("ouverture/onglets").value<QStringList>();
 
@@ -222,7 +218,6 @@ FenPrincipale::FenPrincipale()
 	if (useSplashScreen)
 		splash.setSplashPicture(90);
 
-	noms << "";
 	noms.clear();
 
 	chargerPlugins();
@@ -1478,4 +1473,9 @@ void FenPrincipale::showTab(QString tab, bool show)
 		if (Multiuso::tabIndexOf(tabName, pagesDuProgramme) != -1)
 			pagesDuProgramme->removeTab(Multiuso::tabIndexOf(tabName, pagesDuProgramme));
 	}
+}
+
+void FenPrincipale::openTab(QString tab)
+{
+	accueil->openTab(tab);
 }

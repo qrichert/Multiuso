@@ -23,11 +23,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "../CurrentIncludes.h"
 #include "autresClasses/VueDossier.h"
 #include "autresClasses/LineEdit.h"
-#include "classesPrincipales/EditeurDeTexte.h"
-#include "classesPrincipales/EditeurDeCode.h"
 #include "classesPrincipales/NavigateurWeb.h"
-#include "classesPrincipales/VisionneurImages.h"
-
 
 class NavFichiers : public QMainWindow
 {
@@ -38,10 +34,6 @@ class NavFichiers : public QMainWindow
 
 		void creerActions();
 		VueDossier *pageActuelle();
-
-		void setVisionneurImages(VisionneurImages *widget);
-		void setEditeurDeTexte(EditeurDeTexte *widget);
-		void setEditeurDeCode(EditeurDeCode *widget);
 		void setNavigateurWeb(NavigateurWeb *widget);
 
 	public slots:
@@ -71,15 +63,10 @@ class NavFichiers : public QMainWindow
 
 	private:
 		QWidget *p_fenPrincipale;
-		VisionneurImages *p_visionneurImages;
-		EditeurDeTexte *p_editeurDeTexte;
-		EditeurDeCode *p_editeurDeCode;
 		NavigateurWeb *p_navigateurWeb;
 
-	private:
 		QTabWidget *onglets;
 
-	private:
 		QAction *actionPrecedent;
 		QAction *actionSuivant;
 		QAction *actionHaut;

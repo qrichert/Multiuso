@@ -51,30 +51,7 @@ NavFichiers::NavFichiers(QWidget *parent) : QMainWindow(parent)
 		connect(shortcutSwitchTab, SIGNAL(activated()), this, SLOT(slotSwitchTab()));
 
 	p_fenPrincipale = parent;
-	p_visionneurImages = NULL;
-	p_editeurDeTexte = NULL;
-	p_editeurDeCode = NULL;
 	p_navigateurWeb = NULL;
-}
-
-void NavFichiers::setVisionneurImages(VisionneurImages *widget)
-{
-	p_visionneurImages = widget;
-}
-
-void NavFichiers::setEditeurDeTexte(EditeurDeTexte *widget)
-{
-	p_editeurDeTexte = widget;
-}
-
-void NavFichiers::setEditeurDeCode(EditeurDeCode *widget)
-{
-	p_editeurDeCode = widget;
-}
-
-void NavFichiers::setNavigateurWeb(NavigateurWeb *widget)
-{
-	p_navigateurWeb = widget;
 }
 
 void NavFichiers::creerActions()
@@ -163,6 +140,11 @@ void NavFichiers::creerActions()
 VueDossier *NavFichiers::pageActuelle()
 {
 	return onglets->currentWidget()->findChild<VueDossier *>();
+}
+
+void NavFichiers::setNavigateurWeb(NavigateurWeb *widget)
+{
+	p_navigateurWeb = widget;
 }
 
 void NavFichiers::ajouterOnglet()
@@ -298,10 +280,13 @@ void NavFichiers::slotGo()
 
 		FenPrincipale *fen = qobject_cast<FenPrincipale *>(p_fenPrincipale);
 
-		if (fen == 0)
-			return;
+		if (fen != 0)
+		{
+			if (!Multiuso::openTabsList(fen->tabWidget()).contains("Navigateur Web"))
+				fen->openTab("Navigateur Web");
 
-		fen->setTabIndex(Multiuso::tabIndexOf("Navigateur Web", fen->tabWidget()));
+			fen->setTabIndex(Multiuso::tabIndexOf("Navigateur Web", fen->tabWidget()));
+		}
 
 		return;
 	}

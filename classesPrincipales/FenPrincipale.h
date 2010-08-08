@@ -46,6 +46,7 @@ class FenPrincipale : public QMainWindow
 		Accueil *homeTab();
 		void setTabIndex(int index);
 		void showTab(QString tab, bool show);
+		void openTab(QString tab);
 
 	protected: // Évènements de la fenêtre.
 		bool eventFilter(QObject *object, QEvent *event);
