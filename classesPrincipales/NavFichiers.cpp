@@ -375,7 +375,6 @@ void NavFichiers::slotDossierTmp()
 
 	afficherCheminActuel->setText(pageActuelle()->chemin());
 	onglets->setTabText(onglets->currentIndex(), QDir(pageActuelle()->chemin()).dirName());
-
 }
 
 void NavFichiers::slotSwitchTab()
@@ -404,5 +403,4 @@ void NavFichiers::slotOpenFile(QString file)
 	else
 		fen->ouvrirFichier(file); /* An open-file function already exists, that's the reason why we use
 					ouvrirFichier(QString fichier) from FenPrincipale. */
-
 }

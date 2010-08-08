@@ -79,6 +79,8 @@ void VueDossier::lister()
 
 	for (int i = 0; i < fichiers.size(); i++)
 	{
+		QCoreApplication::processEvents();
+
 		QFileInfo infosFichier(chemin() + fichiers.value(i));
 
 		QString type = "Dossier";
