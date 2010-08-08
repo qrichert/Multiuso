@@ -31,64 +31,11 @@ class TextEdit : public QTextEdit
 		TextEdit();
 
 	protected:
+		void dragEnterEvent(QDragEnterEvent *event);
 		void dropEvent(QDropEvent *event);
 
-	public slots:
-		bool sauvegardeOk();
-		bool undoOk();
-		bool redoOk();
-
-		bool estGras();
-		bool estItalique();
-		bool estSouligne();
-		bool estAligneGauche();
-		bool estAligneCentre();
-		bool estAligneDroite();
-		bool estAligneJustifie();
-		int tailleDuTexte();
-		QFont policeDuTexte();
-
-		QString fichierOuvert();
-		bool estEnregistre();
-
-	public slots:
-		void setSauvegardeOk(bool ok);
-		void setUndoOk(bool ok);
-		void setRedoOk(bool ok);
-
-		void setEstGras(bool ok);
-		void setEstItalique(bool ok);
-		void setEstSouligne(bool ok);
-		void setEstAligneGauche(bool ok);
-		void setEstAligneCentre(bool ok);
-		void setEstAligneDroite(bool ok);
-		void setEstAligneJustifie(bool ok);
-		void setTailleDuTexte(int taille);
-		void setPoliceDuTexte(QFont police);
-
-		void setFichierOuvert(QString fichier);
-		void setEstEnregistre(bool ok);
-
 	signals:
-		void ouvrirFichier(QString fichier);
-
-	private:
-		bool m_sauvegardeOk;
-		bool m_undoOk;
-		bool m_redoOk;
-
-		bool m_estGras;
-		bool m_estItalique;
-		bool m_estSouligne;
-		bool m_estAligneGauche;
-		bool m_estAligneCentre;
-		bool m_estAligneDroite;
-		bool m_estAligneJustifie;
-		int m_tailleDuTexte;
-		QFont m_policeDuTexte;
-
-		QString m_fichierOuvert;
-		bool m_enregistre;
+		void openFileRequested(QString file);
 };
 
 #endif

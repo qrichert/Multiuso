@@ -37,6 +37,7 @@ CodeEdit::CodeEdit(QObject *parent = 0)
 
 	m_colorisation = 0;
 
+	setAcceptDrops(true);
 	setLineWrapMode(QPlainTextEdit::NoWrap);
 	setTabStopWidth(40);
 
@@ -170,6 +171,12 @@ void CodeEdit::resizeEvent(QResizeEvent *event)
 	aireLignes->setGeometry(QRect(cr.left(), cr.top(), largeurAireLignes(), cr.height()));
 }
 
+void CodeEdit::dragEnterEvent(QDragEnterEvent *event)
+{
+	if (event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
 void CodeEdit::dropEvent(QDropEvent *event)
 {
 	const QMimeData *data = event->mimeData();
@@ -188,8 +195,6 @@ void CodeEdit::dropEvent(QDropEvent *event)
 			emit ouvrirFichier(url);
 		}
 	}
-
-	event->acceptProposedAction();
 }
 
 void CodeEdit::keyPressEvent(QKeyEvent *event)
