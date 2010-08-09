@@ -22,6 +22,31 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 EditeurDeTexte::EditeurDeTexte(QWidget *parent = 0) : QMainWindow(parent)
 {
+	createFirstToolBar();
+
+		addToolBarBreak();
+
+	createSecondToolBar();
+
+	tabWidget = new QTabWidget;
+		tabWidget->setMovable(true);
+		tabWidget->setTabsClosable(true);
+
+	setCentralWidget(tabWidget);
+}
+
+QToolBar *EditeurDeTexte::createFirstToolBar()
+{
+	QToolBar *toolBar = addToolBar("Actions");
+
+	return toolBar;
+}
+
+QToolBar *EditeurDeTexte::createSecondToolBar()
+{
+	QToolBar *toolBar = addToolBar("Options");
+
+	return toolBar;
 }
 
 void EditeurDeTexte::openFile(QString file)

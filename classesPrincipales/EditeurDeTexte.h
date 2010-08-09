@@ -29,11 +29,17 @@ class EditeurDeTexte : public QMainWindow
 
 	public:
 		EditeurDeTexte(QWidget *parent);
+
+		QToolBar *createFirstToolBar();
+		QToolBar *createSecondToolBar();
 		
 		void openFile(QString file);
 
 		bool isEverythingSaved();
 		void sauvegarderEtat();
+
+	private:
+		QTabWidget *tabWidget;
 };
 
 #endif
