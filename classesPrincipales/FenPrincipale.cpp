@@ -204,15 +204,14 @@ FenPrincipale::FenPrincipale()
 		pagesDuProgramme->insertTab(lastOpenedTabs.indexOf("Accueil"), tabAccueil, "Accueil");
 		pagesDuProgramme->setCurrentIndex(mainSettings.value("pagesDuProgramme/dernierePage").toInt());
 
-	/*layoutCentral = new QVBoxLayout;
+	layoutCentral = new QVBoxLayout;
 		layoutCentral->addWidget(pagesDuProgramme);
-		layoutCentral->setContentsMargins(4, 4, 4, 4);
+		layoutCentral->setContentsMargins(0, 0, 0, 0);
 
 	widgetCentral = new QWidget;
 		widgetCentral->setLayout(layoutCentral);
 
-	setCentralWidget(widgetCentral);*/
-	setCentralWidget(pagesDuProgramme);
+	setCentralWidget(widgetCentral);
 
 	disableEnableWidgetsMenuActions();
 

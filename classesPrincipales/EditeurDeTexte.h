@@ -33,13 +33,46 @@ class EditeurDeTexte : public QMainWindow
 		QToolBar *createFirstToolBar();
 		QToolBar *createSecondToolBar();
 		
+		QIcon createColorIcon(QColor color);
 		void openFile(QString file);
 
 		bool isEverythingSaved();
 		void sauvegarderEtat();
 
+	public slots:
+		void selectColor();
+
 	private:
 		QTabWidget *tabWidget;
+
+		QAction *a_new;
+		QAction *a_open;
+		QAction *a_save;
+		QAction *a_saveAs;
+		QAction *a_undo;
+		QAction *a_redo;
+		QAction *a_delete;
+		QAction *a_search;
+		QAction *a_replace;
+		QAction *a_printPreview;
+		QAction *a_print;
+		QAction *a_copy;
+		QAction *a_cut;
+		QAction *a_paste;
+		QAction *a_selectAll;
+		QAction *a_insertImage;
+		QAction *a_repeatText;
+
+		QAction *a_bold;
+		QAction *a_italic;
+		QAction *a_underline;
+		QAction *a_alignLeft;
+		QAction *a_alignCenter;
+		QAction *a_alignRight;
+		QAction *a_alignJustify;
+		QAction *a_selectColor;
+		QAction *a_toUpper;
+		QAction *a_toLower;
 };
 
 #endif
