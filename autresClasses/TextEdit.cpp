@@ -24,6 +24,28 @@ TextEdit::TextEdit()
 	setAcceptDrops(true);
 	
 	setTabStopWidth(40);
+
+	m_isSavable = false;
+}
+
+void TextEdit::setSavable(bool savable)
+{
+	m_isSavable = savable;
+}
+
+bool TextEdit::isSavable()
+{
+	return m_isSavable;
+}
+
+void TextEdit::setCurrentFileName(QString fileName)
+{
+	m_fileName = fileName;
+}
+
+QString TextEdit::currentFileName()
+{
+	return m_fileName;
 }
 
 void TextEdit::dragEnterEvent(QDragEnterEvent *event)

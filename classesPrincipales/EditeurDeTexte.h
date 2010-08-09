@@ -34,13 +34,32 @@ class EditeurDeTexte : public QMainWindow
 		QToolBar *createSecondToolBar();
 		
 		QIcon createColorIcon(QColor color);
-		void openFile(QString file);
+		QIcon createBackgroundColorIcon(QColor color);
+
+		TextEdit *currentTextEdit();
+		TextEdit *textEditAt(int index);
 
 		bool isEverythingSaved();
 		void sauvegarderEtat();
 
 	public slots:
+		void closeFile(int index);
+		void newFile();
+		void openFile();
+		void openFile(QString file);
+		void saveFile();
+		void saveFile(QString file);
+		void saveFileAs();
 		void selectColor();
+		void selectBackgroundColor();
+
+		void currentCharFormatChanged(QTextCharFormat format);
+		void cursorPositionChanged();
+
+		void fontChanged(QFont font);
+		void colorChanged(QColor color);
+		void backgroundColorChanged(QColor color);
+		void alignmentChanged(Qt::Alignment alignment);
 
 	private:
 		QTabWidget *tabWidget;
@@ -70,7 +89,10 @@ class EditeurDeTexte : public QMainWindow
 		QAction *a_alignCenter;
 		QAction *a_alignRight;
 		QAction *a_alignJustify;
+		QComboBox *a_fontSize;
+		QFontComboBox *a_font;
 		QAction *a_selectColor;
+		QAction *a_selectBackgroundColor;
 		QAction *a_toUpper;
 		QAction *a_toLower;
 };

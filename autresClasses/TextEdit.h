@@ -30,12 +30,22 @@ class TextEdit : public QTextEdit
 	public:
 		TextEdit();
 
+		void setSavable(bool savable);
+		bool isSavable();
+
+		void setCurrentFileName(QString fileName);
+		QString currentFileName();
+
 	protected:
 		void dragEnterEvent(QDragEnterEvent *event);
 		void dropEvent(QDropEvent *event);
 
 	signals:
 		void openFileRequested(QString file);
+
+	private:
+		bool m_isSavable;
+		QString m_fileName;
 };
 
 #endif
