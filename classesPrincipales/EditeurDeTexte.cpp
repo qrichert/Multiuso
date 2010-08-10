@@ -219,7 +219,8 @@ QToolBar *EditeurDeTexte::createSecondToolBar()
 		toolBar->addWidget(new QLabel(" "));
 
 	a_font = new QFontComboBox;
-		toolBar->addWidget(a_font);
+		connect(a_font, SIGNAL(activated(QString)), this, SLOT(font(QString)));
+			toolBar->addWidget(a_font);
 
 	a_selectColor = new QAction("Couleur de texte", this);
 		a_selectColor->setIcon(createColorIcon(Qt::black));
@@ -738,6 +739,14 @@ void EditeurDeTexte::fontSize(QString size)
 	
 		mergeTextCharFormat(format);
 	}
+}
+
+void EditeurDeTexte::font(QString font)
+{
+	QTextCharFormat format;
+		format.setFontFamily(font);
+
+	mergeTextCharFormat(format);
 }
 
 void EditeurDeTexte::selectColor()
