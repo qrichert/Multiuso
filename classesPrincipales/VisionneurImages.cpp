@@ -588,6 +588,10 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 	actionRotateRight = new QAction("Faire pivoter à droite", this);
 		actionRotateRight->setIcon(QIcon(":/icones/visionneur_images/actionRotateRight.png"));
 		connect(actionRotateRight, SIGNAL(triggered()), this, SLOT(slotRotateRight()));
+		
+	actionPrint = new QAction("Imprimer", this);
+		actionPrint->setIcon(QIcon(":/icones/visionneur_images/actionPrint.png"));
+		connect(actionPrint, SIGNAL(triggered()), this, SLOT(slotPrint()));
 
 	QToolBar *toolBar = addToolBar("Options");
 		toolBar->addAction(actionFermer);
@@ -600,8 +604,10 @@ VisionneurImages::VisionneurImages(QWidget *parent = 0) : QMainWindow(parent)
 		toolBar->addSeparator();
 		toolBar->addAction(actionRotateLeft);
 		toolBar->addAction(actionRotateRight);
-		toolBar->setObjectName("Options");
-		toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		toolBar->addSeparator();
+		toolBar->addAction(actionPrint);
+			toolBar->setObjectName("Options");
+			toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
 	QToolButton *buttonAddTab = new QToolButton;
 		buttonAddTab->setDefaultAction(actionAddTab);
@@ -835,6 +841,54 @@ void VisionneurImages::slotRotateRight()
 	currentLabel()->setPixmap(newPixmap);
 
 	slotZoomIdeal();
+}
+
+void VisionneurImages::slotPrint(QPrinter *printer)
+{
+	if (printer)
+	{
+		QPixmap pixmap = *currentLabel()->pixmap();
+
+		if (pixmap.width() > pixmap.height()
+			&& pixmap.width() > Multiuso::screenWidth() - 150)
+		{
+				pixmap = pixmap.scaledToWidth(Multiuso::screenWidth() - 150);
+				printer->setOrientation(QPrinter::Landscape);
+		}
+
+		else if (pixmap.height() > pixmap.width()
+			&& pixmap.height() > Multiuso::screenHeight() - 150)
+		{
+				pixmap = pixmap.scaledToHeight(Multiuso::screenHeight() - 150);
+				printer->setOrientation(QPrinter::Portrait);
+		}
+
+		QPainter painter(printer);
+			painter.drawPixmap(pixmap.rect(), pixmap);
+
+		return;
+	}
+
+	if (currentLabel()->isGif())
+		return;
+	
+	QString slashToAdd = "";
+	
+	if (Multiuso::currentOS() == "windows")
+		slashToAdd = "/";
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_visionneur_images.png")
+		return;
+
+	if (currentLabel()->imgPath() == "file://" + slashToAdd + ":/images/fond_erreur_ouverture.png")
+		return;
+
+	QPrinter tmpPrinter(QPrinter::ScreenResolution);
+
+	QPrintPreviewDialog printPreviewDialog(&tmpPrinter, this);
+		connect(&printPreviewDialog, SIGNAL(paintRequested(QPrinter *)), this, SLOT(slotPrint(QPrinter *)));
+
+	printPreviewDialog.exec();
 }
 
 void VisionneurImages::slotOuvrirFichier(QString fichier)

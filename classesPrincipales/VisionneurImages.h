@@ -298,6 +298,7 @@ class VisionneurImages : public QMainWindow
 		void slotZoomMoins();
 		void slotRotateLeft();
 		void slotRotateRight();
+		void slotPrint(QPrinter *printer = 0);
 
 		void slotOuvrirFichier(QString fichier);
 		void slotOpenFileFromDrop(QUrl url);
@@ -330,6 +331,7 @@ class VisionneurImages : public QMainWindow
 		QAction *actionZoomMoins;
 		QAction *actionRotateLeft;
 		QAction *actionRotateRight;
+		QAction *actionPrint;
 };
 
 #endif
