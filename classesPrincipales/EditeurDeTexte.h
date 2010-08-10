@@ -109,6 +109,7 @@ class EditeurDeTexte : public QMainWindow
 		void paste();
 		void selectAll();
 		void insertImage();
+		void insertTable();
 		void repeatText();
 
 		void bold();
@@ -153,6 +154,7 @@ class EditeurDeTexte : public QMainWindow
 		QAction *a_paste;
 		QAction *a_selectAll;
 		QAction *a_insertImage;
+		QAction *a_insertTable;
 		QAction *a_repeatText;
 
 		QAction *a_bold;

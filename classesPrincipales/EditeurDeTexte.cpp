@@ -153,6 +153,13 @@ QToolBar *EditeurDeTexte::createFirstToolBar()
 		a_insertImage->setIcon(QIcon(":/icones/editeur_de_texte/insererImage.png"));
 		connect(a_insertImage, SIGNAL(triggered()), this, SLOT(insertImage()));
 			toolBar->addAction(a_insertImage);
+			
+	a_insertTable = new QAction("Insérer un tableau", this);
+		a_insertTable->setIcon(QIcon(":/icones/editeur_de_texte/insertTable.png"));
+		connect(a_insertTable, SIGNAL(triggered()), this, SLOT(insertTable()));
+			toolBar->addAction(a_insertTable);
+
+	toolBar->addSeparator();
 
 	a_repeatText = new QAction("Répéter du texte", this);
 		a_repeatText->setIcon(QIcon(":/icones/editeur_de_texte/repeterTexte.png"));
@@ -706,6 +713,61 @@ void EditeurDeTexte::insertImage()
 		textImage.setName(path + fileName);
 
 	currentTextEdit()->textCursor().insertImage(textImage);
+}
+
+void EditeurDeTexte::insertTable()
+{
+	QDialog *tableDialog = new QDialog(this);
+		tableDialog->setWindowTitle("Insérer un tableau");
+
+	QSpinBox *rows = new QSpinBox;
+		rows->setRange(1, 2147483647);
+		rows->setValue(5);
+
+	QSpinBox *columns = new QSpinBox;
+		columns->setRange(1, 2147483647);
+		columns->setValue(7);
+
+	QComboBox *alignment = new QComboBox;
+		alignment->addItems(QStringList() << "À gauche" << "Au centre" << "À droite" << "en justifié");
+
+	QGridLayout *widgetsLayout = new QGridLayout;
+		widgetsLayout->addWidget(new QLabel("Créer un tableau de :"), 0, 0, 1, 1);
+		widgetsLayout->addWidget(rows, 1, 0, 1, 1);
+		widgetsLayout->addWidget(new QLabel(" ligne(s) sur "), 1, 1, 1, 1);
+		widgetsLayout->addWidget(columns, 1, 2, 1, 1);
+		widgetsLayout->addWidget(new QLabel(" colonnes"), 1, 3, 1, 1);
+		widgetsLayout->addWidget(new QLabel("et aligné "), 2, 0, 1, 1);
+		widgetsLayout->addWidget(alignment, 2, 1, 1, 2);
+
+	QVBoxLayout *tableDialogLayout = new QVBoxLayout(tableDialog);
+		tableDialogLayout->addLayout(widgetsLayout);
+		tableDialogLayout->addLayout(Multiuso::dialogButtons(tableDialog, "Annuler", "OK"));
+
+	if (tableDialog->exec() == QDialog::Accepted)
+	{
+		Qt::Alignment tableAlignment;
+
+			if (alignment->currentText() == "À gauche")
+				tableAlignment = (Qt::AlignLeft | Qt::AlignAbsolute);
+
+			else if (alignment->currentText() == "Au centre")
+				tableAlignment = Qt::AlignHCenter;
+
+			else if (alignment->currentText() == "À droite")
+				tableAlignment = (Qt::AlignRight | Qt::AlignAbsolute);
+
+			else if (alignment->currentText() == "en justifié")
+				tableAlignment = Qt::AlignJustify;
+
+		QTextTableFormat format;
+			format.setAlignment(tableAlignment);
+			format.setCellPadding(3);
+
+		currentTextEdit()->textCursor().insertTable(rows->value(), columns->value(), format);
+	}
+
+	tableDialog->deleteLater();
 }
 
 void EditeurDeTexte::repeatText()
