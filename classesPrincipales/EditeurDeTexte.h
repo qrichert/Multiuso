@@ -72,6 +72,7 @@ class EditeurDeTexte : public QMainWindow
 		void italic();
 		void underline();
 		void alignment(QAction *action);
+		void fontSize(QString size);
 		// ...
 		void selectColor();
 		void selectBackgroundColor();

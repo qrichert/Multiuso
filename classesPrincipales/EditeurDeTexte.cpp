@@ -208,7 +208,15 @@ QToolBar *EditeurDeTexte::createSecondToolBar()
 	toolBar->addSeparator();
 
 	a_fontSize = new QComboBox;
-		toolBar->addWidget(a_fontSize);
+		
+		foreach (int size, QFontDatabase().standardSizes())
+			a_fontSize->addItem(QString::number(size));
+
+		connect(a_fontSize, SIGNAL(activated(QString)), this, SLOT(fontSize(QString)));
+		a_fontSize->setCurrentIndex(a_fontSize->findText(QString::number(QApplication::font().pointSize())));
+			toolBar->addWidget(a_fontSize);
+
+		toolBar->addWidget(new QLabel(" "));
 
 	a_font = new QFontComboBox;
 		toolBar->addWidget(a_font);
@@ -717,6 +725,19 @@ void EditeurDeTexte::alignment(QAction *action)
 
 	else if (action == a_alignJustify)
 		currentTextEdit()->setAlignment(Qt::AlignJustify);
+}
+
+void EditeurDeTexte::fontSize(QString size)
+{
+	qreal fontPointSize = size.toFloat();
+
+	if (fontPointSize > 0)
+	{
+		QTextCharFormat format;
+			format.setFontPointSize(fontPointSize);
+	
+		mergeTextCharFormat(format);
+	}
 }
 
 void EditeurDeTexte::selectColor()
