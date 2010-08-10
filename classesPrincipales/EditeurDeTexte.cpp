@@ -236,10 +236,12 @@ QToolBar *EditeurDeTexte::createSecondToolBar()
 
 	a_toUpper = new QAction("EN MAJUSCULE", this);
 		a_toUpper->setIcon(QIcon(":/icones/editeur_de_texte/selectionMajuscule.png"));
+		connect(a_toUpper, SIGNAL(triggered()), this, SLOT(toUpper()));
 			toolBar->addAction(a_toUpper);
 
 	a_toLower = new QAction("en miniscule", this);
 		a_toLower->setIcon(QIcon(":/icones/editeur_de_texte/selectionMinuscule.png"));
+		connect(a_toLower, SIGNAL(triggered()), this, SLOT(toLower()));
 			toolBar->addAction(a_toLower);
 
 	return toolBar;
@@ -779,6 +781,28 @@ void EditeurDeTexte::selectBackgroundColor()
 	mergeTextCharFormat(format);
 
 	a_selectBackgroundColor->setIcon(createBackgroundColorIcon(color));
+}
+
+void EditeurDeTexte::toUpper()
+{
+	QTextCursor cursor = currentTextEdit()->textCursor();
+
+	if (!cursor.hasSelection())
+		cursor.select(QTextCursor::WordUnderCursor);
+	
+	QString text = cursor.selectedText().toUpper();
+	cursor.insertText(text);
+}
+
+void EditeurDeTexte::toLower()
+{
+	QTextCursor cursor = currentTextEdit()->textCursor();
+
+	if (!cursor.hasSelection())
+		cursor.select(QTextCursor::WordUnderCursor);
+
+	QString text = cursor.selectedText().toLower();
+	cursor.insertText(text);
 }
 
 void EditeurDeTexte::textChanged()

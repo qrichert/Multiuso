@@ -67,16 +67,16 @@ class EditeurDeTexte : public QMainWindow
 		void insertImage();
 		//void repeatText();
 
-
 		void bold();
 		void italic();
 		void underline();
 		void alignment(QAction *action);
 		void fontSize(QString size);
 		void font(QString font);
-		// ...
 		void selectColor();
 		void selectBackgroundColor();
+		void toUpper();
+		void toLower();
 
 		void textChanged();
 
