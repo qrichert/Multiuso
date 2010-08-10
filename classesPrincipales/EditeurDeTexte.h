@@ -23,6 +23,49 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "../CurrentIncludes.h"
 #include "autresClasses/TextEdit.h"
 
+class RecentTextFiles : public QObject
+{
+	Q_OBJECT
+
+	public:
+		static void addFile(QString file)
+		{
+			QSettings settings(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
+
+			QStringList allFiles = settings.value("recent_files").value<QStringList>();
+
+			if (allFiles.contains(file))
+				allFiles.removeOne(file);
+
+			if (allFiles.count() == 5)
+				allFiles.removeLast();
+
+			allFiles.prepend(file);
+
+			settings.setValue("recent_files", allFiles);
+		}
+
+		static void setRecentFiles(QMenu *menu, QWidget *parent)
+		{
+			menu->clear();
+
+			QSettings settings(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
+
+			QStringList allFiles = settings.value("recent_files").value<QStringList>();
+
+			for (int i = 0; i < allFiles.count(); i++)
+			{
+				QString file = allFiles.value(i);
+
+				QAction *action = new QAction("&" + QString::number(i + 1) + " " + QFileInfo(file).fileName(), parent);
+					action->setToolTip(file);
+					connect(action, SIGNAL(triggered()), parent, SLOT(openFileFromAction()));
+
+				menu->addAction(action);
+			}
+		}
+};
+
 class EditeurDeTexte : public QMainWindow
 {
 	Q_OBJECT
@@ -47,6 +90,7 @@ class EditeurDeTexte : public QMainWindow
 	public slots:
 		void closeFile(int index);
 		void newFile();
+		void openFileFromAction();
 		void openFile();
 		void openFile(QString file);
 		bool saveFile();

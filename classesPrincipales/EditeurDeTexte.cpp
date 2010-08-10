@@ -51,12 +51,15 @@ QToolBar *EditeurDeTexte::createFirstToolBar()
 		connect(a_new, SIGNAL(triggered()), this, SLOT(newFile()));
 			toolBar->addAction(a_new);
 
+	QMenu *recentFilesMenu = new QMenu;
+		RecentTextFiles::setRecentFiles(recentFilesMenu, this);
+
 	a_open = new QAction("Ouvrir", this);
 		a_open->setIcon(QIcon(":/icones/editeur_de_texte/ouvrir.png"));
 		a_open->setShortcut(QKeySequence("Ctrl+O"));
+		a_open->setMenu(recentFilesMenu);
 		connect(a_open, SIGNAL(triggered()), this, SLOT(openFile()));
 			toolBar->addAction(a_open);
-			// setMenu -> recentFiles
 
 	a_save = new QAction("Enregistrer", this);
 		a_save->setIcon(QIcon(":/icones/editeur_de_texte/enregistrer.png"));
@@ -394,6 +397,16 @@ void EditeurDeTexte::newFile()
 	tabWidget->setCurrentIndex(tabWidget->indexOf(textEdit));
 }
 
+void EditeurDeTexte::openFileFromAction()
+{
+	QAction *action = qobject_cast<QAction *>(sender());
+
+	if (action == 0)
+		return;
+
+	openFile(action->toolTip());
+}
+
 void EditeurDeTexte::openFile()
 {
 	QString file = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(), "Fichier texte (*)");
@@ -462,6 +475,9 @@ void EditeurDeTexte::openFile(QString file)
 	tabWidget->setTabText(tabWidget->indexOf(currentTextEdit()), QFileInfo(file).fileName());
 	tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/enregistre.png"));
 
+	RecentTextFiles::addFile(file);
+	RecentTextFiles::setRecentFiles(a_open->menu(), this);
+
 	setCursor(Qt::ArrowCursor);
 }
 
@@ -527,6 +543,10 @@ bool EditeurDeTexte::saveFileAs()
 				file += ".html";
 
 	Multiuso::setLastPath(file);
+	
+	RecentTextFiles::addFile(file);
+	RecentTextFiles::setRecentFiles(a_open->menu(), this);
+
 	return saveFile(file);
 }
 
