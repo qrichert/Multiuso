@@ -39,6 +39,8 @@ class EditeurDeTexte : public QMainWindow
 		TextEdit *currentTextEdit();
 		TextEdit *textEditAt(int index);
 
+		void mergeTextCharFormat(QTextCharFormat format);
+
 		bool isEverythingSaved();
 		void sauvegarderEtat();
 
@@ -65,6 +67,11 @@ class EditeurDeTexte : public QMainWindow
 		void insertImage();
 		//void repeatText();
 
+
+		void bold();
+		void italic();
+		void underline();
+		// ...
 		void selectColor();
 		void selectBackgroundColor();
 
@@ -77,6 +84,8 @@ class EditeurDeTexte : public QMainWindow
 		void colorChanged(QColor color);
 		void backgroundColorChanged(QColor color);
 		void alignmentChanged(Qt::Alignment alignment);
+
+		void currentChanged(int index);
 
 	private:
 		QTabWidget *tabWidget;

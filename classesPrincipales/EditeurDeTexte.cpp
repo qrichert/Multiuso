@@ -32,6 +32,7 @@ EditeurDeTexte::EditeurDeTexte(QWidget *parent = 0) : QMainWindow(parent)
 		tabWidget->setMovable(true);
 		tabWidget->setDocumentMode(true);
 		connect(tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(closeFile(int)));
+		connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
 
 	setCentralWidget(tabWidget);
 
@@ -164,16 +165,19 @@ QToolBar *EditeurDeTexte::createSecondToolBar()
 	a_bold = new QAction("Gras", this);
 		a_bold->setIcon(QIcon(":/icones/editeur_de_texte/gras.png"));
 		a_bold->setCheckable(true);
+		connect(a_bold, SIGNAL(triggered()), this, SLOT(bold()));
 			toolBar->addAction(a_bold);
 			
 	a_italic = new QAction("Italique", this);
 		a_italic->setIcon(QIcon(":/icones/editeur_de_texte/italique.png"));
 		a_italic->setCheckable(true);
+		connect(a_italic, SIGNAL(triggered()), this, SLOT(italic()));
 			toolBar->addAction(a_italic);
 			
 	a_underline = new QAction("Souligné", this);
 		a_underline->setIcon(QIcon(":/icones/editeur_de_texte/souligne.png"));
 		a_underline->setCheckable(true);
+		connect(a_underline, SIGNAL(triggered()), this, SLOT(underline()));
 			toolBar->addAction(a_underline);
 	
 	toolBar->addSeparator();
@@ -311,6 +315,17 @@ TextEdit *EditeurDeTexte::currentTextEdit()
 TextEdit *EditeurDeTexte::textEditAt(int index)
 {
 	return qobject_cast<TextEdit *>(tabWidget->widget(index));
+}
+
+void EditeurDeTexte::mergeTextCharFormat(QTextCharFormat format)
+{
+	QTextCursor cursor = currentTextEdit()->textCursor();
+
+	if (!cursor.hasSelection())
+		cursor.select(QTextCursor::WordUnderCursor);
+
+	cursor.mergeCharFormat(format);
+	currentTextEdit()->mergeCurrentCharFormat(format);
 }
 
 bool EditeurDeTexte::isEverythingSaved()
@@ -662,13 +677,42 @@ void EditeurDeTexte::insertImage()
 {
 }*/
 
+void EditeurDeTexte::bold()
+{
+	QTextCharFormat format;
+		format.setFontWeight(a_bold->isChecked() ? QFont::Bold : QFont::Normal);
+
+	mergeTextCharFormat(format);
+}
+
+void EditeurDeTexte::italic()
+{
+	QTextCharFormat format;
+		format.setFontItalic(a_italic->isChecked());
+
+	mergeTextCharFormat(format);
+}
+
+void EditeurDeTexte::underline()
+{
+	QTextCharFormat format;
+		format.setFontUnderline(a_underline->isChecked());
+
+	mergeTextCharFormat(format);
+}
+
 void EditeurDeTexte::selectColor()
 {
 	QColor old = currentTextEdit()->currentCharFormat().foreground().color();
-	QColor color = QColorDialog::getColor(old, this, "Sélectionnez une couleur", QColorDialog::ShowAlphaChannel);
+	QColor color = QColorDialog::getColor(old, this, "Sélectionnez une couleur");
 
 	if (!color.isValid())
 		return;
+	
+	QTextCharFormat format;
+		format.setForeground(color);
+
+	mergeTextCharFormat(format);
 
 	a_selectColor->setIcon(createColorIcon(color));
 }
@@ -676,10 +720,15 @@ void EditeurDeTexte::selectColor()
 void EditeurDeTexte::selectBackgroundColor()
 {
 	QColor old = currentTextEdit()->currentCharFormat().background().color();
-	QColor color = QColorDialog::getColor(old, this, "Sélectionnez une couleur", QColorDialog::ShowAlphaChannel);
+	QColor color = QColorDialog::getColor(old, this, "Sélectionnez une couleur");
 
 	if (!color.isValid())
 		return;
+
+	QTextCharFormat format;
+		format.setBackground(color);
+	
+	mergeTextCharFormat(format);
 
 	a_selectBackgroundColor->setIcon(createBackgroundColorIcon(color));
 }
@@ -695,23 +744,14 @@ void EditeurDeTexte::textChanged()
 		return;
 	}
 
-	if (!currentTextEdit()->document()->isUndoAvailable())
-	{
-		currentTextEdit()->document()->setModified(false);
-		tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/enregistre.png"));
-	}
-
-	else
-	{
-		tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/non_enregistre.png"));
-	}
+	tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/non_enregistre.png"));
 }
 
 void EditeurDeTexte::currentCharFormatChanged(QTextCharFormat format)
 {
 	fontChanged(format.font());
 	colorChanged(format.foreground().color());
-	backgroundColorChanged(format.background().color());
+	backgroundColorChanged(format.background().color().isValid() ? format.background().color() : Qt::white);
 }
 
 void EditeurDeTexte::cursorPositionChanged()
@@ -744,4 +784,10 @@ void EditeurDeTexte::alignmentChanged(Qt::Alignment alignment)
 	a_alignCenter->setChecked(alignment & Qt::AlignHCenter);
 	a_alignRight->setChecked(alignment & Qt::AlignRight);
 	a_alignJustify->setChecked(alignment & Qt::AlignJustify);
+}
+
+void EditeurDeTexte::currentChanged(int)
+{
+	currentCharFormatChanged(currentTextEdit()->currentCharFormat());
+	cursorPositionChanged();
 }
