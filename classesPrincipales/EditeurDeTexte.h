@@ -47,11 +47,28 @@ class EditeurDeTexte : public QMainWindow
 		void newFile();
 		void openFile();
 		void openFile(QString file);
-		void saveFile();
-		void saveFile(QString file);
-		void saveFileAs();
+		bool saveFile();
+		bool saveFile(QString file);
+		bool saveFileAs();
+		void undo();
+		void redo();
+		//void search();
+		//void replace();
+		void printPreview();
+		void printPreview(QPrinter *printer);
+		void print();
+		void printPDF();
+		void copy();
+		void cut();
+		void paste();
+		void selectAll();
+		void insertImage();
+		//void repeatText();
+
 		void selectColor();
 		void selectBackgroundColor();
+
+		void textChanged();
 
 		void currentCharFormatChanged(QTextCharFormat format);
 		void cursorPositionChanged();
@@ -70,11 +87,11 @@ class EditeurDeTexte : public QMainWindow
 		QAction *a_saveAs;
 		QAction *a_undo;
 		QAction *a_redo;
-		QAction *a_delete;
 		QAction *a_search;
 		QAction *a_replace;
 		QAction *a_printPreview;
 		QAction *a_print;
+		QAction *a_printPDF;
 		QAction *a_copy;
 		QAction *a_cut;
 		QAction *a_paste;

@@ -89,6 +89,7 @@
 		<file>icones/editeur_de_texte/gras.png</file>
 		<file>icones/editeur_de_texte/imprimer.png</file>
 		<file>icones/editeur_de_texte/imprimer_apercu.png</file>
+		<file>icones/editeur_de_texte/imprimer_pdf.png</file>
 		<file>icones/editeur_de_texte/insererImage.png</file>
 		<file>icones/editeur_de_texte/italique.png</file>
 		<file>icones/editeur_de_texte/justifie.png</file>
@@ -102,7 +103,6 @@
 		<file>icones/editeur_de_texte/selectionMajuscule.png</file>
 		<file>icones/editeur_de_texte/selectionMinuscule.png</file>
 		<file>icones/editeur_de_texte/souligne.png</file>
-		<file>icones/editeur_de_texte/supprimer.png</file>
 		<file>icones/editeur_de_texte/toutSelectionner.png</file>
 		
 		<file>icones/feed_tarsiers/background.png</file>
@@ -212,7 +212,6 @@
 		<file>icones/nav_fichiers/creerFichier.png</file>
 		<file>icones/nav_fichiers/renommer.png</file>
 		<file>icones/nav_fichiers/supprimer.png</file>
-
 
 		<file>icones/navigateur_web/actionAccueil.png</file>
 		<file>icones/navigateur_web/actionCacherRecherche.png</file>

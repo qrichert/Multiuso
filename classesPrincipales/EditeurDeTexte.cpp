@@ -73,24 +73,16 @@ QToolBar *EditeurDeTexte::createFirstToolBar()
 	a_undo = new QAction("Annuler", this);
 		a_undo->setIcon(QIcon(":/icones/editeur_de_texte/annuler.png"));
 		a_undo->setShortcut(QKeySequence("Ctrl+Z"));
+		a_undo->setDisabled(true);
+		connect(a_undo, SIGNAL(triggered()), this, SLOT(undo()));
 			toolBar->addAction(a_undo);
 
 	a_redo = new QAction("Rétablir", this);
 		a_redo->setIcon(QIcon(":/icones/editeur_de_texte/retablir.png"));
 		a_redo->setShortcut(QKeySequence("Ctrl+Y"));
+		a_redo->setDisabled(true);
+		connect(a_redo, SIGNAL(triggered()), this, SLOT(redo()));
 			toolBar->addAction(a_redo);
-
-	toolBar->addSeparator();
-		
-	a_delete = new QAction("Supprimer", this);
-		a_delete->setIcon(QIcon(":/icones/editeur_de_texte/supprimer.png"));
-		a_delete->setShortcut(QKeySequence("Suppr"));
-			toolBar->addAction(a_delete);
-			
-	a_selectAll = new QAction("Tout sélectionner", this);
-		a_selectAll->setIcon(QIcon(":/icones/editeur_de_texte/toutSelectionner.png"));
-		a_selectAll->setShortcut(QKeySequence("Ctrl+A"));
-			toolBar->addAction(a_selectAll);
 			
 	toolBar->addSeparator();
 	
@@ -108,34 +100,53 @@ QToolBar *EditeurDeTexte::createFirstToolBar()
 	
 	a_printPreview = new QAction("Aperçu avant impression", this);
 		a_printPreview->setIcon(QIcon(":/icones/editeur_de_texte/imprimer_apercu.png"));
+		connect(a_printPreview, SIGNAL(triggered()), this, SLOT(printPreview()));
 			toolBar->addAction(a_printPreview);
 
 	a_print = new QAction("Imprimer", this);
 		a_print->setIcon(QIcon(":/icones/editeur_de_texte/imprimer.png"));
 		a_print->setShortcut(QKeySequence("Ctrl+P"));
+		connect(a_print, SIGNAL(triggered()), this, SLOT(print()));
 			toolBar->addAction(a_print);
+			
+	a_printPDF = new QAction("Exporter en PDF", this);
+		a_printPDF->setIcon(QIcon(":/icones/editeur_de_texte/imprimer_pdf.png"));
+		connect(a_printPDF, SIGNAL(triggered()), this, SLOT(printPDF()));
+			toolBar->addAction(a_printPDF);
 
 	toolBar->addSeparator();
 	
 	a_copy = new QAction("Copier", this);
 		a_copy->setIcon(QIcon(":/icones/editeur_de_texte/copier.png"));
 		a_copy->setShortcut(QKeySequence("Ctrl+C"));
+		connect(a_copy, SIGNAL(triggered()), this, SLOT(copy()));
 			toolBar->addAction(a_copy);
 
 	a_cut = new QAction("Couper", this);
 		a_cut->setIcon(QIcon(":/icones/editeur_de_texte/couper.png"));
 		a_cut->setShortcut(QKeySequence("Ctrl+X"));
+		connect(a_cut, SIGNAL(triggered()), this, SLOT(cut()));
 			toolBar->addAction(a_cut);
 
 	a_paste = new QAction("Coller", this);
 		a_paste->setIcon(QIcon(":/icones/editeur_de_texte/coller.png"));
 		a_paste->setShortcut(QKeySequence("Ctrl+V"));
+		connect(a_paste, SIGNAL(triggered()), this, SLOT(paste()));
 			toolBar->addAction(a_paste);
+			
+	toolBar->addSeparator();
+					
+	a_selectAll = new QAction("Tout sélectionner", this);
+		a_selectAll->setIcon(QIcon(":/icones/editeur_de_texte/toutSelectionner.png"));
+		a_selectAll->setShortcut(QKeySequence("Ctrl+A"));
+		connect(a_selectAll, SIGNAL(triggered()), this, SLOT(selectAll()));
+			toolBar->addAction(a_selectAll);
 		
 	toolBar->addSeparator();
 	
 	a_insertImage = new QAction("Insérer une image", this);
 		a_insertImage->setIcon(QIcon(":/icones/editeur_de_texte/insererImage.png"));
+		connect(a_insertImage, SIGNAL(triggered()), this, SLOT(insertImage()));
 			toolBar->addAction(a_insertImage);
 
 	a_repeatText = new QAction("Répéter du texte", this);
@@ -228,13 +239,13 @@ QIcon EditeurDeTexte::createColorIcon(QColor color)
 
 		QPainter painter;
 			painter.begin(&icon);
-				painter.setRenderHint(QPainter::Antialiasing);
+				painter.setRenderHint(QPainter::Antialiasing, true);
 				painter.setPen(Qt::NoPen);
 				painter.setBrush(color);
 				painter.drawRoundedRect(0, 0, 32, 32, (qreal) 5, (qreal) 5);
 			painter.end();
 			painter.begin(&ellipse);
-				painter.setRenderHint(QPainter::Antialiasing);
+				painter.setRenderHint(QPainter::Antialiasing, true);
 				painter.setPen(Qt::NoPen);
 				painter.setBrush(Qt::white);
 				painter.setOpacity(0.3);
@@ -243,7 +254,7 @@ QIcon EditeurDeTexte::createColorIcon(QColor color)
 								32 * 2, 32 * 2);
 			painter.end();
 			painter.begin(&icon);
-				painter.setRenderHint(QPainter::Antialiasing);
+				painter.setRenderHint(QPainter::Antialiasing, true);
 				painter.setPen(Qt::NoPen);
 				painter.setBrush(ellipse);
 				painter.drawRoundedRect(0, 0, 32, 32, (qreal) 5, (qreal) 5);
@@ -262,13 +273,13 @@ QIcon EditeurDeTexte::createBackgroundColorIcon(QColor color)
 
 		QPainter painter;
 			painter.begin(&icon);
-				painter.setRenderHint(QPainter::Antialiasing);
+				painter.setRenderHint(QPainter::Antialiasing, true);
 				painter.setPen(Qt::NoPen);
 				painter.setBrush(color);
 				painter.drawRoundedRect(0, 0, 32, 32, (qreal) 5, (qreal) 5);
 			painter.end();
 			painter.begin(&ellipse);
-				painter.setRenderHint(QPainter::Antialiasing);
+				painter.setRenderHint(QPainter::Antialiasing, true);
 				painter.setPen(Qt::NoPen);
 				painter.setBrush(Qt::white);
 				painter.setOpacity(0.3);
@@ -277,7 +288,7 @@ QIcon EditeurDeTexte::createBackgroundColorIcon(QColor color)
 								32 * 2, 32 * 2);
 			painter.end();
 			painter.begin(&icon);
-				painter.setRenderHint(QPainter::Antialiasing);
+				painter.setRenderHint(QPainter::Antialiasing, true);
 				painter.setPen(Qt::black);
 				
 					if (color == Qt::black)
@@ -345,6 +356,9 @@ void EditeurDeTexte::newFile()
 		connect(textEdit, SIGNAL(currentCharFormatChanged(QTextCharFormat)), this, SLOT(currentCharFormatChanged(QTextCharFormat)));
 		connect(textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
 		connect(textEdit, SIGNAL(openFileRequested(QString)), this, SLOT(openFile(QString)));
+		connect(textEdit, SIGNAL(undoAvailable(bool)), a_undo, SLOT(setEnabled(bool)));
+		connect(textEdit, SIGNAL(redoAvailable(bool)), a_redo, SLOT(setEnabled(bool)));
+		connect(textEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
 
 	tabWidget->addTab(textEdit, QIcon(":/icones/editeur_de_texte/enregistre.png"), "Nouveau document");
 	tabWidget->setTabsClosable(true);
@@ -387,7 +401,7 @@ void EditeurDeTexte::openFile(QString file)
 
 	if (currentTextEdit()->document()->isModified())
 	{
-		int answer = QMessageBox::warning(this, "Multiuso", "Tous les changements non sauvegardés apportés à "
+		int answer = QMessageBox::warning(this, "Multiuso", "Tous les changements non sauvegardés apportés à<br />"
 				"« " + currentTextEdit()->documentTitle() + " » seront définitivement perdus.<br />"
 				"Voulez-vous continuer ?", QMessageBox::Yes | QMessageBox::No);
 
@@ -427,22 +441,22 @@ void EditeurDeTexte::openFile(QString file)
 	setCursor(Qt::ArrowCursor);
 }
 
-void EditeurDeTexte::saveFile()
+bool EditeurDeTexte::saveFile()
 {
 	if (!currentTextEdit()->isSavable())
-		return;
+		return false;
 
 	if (currentTextEdit()->currentFileName() == "NONE")
-		saveFileAs();
+		return saveFileAs();
 
 	else
-		saveFile(currentTextEdit()->currentFileName());
+		return saveFile(currentTextEdit()->currentFileName());
 }
 
-void EditeurDeTexte::saveFile(QString file)
+bool EditeurDeTexte::saveFile(QString file)
 {
 	if (!currentTextEdit()->isSavable())
-		return;
+		return false;
 
 	setCursor(Qt::WaitCursor);
 	
@@ -450,12 +464,12 @@ void EditeurDeTexte::saveFile(QString file)
 
 		if (!writer.write(currentTextEdit()->document()))
 		{
+			setCursor(Qt::ArrowCursor);
+			
 			QMessageBox::critical(this, "Multiuso", "Impossible d'écrire dans le fichier :<br /><em>"
 					+ QFileInfo(file).fileName() + "</em>");
-
-			setCursor(Qt::ArrowCursor);
 		
-			return;
+			return false;
 		}
 
 	currentTextEdit()->setDocumentTitle(QFileInfo(file).fileName());
@@ -466,12 +480,14 @@ void EditeurDeTexte::saveFile(QString file)
 	tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/enregistre.png"));
 
 	setCursor(Qt::ArrowCursor);
+
+	return true;
 }
 
-void EditeurDeTexte::saveFileAs()
+bool EditeurDeTexte::saveFileAs()
 {
 	if (!currentTextEdit()->isSavable())
-		return;
+		return false;
 
 	QString fileName = currentTextEdit()->documentTitle();
 
@@ -479,7 +495,7 @@ void EditeurDeTexte::saveFileAs()
 			"Fichier HTML (*.html *.htm);;Texte ODF (*.odt);;Tous les fichiers (*)");
 
 	if (file.isEmpty())
-		return;
+		return false;
 
 	if (!(file.endsWith(".html", Qt::CaseInsensitive)
 			|| file.endsWith(".htm", Qt::CaseInsensitive)
@@ -487,8 +503,164 @@ void EditeurDeTexte::saveFileAs()
 				file += ".html";
 
 	Multiuso::setLastPath(file);
-	saveFile(file);
+	return saveFile(file);
 }
+
+void EditeurDeTexte::undo()
+{
+	currentTextEdit()->undo();
+}
+
+void EditeurDeTexte::redo()
+{
+	currentTextEdit()->redo();
+}
+
+/*void EditeurDeTexte::search()
+{
+}*/
+
+/*void EditeurDeTexte::replace()
+{
+}*/
+
+void EditeurDeTexte::printPreview()
+{
+	QPrinter printer(QPrinter::HighResolution);
+
+	QPrintPreviewDialog preview(&printer, this);
+		connect(&preview, SIGNAL(paintRequested(QPrinter *)), this, SLOT(printPreview(QPrinter *)));
+			preview.exec();
+}
+
+void EditeurDeTexte::printPreview(QPrinter *printer)
+{
+	currentTextEdit()->print(printer);
+}
+
+void EditeurDeTexte::print()
+{
+	QPrinter printer(QPrinter::HighResolution);
+
+	QPrintDialog *printDialog = new QPrintDialog(&printer, this);
+		printDialog->setWindowTitle("Imprimer « " + currentTextEdit()->documentTitle() + " »");
+
+		if (currentTextEdit()->textCursor().hasSelection())
+			printDialog->addEnabledOption(QAbstractPrintDialog::PrintSelection);
+
+	if (printDialog->exec() == QDialog::Accepted)
+		currentTextEdit()->print(&printer);
+
+	printDialog->deleteLater();
+}
+
+void EditeurDeTexte::printPDF()
+{
+	QString file = QFileDialog::getSaveFileName(this, "Multiuso", Multiuso::lastPath() +
+			QFileInfo(currentTextEdit()->documentTitle()).baseName() + "/", "*.pdf");
+
+	if (file.isEmpty())
+		return;
+
+	Multiuso::setLastPath(file);
+
+	if (!file.endsWith(".pdf", Qt::CaseInsensitive))
+		file += ".pdf";
+
+	QPrinter printer(QPrinter::HighResolution);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOutputFileName(file);
+
+	currentTextEdit()->print(&printer);
+}
+
+void EditeurDeTexte::copy()
+{
+	currentTextEdit()->copy();
+}
+
+void EditeurDeTexte::cut()
+{
+	currentTextEdit()->cut();
+}
+
+void EditeurDeTexte::paste()
+{
+	currentTextEdit()->paste();
+}
+
+void EditeurDeTexte::selectAll()
+{
+	currentTextEdit()->selectAll();
+}
+
+void EditeurDeTexte::insertImage()
+{
+	QString image = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(),
+			"Image (*.*)");
+
+	if (image.isNull())
+		return;
+
+	Multiuso::setLastPath(image);
+	
+	QStringList suffixes;
+		suffixes << "png" << "jpg" << "jpeg" << "bmp" << "gif" << "pbm"
+			<< "pgm" << "ppm" << "xbm" << "xpm" << "svg";
+	
+	QPixmap pixmap(image);
+
+	if (!suffixes.contains(QFileInfo(image).suffix().toLower())
+			|| pixmap.isNull())
+	{
+		QMessageBox::critical(this, "Multiuso", "Image invalide !");
+
+		return;
+	}
+
+	if (currentTextEdit()->currentFileName() == "NONE" && !currentTextEdit()->documentTitle().endsWith(".odt"))
+	{
+		int answer = QMessageBox::question(this, "Multiuso", "Ce document n'a pas encore été enregistré "
+			"et de ce fait, Multiuso ne peut connaître le répertoire dans lequel il doit copier l'image.<br />"
+			"Voulez-vous enregistrer le fichier ?", QMessageBox::Yes | QMessageBox::No);
+
+		if (answer == QMessageBox::No)
+			return;
+
+		if (!saveFileAs())
+			return;
+	}
+
+	QString path;
+
+	if (!currentTextEdit()->documentTitle().endsWith(".odt"))
+	{
+       		path = QFileInfo(currentTextEdit()->currentFileName()).path();
+		path = Multiuso::addSlash(path) + QFileInfo(currentTextEdit()->currentFileName()).baseName();
+		path = Multiuso::addSlash(path);
+	}
+
+	else // If the file is an ODF file, we can read it anymore, so we don't need to save the file.
+	{
+		path = Multiuso::addSlash(Multiuso::tempPath());
+	}
+
+	QDir().mkpath(path);
+
+	QString fileName = "{" + QString::number(Multiuso::randomNumber(1000, 4999)) + "}-"
+				"{" + QString::number(Multiuso::randomNumber(5000, 9999)) + "}.png";
+
+	pixmap.save(path + fileName);
+
+	QTextImageFormat textImage;
+		textImage.setName(path + fileName);
+
+	currentTextEdit()->textCursor().insertImage(textImage);
+}
+
+/*void EditeurDeTexte::repeatText()
+{
+}*/
 
 void EditeurDeTexte::selectColor()
 {
@@ -510,6 +682,29 @@ void EditeurDeTexte::selectBackgroundColor()
 		return;
 
 	a_selectBackgroundColor->setIcon(createBackgroundColorIcon(color));
+}
+
+void EditeurDeTexte::textChanged()
+{
+	QSettings settings(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
+
+	if (settings.value("enregistrement/enregistrement_automatique").toBool())
+	{
+		saveFile();
+
+		return;
+	}
+
+	if (!currentTextEdit()->document()->isUndoAvailable())
+	{
+		currentTextEdit()->document()->setModified(false);
+		tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/enregistre.png"));
+	}
+
+	else
+	{
+		tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/non_enregistre.png"));
+	}
 }
 
 void EditeurDeTexte::currentCharFormatChanged(QTextCharFormat format)
