@@ -65,7 +65,7 @@ class EditeurDeTexte : public QMainWindow
 		void paste();
 		void selectAll();
 		void insertImage();
-		//void repeatText();
+		void repeatText();
 
 		void bold();
 		void italic();

@@ -31,6 +31,7 @@ EditeurDeTexte::EditeurDeTexte(QWidget *parent = 0) : QMainWindow(parent)
 	tabWidget = new QTabWidget;
 		tabWidget->setMovable(true);
 		tabWidget->setDocumentMode(true);
+		tabWidget->setTabsClosable(true);
 		connect(tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(closeFile(int)));
 		connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
 
@@ -152,6 +153,7 @@ QToolBar *EditeurDeTexte::createFirstToolBar()
 
 	a_repeatText = new QAction("Répéter du texte", this);
 		a_repeatText->setIcon(QIcon(":/icones/editeur_de_texte/repeterTexte.png"));
+		connect(a_repeatText, SIGNAL(triggered()), this, SLOT(repeatText()));
 			toolBar->addAction(a_repeatText);
 
 	return toolBar;
@@ -365,14 +367,13 @@ void EditeurDeTexte::closeFile(int index)
 			return;
 	}
 
+	
+	if (tabWidget->count() - 1 == 0)
+		newFile();
+	
 	textEditAt(index)->deleteLater();
 	tabWidget->removeTab(index);
 
-	if (tabWidget->count() <= 1)
-		tabWidget->setTabsClosable(false);
-
-	else
-		tabWidget->setTabsClosable(true);
 }
 
 void EditeurDeTexte::newFile()
@@ -390,13 +391,7 @@ void EditeurDeTexte::newFile()
 		connect(textEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
 
 	tabWidget->addTab(textEdit, QIcon(":/icones/editeur_de_texte/enregistre.png"), "Nouveau document");
-	tabWidget->setTabsClosable(true);
-	
-	if (tabWidget->count() <= 1)
-		tabWidget->setTabsClosable(false);
-
-	else
-		tabWidget->setTabsClosable(true);
+	tabWidget->setCurrentIndex(tabWidget->indexOf(textEdit));
 }
 
 void EditeurDeTexte::openFile()
@@ -687,9 +682,36 @@ void EditeurDeTexte::insertImage()
 	currentTextEdit()->textCursor().insertImage(textImage);
 }
 
-/*void EditeurDeTexte::repeatText()
+void EditeurDeTexte::repeatText()
 {
-}*/
+	TextEdit *te = currentTextEdit();
+	QTextCursor cursor = te->textCursor();
+
+	if (!cursor.hasSelection())
+	{
+		QMessageBox::information(this, "Multiuso", "Sélectionnez le texte à répéter !");
+
+		return;
+	}
+
+	QString text = cursor.selectedText();
+
+	bool ok;
+
+	int howManyTimes = QInputDialog::getInt(this, "Multiuso", "Combien de fois voulez-vous "
+			"répéter ce texte ?<br /><em>(texte d'origine inclus)</em>", 36,
+			1, 2147483647, 1, &ok);
+
+	if (!ok || howManyTimes == 1)
+		return;
+
+	for (int i = 0; i < howManyTimes; i++)
+	{
+		QCoreApplication::processEvents();
+	
+		te->textCursor().insertText(text);
+	}
+}
 
 void EditeurDeTexte::bold()
 {
@@ -816,7 +838,8 @@ void EditeurDeTexte::textChanged()
 		return;
 	}
 
-	tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/non_enregistre.png"));
+	if (currentTextEdit()->document()->isModified())
+		tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/non_enregistre.png"));
 }
 
 void EditeurDeTexte::currentCharFormatChanged(QTextCharFormat format)

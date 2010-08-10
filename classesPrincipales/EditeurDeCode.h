@@ -87,8 +87,6 @@ class EditeurDeCode : public QMainWindow
 		void slotToutSelectionner();
 
 		void slotRepeterTexte();
-		void slotRepeterTexte2();
-		void slotRepeter(QString texte, int nombreDeFois);
 
 		void slotOpenInWebBrowser();
 

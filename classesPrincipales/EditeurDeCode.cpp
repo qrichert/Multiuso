@@ -789,48 +789,32 @@ void EditeurDeCode::slotToutSelectionner()
 
 void EditeurDeCode::slotRepeterTexte()
 {
-	QDialog *dialogue = new QDialog(this);
+	CodeEdit *ce = pageActuelle();
+	QTextCursor cursor = ce->textCursor();
 
-	texteARepeter = new QTextEdit;
-		texteARepeter->setWordWrapMode(QTextOption::NoWrap);
-
-		if (pageActuelle()->textCursor().hasSelection())
-			texteARepeter->setPlainText(pageActuelle()->textCursor().selectedText());
-
-	nombreDeFois = new QLineEdit;
-
-	QPushButton *repeter = new QPushButton("&Répéter !");
-		connect(repeter, SIGNAL(clicked()), this, SLOT(slotRepeterTexte2()));
-		connect(repeter, SIGNAL(clicked()), dialogue, SLOT(accept()));
-
-	QFormLayout *layoutRepeter = new QFormLayout;
-		layoutRepeter->addRow("Texte à répéter :", texteARepeter);
-		layoutRepeter->addRow("Nombre de fois :", nombreDeFois);
-		layoutRepeter->addWidget(repeter);
-
-	dialogue->setWindowTitle("Éditeur de code - Répéter du texte");
-	dialogue->setWindowIcon(QIcon(":/icones/editeur_de_code/repeterTexte.png"));
-	dialogue->resize(600, 260);
-	dialogue->setLayout(layoutRepeter);
-	dialogue->exec();
-}
-
-void EditeurDeCode::slotRepeterTexte2()
-{
-	slotRepeter(texteARepeter->toPlainText(), nombreDeFois->text().toInt());
-}
-
-void EditeurDeCode::slotRepeter(QString texte, int nombreDeFois)
-{
-	if (nombreDeFois > 950)
+	if (!cursor.hasSelection())
 	{
-		nombreDeFois = 950;
+		QMessageBox::information(this, "Multiuso", "Sélectionnez le code à répéter !");
 
-		QMessageBox::warning(this, "Multiuso", "Le nombre de répétitions est limité à 2500, ce texte ne sera donc répété que 950 fois.");
+		return;
 	}
 
-	QFile fichier(pageActuelle()->fichierOuvert());
+	QString text = cursor.selectedText();
 
-	for (int i = 0; i < nombreDeFois; i++)
-		pageActuelle()->insertPlainText(texte);
+	bool ok;
+
+	int howManyTimes = QInputDialog::getInt(this, "Multiuso", "Combien de fois voulez-vous "
+			"répéter ce code ?<br /><em>(code d'origine inclus)</em>", 36,
+			1, 2147483647, 1, &ok);
+
+	if (!ok || howManyTimes == 1)
+		return;
+
+	for (int i = 0; i < howManyTimes; i++)
+	{
+		QCoreApplication::processEvents();
+	
+		ce->textCursor().insertText(text);
+	}
+
 }
