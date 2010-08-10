@@ -182,22 +182,25 @@ QToolBar *EditeurDeTexte::createSecondToolBar()
 	
 	toolBar->addSeparator();
 
-	a_alignLeft = new QAction("Gauche", this);
+	QActionGroup *groupAlignment = new QActionGroup(this);
+		connect(groupAlignment, SIGNAL(triggered(QAction *)), this, SLOT(alignment(QAction *)));
+
+	a_alignLeft = groupAlignment->addAction("Gauche");
 		a_alignLeft->setIcon(QIcon(":/icones/editeur_de_texte/gauche.png"));
 		a_alignLeft->setCheckable(true);
 			toolBar->addAction(a_alignLeft);
 
-	a_alignCenter = new QAction("Centré", this);
+	a_alignCenter = groupAlignment->addAction("Centré");
 		a_alignCenter->setIcon(QIcon(":/icones/editeur_de_texte/centre.png"));
 		a_alignCenter->setCheckable(true);
 			toolBar->addAction(a_alignCenter);
 
-	a_alignRight = new QAction("Droite", this);
+	a_alignRight = groupAlignment->addAction("Droite");
 		a_alignRight->setIcon(QIcon(":/icones/editeur_de_texte/droite.png"));
 		a_alignRight->setCheckable(true);
 			toolBar->addAction(a_alignRight);
 
-	a_alignJustify = new QAction("Justifié", this);
+	a_alignJustify = groupAlignment->addAction("Justifié");
 		a_alignJustify->setIcon(QIcon(":/icones/editeur_de_texte/justifie.png"));
 		a_alignJustify->setCheckable(true);
 			toolBar->addAction(a_alignJustify);
@@ -699,6 +702,21 @@ void EditeurDeTexte::underline()
 		format.setFontUnderline(a_underline->isChecked());
 
 	mergeTextCharFormat(format);
+}
+
+void EditeurDeTexte::alignment(QAction *action)
+{
+	if (action == a_alignLeft)
+		currentTextEdit()->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
+
+	else if (action == a_alignCenter)
+		currentTextEdit()->setAlignment(Qt::AlignHCenter);
+
+	else if (action == a_alignRight)
+		currentTextEdit()->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
+
+	else if (action == a_alignJustify)
+		currentTextEdit()->setAlignment(Qt::AlignJustify);
 }
 
 void EditeurDeTexte::selectColor()

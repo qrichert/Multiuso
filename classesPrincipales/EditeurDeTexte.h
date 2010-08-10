@@ -71,6 +71,7 @@ class EditeurDeTexte : public QMainWindow
 		void bold();
 		void italic();
 		void underline();
+		void alignment(QAction *action);
 		// ...
 		void selectColor();
 		void selectBackgroundColor();
