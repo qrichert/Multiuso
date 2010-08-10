@@ -98,8 +98,8 @@ class EditeurDeTexte : public QMainWindow
 		bool saveFileAs();
 		void undo();
 		void redo();
-		//void search();
-		//void replace();
+		void search();
+		void replace();
 		void printPreview();
 		void printPreview(QPrinter *printer);
 		void print();

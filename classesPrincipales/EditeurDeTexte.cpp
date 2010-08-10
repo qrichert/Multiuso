@@ -18,7 +18,6 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "EditeurDeTexte.h"
-#include "autresClasses/RechercherRemplacer.h"
 
 EditeurDeTexte::EditeurDeTexte(QWidget *parent = 0) : QMainWindow(parent)
 {
@@ -94,11 +93,13 @@ QToolBar *EditeurDeTexte::createFirstToolBar()
 	a_search = new QAction("Rechercher", this);
 		a_search->setIcon(QIcon(":/icones/editeur_de_texte/rechercher.png"));
 		a_search->setShortcut(QKeySequence("Ctrl+F"));
+		connect(a_search, SIGNAL(triggered()), this, SLOT(search()));
 			toolBar->addAction(a_search);
 			
 	a_replace = new QAction("Remplacer", this);
 		a_replace->setIcon(QIcon(":/icones/editeur_de_texte/rechercherRemplacer.png"));
 		a_replace->setShortcut(QKeySequence("Ctrl+H"));
+		connect(a_replace, SIGNAL(triggered()), this, SLOT(replace()));
 			toolBar->addAction(a_replace);
 
 	toolBar->addSeparator();
@@ -573,13 +574,46 @@ void EditeurDeTexte::redo()
 	currentTextEdit()->redo();
 }
 
-/*void EditeurDeTexte::search()
+void EditeurDeTexte::search()
 {
-}*/
+	QDialog *searchDialog = new QDialog(this);
+		searchDialog->setWindowTitle("Rechercher");
 
-/*void EditeurDeTexte::replace()
+	QLineEdit *textToFind = new QLineEdit;
+	QCheckBox *findBackward = new QCheckBox;
+	QCheckBox *findCaseSensitively = new QCheckBox;
+	QCheckBox *findWholeWords = new QCheckBox;
+
+	QFormLayout *contentLayout = new QFormLayout;
+		contentLayout->addRow("Rechercher :", textToFind);
+		contentLayout->addRow("Rechercher en arrière :", findBackward);
+		contentLayout->addRow("Recherche sensible à la casse :", findCaseSensitively);
+		contentLayout->addRow("Rechercher uniqument les mots entiers :", findWholeWords);
+
+	QVBoxLayout *searchDialogLayout = new QVBoxLayout(searchDialog);
+		searchDialogLayout->addLayout(contentLayout);
+		searchDialogLayout->addLayout(Multiuso::dialogButtons(searchDialog, "Annuler", "Rechercher"));
+
+	if (searchDialog->exec() == QDialog::Accepted)
+	{
+		QFlags<QTextDocument::FindFlags> findFlags;
+
+			if (findBackward->isChecked())
+				findFlags << QTextDocument::FindBackward;
+
+			if (findCaseSensitively->isChecked())
+				findFlags << QTextDocument::FindCaseSensitively;
+
+			if (findWholeWords->isChecked())
+				findFlags << QTextDocument::FindWholeWords;
+	}
+
+	searchDialog->deleteLater();
+}
+
+void EditeurDeTexte::replace()
 {
-}*/
+}
 
 void EditeurDeTexte::printPreview()
 {
