@@ -855,7 +855,7 @@ void FenPrincipale::slotQuitter()
 
 	if (!editeurDeTexte->isEverythingSaved() || !editeurDeCode->tousLesDocumentsEnregistres())
 	{
-		int reponse = QMessageBox::warning(this, "Multiuso", "Un ou plusieurs documents texte ne sont pas enregitrés,<br />"
+		int reponse = QMessageBox::warning(this, "Multiuso", "Un ou plusieurs documents texte ne sont pas enregistrés,<br />"
 			"voulez-vous quitter Multiuso malgré tout ?", QMessageBox::Yes | QMessageBox::No);
 
 		if (reponse == QMessageBox::No)

@@ -349,6 +349,12 @@ void EditeurDeTexte::mergeTextCharFormat(QTextCharFormat format)
 
 bool EditeurDeTexte::isEverythingSaved()
 {
+	for (int i = 0; i < tabWidget->count(); i++)
+	{
+		if (textEditAt(i)->document()->isModified())
+			return false;
+	}
+
 	return true;
 }
 
