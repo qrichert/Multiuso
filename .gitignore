@@ -1,5 +1,5 @@
 Multiuso
-Makefile
+Makefile*
 moc_*.cpp
 qrc_*.cpp
 *.o
@@ -8,6 +8,10 @@ qrc_*.cpp
 *.cache
 *.db
 *.so
-tmp/*
-ini/*
-navigateurWeb/*
+*.dylib
+*.app
+*.exe
+*~
+tmp/
+ini/
+navigateurWeb/
