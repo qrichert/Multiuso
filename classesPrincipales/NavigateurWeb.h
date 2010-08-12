@@ -37,7 +37,9 @@ class NavigateurWeb : public QMainWindow
 	public:
 		NavigateurWeb(QWidget *parent = 0, TelechargerFichier *telechargements = 0, EditeurDeCode *editeurDeCode = 0);
 
+		void creerActions();
 		void openCodeEditDocument(QString title, QString contents);
+		QDialog *authenticationDialog(QString message, bool password = true, bool username = true, QString title = "Authentification requise");
 
 	public slots:
 		void slotFermerOnglet(int onglet);
@@ -53,7 +55,6 @@ class NavigateurWeb : public QMainWindow
 		void configurerFavoris();
 		QPixmap capturerPage();
 
-	public slots:
 		void slotNouvelOnglet();
 		void slotFermerOnglet();
 		void slotLinkClicked(QUrl url);
@@ -76,13 +77,9 @@ class NavigateurWeb : public QMainWindow
 		void slotStop();
 		void slotAccueil();
 		void slotChangerAdresse();
-
 		// <Easter Egg>
-
-		void slotEasterEgg();
-
+			void slotEasterEgg();
 		// </Easter Egg>
-
 		void slotRechercherMoteurRecherche();
 		void slotAjouterFavori();
 		void slotOuvrirFavori();
@@ -91,14 +88,12 @@ class NavigateurWeb : public QMainWindow
 
 		void slotCopier();
 
-	public slots:
 		void telechargerFichierAuto(QNetworkReply *reponse);
 		void telechargerFichier(QNetworkRequest requete);
 		void slotTakeScreenshot();
 		void slotScreenshotTaken(QString title, QString url, QPixmap pixmap);
 		void slotScreenshotNotTaken();
 
-	public slots:
 		void survolLien(QString lien, QString titre, QString contenu);
 		void changementIcone();
 		void chargementFini(bool ok);
@@ -115,6 +110,8 @@ class NavigateurWeb : public QMainWindow
 		// <Stalker (www.siteduzero.com)>
 			void slotErrorPageCheck(QNetworkReply *netRep);
 		// </Stalker (www.siteduzero.com)>
+		void authenticationRequired(QNetworkReply *reply, QAuthenticator *auth);
+		void proxyAuthenticationRequired(QNetworkProxy proxy, QAuthenticator *auth);
 
 	private:
 		QTabWidget *onglets;
@@ -125,7 +122,6 @@ class NavigateurWeb : public QMainWindow
 		TelechargerFichier *pointeurSurTelechargements;
 		EditeurDeCode *pointeurSurEditeurDeCode;
 
-	private:
 		QAction *actionNouveau;
 		QAction *actionFermer;
 		QAction *actionSpeedDial;
@@ -147,18 +143,15 @@ class NavigateurWeb : public QMainWindow
 		WebPageScreenshot *screen;
 		QAction *actionTakeScreenshot;
 
-	private:
 		QToolBar *toolBarNavigation;
 		QMenu *menuNavigation;
 		QMenu *menuFavoris;
 		QAction *ajouterFavori;
 
-	private:
 		QStringList liensHistorique;
 		QStringList sitesVisites;
 		QString lastLink;
 
-	private:
 		QToolBar *toolBarRechercher;
 		QAction *actionCacherRecherche;
 		QLineEdit *motARechercher;
@@ -166,22 +159,16 @@ class NavigateurWeb : public QMainWindow
 		QAction *actionMotSuivant;
 		QCheckBox *respecterCasse;
 
-	private:
 		QDialog *widgetSpeedDial;
 
-	private:
 		QDockWidget *dockHistorique;
 		QStringListModel *modeleHistorique;
 		QListView *vueHistorique;
 		
-	// <Stalker (www.siteduzero.com)>
-		private:
+		// <Stalker (www.siteduzero.com)>
  		       QHttp *httpConnexion;
  		       QNetworkProxy *proxy;
-	// </Stalker (www.siteduzero.com)>
-
-	private slots:
-		void creerActions();
+		// </Stalker (www.siteduzero.com)>
 };
 
 #endif

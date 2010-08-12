@@ -472,6 +472,8 @@ QWidget *NavigateurWeb::nouvelOnglet()
 		connect(pageWeb->page(), SIGNAL(linkHovered(QString, QString, QString)), this, SLOT(survolLien(QString, QString, QString)));
 		connect(pageWeb->page(), SIGNAL(printRequested(QWebFrame *)), this, SLOT(slotImprimer(QWebFrame *)));
 		connect(pageWeb->page(), SIGNAL(databaseQuotaExceeded(QWebFrame *, QString)), this, SLOT(slotDatabaseQuotaExceeded(QWebFrame *, QString)));
+		connect(pageWeb->page()->networkAccessManager(), SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)), this, SLOT(authenticationRequired(QNetworkReply *, QAuthenticator *)));
+		connect(pageWeb->page()->networkAccessManager(), SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)), this, SLOT(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)));
 
 		QUrl url = barreAdresse->text();
 
@@ -1401,3 +1403,91 @@ void NavigateurWeb::slotMenuPage(QPoint)
 		}
 	}
 // </Stalker (www.siteduzero.com)>
+
+QDialog *NavigateurWeb::authenticationDialog(QString message, bool password, bool username, QString title)
+{
+	QDialog *dialog = new QDialog(this);
+		dialog->setWindowTitle(title);
+	
+	QLineEdit *l_username = new QLineEdit;
+		l_username->setObjectName("username");
+	
+	QLineEdit *l_password = new QLineEdit;
+		l_password->setEchoMode(QLineEdit::Password);
+		l_password->setObjectName("password");
+
+	QFormLayout *layout = new QFormLayout;
+
+		if (username)
+			layout->addRow("Nom d'utilisateur :", l_username);
+
+		if (password)
+			layout->addRow("Mot de passe :", l_password);
+
+	QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
+		mainLayout->addWidget(new QLabel(message));
+		mainLayout->addLayout(layout);
+		mainLayout->addLayout(Multiuso::dialogButtons(dialog, "Annuler", "Connecter"));
+
+	return dialog;
+}
+
+void NavigateurWeb::authenticationRequired(QNetworkReply *reply, QAuthenticator *auth)
+{/**/
+	QString message = "Le site <strong>" + Qt::escape(reply->url().toString()) + "</strong> demande<br />"
+		"un nom d'utilisateur et un mot de passe.<br />"
+		"Le site indique « " + Qt::escape(auth->realm()) + " » :";
+
+QDialog *dialog = new QDialog(this);
+		dialog->setWindowTitle("iji");//title);
+	
+	QLineEdit *l_username = new QLineEdit;
+		l_username->setObjectName("username");
+	
+	QLineEdit *l_password = new QLineEdit;
+		l_password->setEchoMode(QLineEdit::Password);
+		l_password->setObjectName("password");
+
+	QFormLayout *layout = new QFormLayout;
+
+		//if (username)
+			layout->addRow("Nom d'utilisateur :", l_username);
+
+		//if (password)
+			layout->addRow("Mot de passe :", l_password);
+
+	QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
+		mainLayout->addWidget(new QLabel(message));
+		mainLayout->addLayout(layout);
+		mainLayout->addLayout(Multiuso::dialogButtons(dialog, "Annuler", "Connecter"));
+
+/**/
+	/*QString message = "Le site <strong>" + Qt::escape(reply->url().toString()) + "</strong> demande<br />"
+		"un nom d'utilisateur et un mot de passe.<br />"
+		"Le site indique « " + Qt::escape(auth->realm()) + " » :";*/
+
+	//QDialog *dialog = authenticationDialog(message, true, true);
+
+	if (dialog->exec() == QDialog::Accepted)
+	{
+		auth->setUser(dialog->findChild<QLineEdit *>("username")->text());
+		auth->setPassword(dialog->findChild<QLineEdit *>("password")->text());
+	}
+
+	dialog->deleteLater();
+}
+
+void NavigateurWeb::proxyAuthenticationRequired(QNetworkProxy proxy, QAuthenticator *auth)
+{
+	QString message = "Connexion au serveur proxy \"" + proxy.hostName() + "\" :";
+
+	QDialog *dialog = authenticationDialog(message, true, true);
+	
+	if (dialog->exec() == QDialog::Accepted)
+	{
+		auth->setUser(dialog->findChild<QLineEdit *>("username")->text());
+		auth->setPassword(dialog->findChild<QLineEdit *>("password")->text());
+	}
+
+	dialog->deleteLater();
+}
