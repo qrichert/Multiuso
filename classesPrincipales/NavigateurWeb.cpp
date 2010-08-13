@@ -1433,40 +1433,12 @@ QDialog *NavigateurWeb::authenticationDialog(QString message, bool password, boo
 }
 
 void NavigateurWeb::authenticationRequired(QNetworkReply *reply, QAuthenticator *auth)
-{/**/
+{
 	QString message = "Le site <strong>" + Qt::escape(reply->url().toString()) + "</strong> demande<br />"
 		"un nom d'utilisateur et un mot de passe.<br />"
 		"Le site indique « " + Qt::escape(auth->realm()) + " » :";
 
-QDialog *dialog = new QDialog(this);
-		dialog->setWindowTitle("iji");//title);
-	
-	QLineEdit *l_username = new QLineEdit;
-		l_username->setObjectName("username");
-	
-	QLineEdit *l_password = new QLineEdit;
-		l_password->setEchoMode(QLineEdit::Password);
-		l_password->setObjectName("password");
-
-	QFormLayout *layout = new QFormLayout;
-
-		//if (username)
-			layout->addRow("Nom d'utilisateur :", l_username);
-
-		//if (password)
-			layout->addRow("Mot de passe :", l_password);
-
-	QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
-		mainLayout->addWidget(new QLabel(message));
-		mainLayout->addLayout(layout);
-		mainLayout->addLayout(Multiuso::dialogButtons(dialog, "Annuler", "Connecter"));
-
-/**/
-	/*QString message = "Le site <strong>" + Qt::escape(reply->url().toString()) + "</strong> demande<br />"
-		"un nom d'utilisateur et un mot de passe.<br />"
-		"Le site indique « " + Qt::escape(auth->realm()) + " » :";*/
-
-	//QDialog *dialog = authenticationDialog(message, true, true);
+	QDialog *dialog = authenticationDialog(message, true, true);
 
 	if (dialog->exec() == QDialog::Accepted)
 	{
