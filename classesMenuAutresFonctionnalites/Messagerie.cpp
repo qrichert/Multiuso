@@ -188,7 +188,10 @@ void Messagerie::getConnectionReply(QNetworkReply::NetworkError)
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
 	if (reply != 0)
+	{
 		reply->abort();
+		reply->deleteLater();
+	}
 
 	connectionWidget->setDisabled(false);
 	
@@ -273,7 +276,10 @@ void Messagerie::getContactReply(QNetworkReply::NetworkError)
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
 	if (reply != 0)
+	{
 		reply->abort();
+		reply->deleteLater();
+	}
 
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des contacts, réessayez plus tard.");
 }
@@ -334,7 +340,10 @@ void Messagerie::getRContactReply(QNetworkReply::NetworkError)
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
 	if (reply != 0)
+	{
 		reply->abort();
+		reply->deleteLater();
+	}
 
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des contacts, réessayez plus tard.");
 }
@@ -396,7 +405,10 @@ void Messagerie::getSendMessageReply(QNetworkReply::NetworkError)
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
 	if (reply != 0)
+	{
 		reply->abort();
+		reply->deleteLater();
+	}
 
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des messages, réessayez plus tard.");
 }
@@ -456,7 +468,10 @@ void Messagerie::getRemoveMessageReply(QNetworkReply::NetworkError)
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
 	if (reply != 0)
+	{
 		reply->abort();
+		reply->deleteLater();
+	}
 
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des messages, réessayez plus tard.");
 }
@@ -528,7 +543,10 @@ void Messagerie::getModifyPasswordReply(QNetworkReply::NetworkError)
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
 	if (reply != 0)
+	{
 		reply->abort();
+		reply->deleteLater();
+	}
 
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion de mot de passe, réessayez plus tard.");
 }
@@ -588,7 +606,10 @@ void Messagerie::getBlockReply(QNetworkReply::NetworkError)
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
 	if (reply != 0)
+	{
 		reply->abort();
+		reply->deleteLater();
+	}
 
 	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de gestion des contacts, réessayez plus tard.");
 }
