@@ -62,6 +62,9 @@ BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 
 void BlocNotes::loadNotes()
 {
+	for (int i = 0; i < m_tabWidget->count(); i++)
+		removeTab(i);
+
 	QSettings settings(Multiuso::appDirPath() + "/ini/bloc_notes.ini", QSettings::IniFormat);
 
 	int last_index = settings.value("last_index").toInt();
