@@ -97,7 +97,7 @@ class SuscribeDialog : public QWidget // Not QObject because PasswordDialog excp
 			if (pwdDialog->exec() == QDialog::Rejected)
 			{
 				emit deleteRequested(this);
-				
+
 				return;
 			}
 			
