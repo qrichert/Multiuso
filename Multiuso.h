@@ -559,6 +559,31 @@ class Multiuso
 			return tmp;
 		}
 
+		static QString toName(QString completeName)
+		{
+			completeName = completeName.toLower(); // JEAN-MICHEL GÉRARD → jean-michel gérard
+
+			QStringList names = completeName.split(" "); // jean-michel gérard → jean-michel | gérard
+			QStringList allConvertedNames;
+
+			completeName.clear();
+
+				foreach (QString name, names)
+				{
+					QStringList composedName = name.split("-"); // jean-michel → jean | michel && gérard → gérard
+					QStringList composedNameConverted;
+
+					foreach (QString composedNames, composedName)
+						composedNameConverted << firstLetterToUpper(composedNames); // jean → Jean && michel → Michel && gérard → Gérard
+
+					allConvertedNames << composedNameConverted.join("-"); // Jean | Michel → Jean-Michel && Gérard → Gérard
+				}
+
+			completeName = allConvertedNames.join(" "); // Jean-Michel | Gérard → Jean-Michel Gérard
+
+			return completeName;
+		}
+
 		static QString toSize(double size)
 		{
 			QString type = "Gio";
