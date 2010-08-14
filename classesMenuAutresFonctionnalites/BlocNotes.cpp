@@ -129,7 +129,6 @@ void BlocNotes::addTab(bool connect)
 	if (connect)
 		QObject::connect(textEdit, SIGNAL(textChanged()), this, SLOT(saveText()));
 
-
 	QVBoxLayout *textEditLayout = new QVBoxLayout;
 		textEditLayout->addWidget(textEdit);
 		textEditLayout->setContentsMargins(0, 0, 0, 0);

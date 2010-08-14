@@ -26,7 +26,7 @@ Messagerie::Messagerie(QWidget *parent = 0) : QDialog(parent), currentPseudo("")
 	setWindowIcon(QIcon(":/icones/actions/actionMessagerie.png"));
 	resize (305, 250);
 
-	connectionWidget = new ConnectionWidget;
+	connectionWidget = new ConnectionWidget(this);
 		connect(connectionWidget, SIGNAL(connectRequest()), this, SLOT(connectPeople()));
 
 	messagesWidget = new MessagesWidget;

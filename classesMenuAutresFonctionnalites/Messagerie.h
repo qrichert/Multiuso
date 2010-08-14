@@ -62,7 +62,7 @@ class ConnectionWidget : public QWidget
 	Q_OBJECT
 
 	public:
-		ConnectionWidget()
+		ConnectionWidget(QDialog *parent)
 		{
 			m_pseudo = new QLineEdit;
 
@@ -88,13 +88,18 @@ class ConnectionWidget : public QWidget
 				connect(labelSuscribe, SIGNAL(clicked()), this, SLOT(suscribe()));
 
 			QPushButton *buttonConnect = new QPushButton("Se connecter");
+				buttonConnect->setIcon(QIcon(":/icones/actions/actionMessagerie.png"));
 				connect(buttonConnect, SIGNAL(clicked()), this, SIGNAL(connectRequest()));
+
+			QHBoxLayout *buttonsLayout = new QHBoxLayout;
+				buttonsLayout->addWidget(Multiuso::closeButton(parent));
 			
 			QVBoxLayout *mainLayout = new QVBoxLayout(this);
 				mainLayout->addWidget(groupConnection);
 				mainLayout->addLayout(layoutInfos);
 				mainLayout->addWidget(labelSuscribe);
 				mainLayout->addWidget(buttonConnect);
+				mainLayout->addLayout(buttonsLayout);
 				mainLayout->setAlignment(Qt::AlignCenter);
 
 
@@ -103,7 +108,7 @@ class ConnectionWidget : public QWidget
 
 		void setInfos()
 		{
-			QSettings settings(Multiuso::appDirPath() + "/ini/messagerie.ini");
+			QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
 				m_pseudo->setText(settings.value("pseudo").toString());
 				m_password->setText(settings.value("password").toString());
 
@@ -126,7 +131,7 @@ class ConnectionWidget : public QWidget
 			if (!m_rememberMyPassword->isChecked())
 				password = "";
 
-			QSettings settings(Multiuso::appDirPath() + "/ini/messagerie.ini");
+			QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
 				settings.setValue("pseudo", pseudo);
 				settings.setValue("password", password);
 				settings.setValue("remember_me", m_rememberMe->isChecked());
