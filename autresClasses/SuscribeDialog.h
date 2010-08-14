@@ -112,7 +112,7 @@ class SuscribeDialog : public QWidget // Not QObject because PasswordDialog excp
 		{
 			pwd = QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Sha1).toHex();
 
-			QNetworkRequest request(QCoreApplication::organizationDomain() + "messages.php?request=suscribe"
+			QNetworkRequest request(QCoreApplication::organizationDomain() + "suscribe.php?request=suscribe"
 												"&pseudo=" + pseudo +
 												"&pwd=" + pwd +
 												"&first_name=" + firstName +
