@@ -110,6 +110,9 @@ class SuscribeDialog : public QWidget // Not QObject because PasswordDialog excp
 
 		void suscribe(QString pseudo, QString pwd, QString firstName, QString lastName)
 		{
+			firstName = Multiuso::toName(firstName);
+			lastName = Multiuso::toName(lastName);
+
 			pwd = QCryptographicHash::hash(pwd.toAscii(), QCryptographicHash::Sha1).toHex();
 
 			QNetworkRequest request(QCoreApplication::organizationDomain() + "suscribe.php?request=suscribe"
