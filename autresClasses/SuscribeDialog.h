@@ -47,19 +47,11 @@ class SuscribeDialog : public QWidget // Not QObject because PasswordDialog excp
 					layoutLines->addRow("Prénom :", lineFirstName);
 					layoutLines->addRow("Nom :", lineLastName);
 
-				QPushButton *buttonReject = new QPushButton("Annuler");
-					connect(buttonReject, SIGNAL(clicked()), infosDialog, SLOT(reject()));
-
-				QHBoxLayout *buttonsLayout = new QHBoxLayout;
-					buttonsLayout->addWidget(buttonReject);
-					buttonsLayout->addWidget(Multiuso::closeButton(infosDialog, "OK"));
-					buttonsLayout->setAlignment(Qt::AlignRight);
-
 				QVBoxLayout *layoutDialog = new QVBoxLayout(infosDialog);
 					layoutDialog->addWidget(new QLabel("Ces informations serviront à vos contacts pour identifier "
 								"vos messages<br />et ne seront en aucun divulguées à votre insu."));
 					layoutDialog->addLayout(layoutLines);
-					layoutDialog->addLayout(buttonsLayout);
+					layoutDialog->addLayout(Multiuso::dialogButtons(infosDialog, "Annuler", "Continuer"));
 
 			if (infosDialog->exec() == QDialog::Rejected)
 			{
