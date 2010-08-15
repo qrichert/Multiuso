@@ -23,6 +23,49 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "../CurrentIncludes.h"
 #include "autresClasses/TextEdit.h"
 
+class RecentTextFiles : public QObject
+{
+	Q_OBJECT
+
+	public:
+		static void addFile(QString file)
+		{
+			QSettings settings(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
+
+			QStringList allFiles = settings.value("recent_files").value<QStringList>();
+
+			if (allFiles.contains(file))
+				allFiles.removeOne(file);
+
+			if (allFiles.count() == 5)
+				allFiles.removeLast();
+
+			allFiles.prepend(file);
+
+			settings.setValue("recent_files", allFiles);
+		}
+
+		static void setRecentFiles(QMenu *menu, QWidget *parent)
+		{
+			menu->clear();
+
+			QSettings settings(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
+
+			QStringList allFiles = settings.value("recent_files").value<QStringList>();
+
+			for (int i = 0; i < allFiles.count(); i++)
+			{
+				QString file = allFiles.value(i);
+
+				QAction *action = new QAction("&" + QString::number(i + 1) + " " + QFileInfo(file).fileName(), parent);
+					action->setToolTip(file);
+					connect(action, SIGNAL(triggered()), parent, SLOT(openFileFromAction()));
+
+				menu->addAction(action);
+			}
+		}
+};
+
 class EditeurDeTexte : public QMainWindow
 {
 	Q_OBJECT
@@ -30,133 +73,103 @@ class EditeurDeTexte : public QMainWindow
 	public:
 		EditeurDeTexte(QWidget *parent);
 
-	public slots:
-		void creerOptionsTexte();
-		void slotChangementTexte();
-		void slotChangementOnglet(int onglet);
-		void slotFermerOnglet(int onglet);
+		QToolBar *createFirstToolBar();
+		QToolBar *createSecondToolBar();
+		
+		QIcon createColorIcon(QColor color);
+		QIcon createBackgroundColorIcon(QColor color);
 
+		TextEdit *currentTextEdit();
+		TextEdit *textEditAt(int index);
+
+		void mergeTextCharFormat(QTextCharFormat format);
+
+		bool isEverythingSaved();
 		void sauvegarderEtat();
-		bool tousLesDocumentsEnregistres();
 
 	public slots:
-		QWidget *nouvelOnglet();
-		TextEdit *pageActuelle();
-		QString titreTabCourrant();
+		void closeFile(int index);
+		void newFile();
+		void openFileFromAction();
+		void openFile();
+		void openFile(QString file);
+		bool saveFile();
+		bool saveFile(QString file);
+		bool saveFileAs();
+		void undo();
+		void redo();
+		void search();
+		void replace();
+		void printPreview();
+		void printPreview(QPrinter *printer);
+		void print();
+		void printPDF();
+		void copy();
+		void cut();
+		void paste();
+		void selectAll();
+		void insertImage();
+		void insertTable();
+		void repeatText();
 
-	public slots:
-		void slotAMRedo(bool available);
-		void slotAMUndo(bool available);
-		void slotRemettreValeurs();
+		void bold();
+		void italic();
+		void underline();
+		void alignment(QAction *action);
+		void fontSize(QString size);
+		void font(QString font);
+		void selectColor();
+		void selectBackgroundColor();
+		void toUpper();
+		void toLower();
 
-	public slots:
-		void slotGras();
-		void slotItalique();
-		void slotSouligne();
+		void textChanged();
 
-		void slotGauche();
-		void slotCentre();
-		void slotDroite();
-		void slotJustifie();
+		void currentCharFormatChanged(QTextCharFormat format);
+		void cursorPositionChanged();
 
-		void changerTaille(QString);
+		void fontChanged(QFont font);
+		void colorChanged(QColor color);
+		void backgroundColorChanged(QColor color);
+		void alignmentChanged(Qt::Alignment alignment);
 
-		void changerPolice(QFont);
-
-		void changerCouleur();
-
-		void slotSelectionMajuscule();
-		void slotSelectionMinuscule();
-
-		void slotNouveau();
-		void slotEnregistrer();
-		void slotEnregistrerSous();
-		void slotOuvrir();
-		void slotOuvrirFichier(QString cheminFichier);
-
-		void slotAnnuler();
-		void slotRetablir();
-
-		void slotSupprimerSelection();
-
-		void slotRechercher();
-		void slotRechercher2();
-
-		void slotRechercherRemplacer();
-		void slotRechercherRemplacer2();
-
-		void slotImprimer();
-		void imprimerTexte(QPrinter *imprimante);
-
-		void slotCopier();
-		void slotCouper();
-		void slotColler();
-		void slotToutSelectionner();
-
-		void slotInsererImage();
-
-		void slotRepeterTexte();
-		void slotRepeterTexte2();
-		void slotRepeter(QString texte, int nombreDeFois);
+		void currentChanged(int index);
 
 	private:
-		QToolBar *toolBarTexte;
-		QToolBar *toolBarOptions;
+		QTabWidget *tabWidget;
 
-	private:
-		QTabWidget *onglets;
+		QAction *a_new;
+		QAction *a_open;
+		QAction *a_save;
+		QAction *a_saveAs;
+		QAction *a_undo;
+		QAction *a_redo;
+		QAction *a_search;
+		QAction *a_replace;
+		QAction *a_printPreview;
+		QAction *a_print;
+		QAction *a_printPDF;
+		QAction *a_copy;
+		QAction *a_cut;
+		QAction *a_paste;
+		QAction *a_selectAll;
+		QAction *a_insertImage;
+		QAction *a_insertTable;
+		QAction *a_repeatText;
 
-	private:
-		QString s_motARechercher;
-		QString s_motARemplacerPar;
-
-	private:
-		QAction *gras;
-		QAction *italique;
-		QAction *souligne;
-
-		QAction *gauche;
-		QAction *droite;
-		QAction *centre;
-		QAction *justifie;
-
-		QComboBox *taille;
-		QFontComboBox *police;
-		QAction *couleur;
-
-		QAction *selectionMajuscule;
-		QAction *selectionMinuscule;
-
-		QAction *nouveau;
-		QAction *enregistrer;
-		QAction *enregistrerSous;
-		QAction *ouvrir;
-
-		QAction *annuler;
-		QAction *retablir;
-
-		QAction *supprimerSelection;
-
-		QAction *rechercher;
-		QAction *rechercherRemplacer;
-
-		QAction *imprimer;
-
-		QAction *copier;
-		QAction *couper;
-		QAction *coller;
-		QAction *toutSelectionner;
-
-		QAction *insererImage;
-		QAction *repeterTexte;
-
-	private:
-		QLineEdit *l_rechercher;
-		QLineEdit *l_remplacer;
-
-	private:
-		QTextEdit *texteARepeter;
-		QLineEdit *nombreDeFois;
+		QAction *a_bold;
+		QAction *a_italic;
+		QAction *a_underline;
+		QAction *a_alignLeft;
+		QAction *a_alignCenter;
+		QAction *a_alignRight;
+		QAction *a_alignJustify;
+		QComboBox *a_fontSize;
+		QFontComboBox *a_font;
+		QAction *a_selectColor;
+		QAction *a_selectBackgroundColor;
+		QAction *a_toUpper;
+		QAction *a_toLower;
 };
 
 #endif

@@ -73,6 +73,7 @@ class CodeEdit : public QPlainTextEdit
 
 	protected:
 		void resizeEvent(QResizeEvent *event);
+		void dragEnterEvent(QDragEnterEvent *event);
 		void dropEvent(QDropEvent *event);
 		void keyPressEvent(QKeyEvent *event);
 

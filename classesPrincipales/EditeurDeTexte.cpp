@@ -18,322 +18,352 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "EditeurDeTexte.h"
-#include "autresClasses/RechercherRemplacer.h"
 
 EditeurDeTexte::EditeurDeTexte(QWidget *parent = 0) : QMainWindow(parent)
 {
-	toolBarOptions = addToolBar("Options du texte");
-		toolBarOptions->setObjectName("Options du texte");
-
+	createFirstToolBar();
 
 		addToolBarBreak();
 
+	createSecondToolBar();
 
-	toolBarTexte = addToolBar("Options de l'éditeur de texte");
-		toolBarTexte->setObjectName("Options de l'éditeur de texte");
+	tabWidget = new QTabWidget;
+		tabWidget->setMovable(true);
+		tabWidget->setDocumentMode(true);
+		tabWidget->setTabsClosable(true);
+		connect(tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(closeFile(int)));
+		connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
 
-	creerOptionsTexte();
+	setCentralWidget(tabWidget);
 
-	QToolButton *buttonNewTab = new QToolButton;
-		buttonNewTab->setDefaultAction(nouveau);
-		buttonNewTab->setAutoRaise(true);
-
-	onglets = new QTabWidget;
-		onglets->setMovable(true);
-		onglets->setTabsClosable(true);
-		onglets->setDocumentMode(true);
-		onglets->setCornerWidget(buttonNewTab, Qt::TopRightCorner);
-		connect(onglets, SIGNAL(tabCloseRequested(int)), this, SLOT(slotFermerOnglet(int)));
-		connect(onglets, SIGNAL(currentChanged(int)), this, SLOT(slotChangementOnglet(int)));
-		slotNouveau();
-
-	setCentralWidget(onglets);
-
-	QSettings restaurer(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
-		restoreState(restaurer.value("etat_fenetre").toByteArray());
+	newFile();
 }
 
-void EditeurDeTexte::creerOptionsTexte()
+QToolBar *EditeurDeTexte::createFirstToolBar()
 {
-	gras = new QAction("Gras (Ctrl + B)", this);
-		gras->setIcon(QIcon(":/icones/editeur_de_texte/gras.png"));
-		gras->setShortcut(QKeySequence("Ctrl+B"));
-		gras->setCheckable(true);
-		gras->setChecked(false);
-		connect(gras, SIGNAL(triggered()), this, SLOT(slotGras()));
-		toolBarTexte->addAction(gras);
+	QToolBar *toolBar = addToolBar("Actions");
+		toolBar->setObjectName("Actions");
 
-	italique = new QAction("Italique (Ctrl + I)", this);
-		italique->setIcon(QIcon(":/icones/editeur_de_texte/italique.png"));
-		italique->setShortcut(QKeySequence("Ctrl+I"));
-		italique->setCheckable(true);
-		italique->setChecked(false);
-		connect(italique, SIGNAL(triggered()), this, SLOT(slotItalique()));
-		toolBarTexte->addAction(italique);
+	a_new = new QAction("Nouveau", this);
+		a_new->setIcon(QIcon(":/icones/editeur_de_texte/nouveau.png"));
+		a_new->setShortcut(QKeySequence("Ctrl+N"));
+		connect(a_new, SIGNAL(triggered()), this, SLOT(newFile()));
+			toolBar->addAction(a_new);
 
-	souligne = new QAction("Souligné (Ctrl + U)", this);
-		souligne->setIcon(QIcon(":/icones/editeur_de_texte/souligne.png"));
-		souligne->setShortcut(QKeySequence("Ctrl+U"));
-		souligne->setCheckable(true);
-		souligne->setChecked(false);
-		connect(souligne, SIGNAL(triggered()), this, SLOT(slotSouligne()));
-		toolBarTexte->addAction(souligne);
+	QMenu *recentFilesMenu = new QMenu;
+		RecentTextFiles::setRecentFiles(recentFilesMenu, this);
 
-	toolBarTexte->addSeparator();
+	a_open = new QAction("Ouvrir", this);
+		a_open->setIcon(QIcon(":/icones/editeur_de_texte/ouvrir.png"));
+		a_open->setShortcut(QKeySequence("Ctrl+O"));
+		a_open->setMenu(recentFilesMenu);
+		connect(a_open, SIGNAL(triggered()), this, SLOT(openFile()));
+			toolBar->addAction(a_open);
 
-	gauche = new QAction("Gauche", this);
-		gauche->setIcon(QIcon(":/icones/editeur_de_texte/gauche.png"));
-		gauche->setCheckable(true);
-		gauche->setChecked(true);
-		connect(gauche, SIGNAL(triggered()), this, SLOT(slotGauche()));
-		toolBarTexte->addAction(gauche);
+	a_save = new QAction("Enregistrer", this);
+		a_save->setIcon(QIcon(":/icones/editeur_de_texte/enregistrer.png"));
+		a_save->setShortcut(QKeySequence("Ctrl+S"));
+		connect(a_save, SIGNAL(triggered()), this, SLOT(saveFile()));
+			toolBar->addAction(a_save);
 
-	centre = new QAction("Centré", this);
-		centre->setIcon(QIcon(":/icones/editeur_de_texte/centre.png"));
-		centre->setCheckable(true);
-		centre->setChecked(false);
-		connect(centre, SIGNAL(triggered()), this, SLOT(slotCentre()));
-		toolBarTexte->addAction(centre);
+	a_saveAs = new QAction("Enregistrer sous...", this);
+		a_saveAs->setIcon(QIcon(":/icones/editeur_de_texte/enregistrerSous.png"));
+		a_saveAs->setShortcut(QKeySequence("Ctrl+Shift+S"));
+		connect(a_saveAs, SIGNAL(triggered()), this, SLOT(saveFileAs()));
+			toolBar->addAction(a_saveAs);
 
-	droite = new QAction("Droite", this);
-		droite->setIcon(QIcon(":/icones/editeur_de_texte/droite.png"));
-		droite->setCheckable(true);
-		droite->setChecked(false);
-		connect(droite, SIGNAL(triggered()), this, SLOT(slotDroite()));
-		toolBarTexte->addAction(droite);
+	toolBar->addSeparator();
 
-	justifie = new QAction("Justifié", this);
-		justifie->setIcon(QIcon(":/icones/editeur_de_texte/justifie.png"));
-		justifie->setCheckable(true);
-		justifie->setChecked(false);
-		connect(justifie, SIGNAL(triggered()), this, SLOT(slotJustifie()));
-		toolBarTexte->addAction(justifie);
+	a_undo = new QAction("Annuler", this);
+		a_undo->setIcon(QIcon(":/icones/editeur_de_texte/annuler.png"));
+		a_undo->setShortcut(QKeySequence("Ctrl+Z"));
+		a_undo->setDisabled(true);
+		connect(a_undo, SIGNAL(triggered()), this, SLOT(undo()));
+			toolBar->addAction(a_undo);
 
+	a_redo = new QAction("Rétablir", this);
+		a_redo->setIcon(QIcon(":/icones/editeur_de_texte/retablir.png"));
+		a_redo->setShortcut(QKeySequence("Ctrl+Y"));
+		a_redo->setDisabled(true);
+		connect(a_redo, SIGNAL(triggered()), this, SLOT(redo()));
+			toolBar->addAction(a_redo);
+			
+	toolBar->addSeparator();
+	
+	a_search = new QAction("Rechercher", this);
+		a_search->setIcon(QIcon(":/icones/editeur_de_texte/rechercher.png"));
+		a_search->setShortcut(QKeySequence("Ctrl+F"));
+		connect(a_search, SIGNAL(triggered()), this, SLOT(search()));
+			toolBar->addAction(a_search);
+			
+	a_replace = new QAction("Remplacer", this);
+		a_replace->setIcon(QIcon(":/icones/editeur_de_texte/rechercherRemplacer.png"));
+		a_replace->setShortcut(QKeySequence("Ctrl+H"));
+		connect(a_replace, SIGNAL(triggered()), this, SLOT(replace()));
+			toolBar->addAction(a_replace);
 
-	toolBarTexte->addSeparator();
+	toolBar->addSeparator();
+	
+	a_printPreview = new QAction("Aperçu avant impression", this);
+		a_printPreview->setIcon(QIcon(":/icones/editeur_de_texte/imprimer_apercu.png"));
+		connect(a_printPreview, SIGNAL(triggered()), this, SLOT(printPreview()));
+			toolBar->addAction(a_printPreview);
 
+	a_print = new QAction("Imprimer", this);
+		a_print->setIcon(QIcon(":/icones/editeur_de_texte/imprimer.png"));
+		a_print->setShortcut(QKeySequence("Ctrl+P"));
+		connect(a_print, SIGNAL(triggered()), this, SLOT(print()));
+			toolBar->addAction(a_print);
+			
+	a_printPDF = new QAction("Exporter en PDF", this);
+		a_printPDF->setIcon(QIcon(":/icones/editeur_de_texte/imprimer_pdf.png"));
+		connect(a_printPDF, SIGNAL(triggered()), this, SLOT(printPDF()));
+			toolBar->addAction(a_printPDF);
 
-	taille = new QComboBox;
-		taille->addItem("6");
-		taille->addItem("7");
-		taille->addItem("8");
-		taille->addItem("9");
-		taille->addItem("10");
-		taille->addItem("11");
-		taille->addItem("12");
-		taille->addItem("13");
-		taille->addItem("14");
-		taille->addItem("15");
-		taille->addItem("16");
-		taille->addItem("18");
-		taille->addItem("20");
-		taille->addItem("22");
-		taille->addItem("24");
-		taille->addItem("26");
-		taille->addItem("28");
-		taille->addItem("32");
-		taille->addItem("36");
-		taille->addItem("40");
-		taille->addItem("42");
-		taille->addItem("44");
-		taille->addItem("48");
-		taille->addItem("54");
-		taille->addItem("60");
-		taille->addItem("66");
-		taille->addItem("72");
-		taille->addItem("80");
-		taille->addItem("88");
-		taille->addItem("96");
-		taille->setCurrentIndex(5);
-		connect(taille, SIGNAL(currentIndexChanged(QString)), this, SLOT(changerTaille(QString)));
-		toolBarTexte->addWidget(taille);
+	toolBar->addSeparator();
+	
+	a_copy = new QAction("Copier", this);
+		a_copy->setIcon(QIcon(":/icones/editeur_de_texte/copier.png"));
+		a_copy->setShortcut(QKeySequence("Ctrl+C"));
+		connect(a_copy, SIGNAL(triggered()), this, SLOT(copy()));
+			toolBar->addAction(a_copy);
 
+	a_cut = new QAction("Couper", this);
+		a_cut->setIcon(QIcon(":/icones/editeur_de_texte/couper.png"));
+		a_cut->setShortcut(QKeySequence("Ctrl+X"));
+		connect(a_cut, SIGNAL(triggered()), this, SLOT(cut()));
+			toolBar->addAction(a_cut);
 
-	toolBarTexte->addSeparator();
+	a_paste = new QAction("Coller", this);
+		a_paste->setIcon(QIcon(":/icones/editeur_de_texte/coller.png"));
+		a_paste->setShortcut(QKeySequence("Ctrl+V"));
+		connect(a_paste, SIGNAL(triggered()), this, SLOT(paste()));
+			toolBar->addAction(a_paste);
+			
+	toolBar->addSeparator();
+					
+	a_selectAll = new QAction("Tout sélectionner", this);
+		a_selectAll->setIcon(QIcon(":/icones/editeur_de_texte/toutSelectionner.png"));
+		a_selectAll->setShortcut(QKeySequence("Ctrl+A"));
+		connect(a_selectAll, SIGNAL(triggered()), this, SLOT(selectAll()));
+			toolBar->addAction(a_selectAll);
+		
+	toolBar->addSeparator();
+	
+	a_insertImage = new QAction("Insérer une image", this);
+		a_insertImage->setIcon(QIcon(":/icones/editeur_de_texte/insererImage.png"));
+		connect(a_insertImage, SIGNAL(triggered()), this, SLOT(insertImage()));
+			toolBar->addAction(a_insertImage);
+			
+	a_insertTable = new QAction("Insérer un tableau", this);
+		a_insertTable->setIcon(QIcon(":/icones/editeur_de_texte/insertTable.png"));
+		connect(a_insertTable, SIGNAL(triggered()), this, SLOT(insertTable()));
+			toolBar->addAction(a_insertTable);
 
+	toolBar->addSeparator();
 
-	police = new QFontComboBox;
-		connect(police, SIGNAL(currentFontChanged(QFont)), this, SLOT(changerPolice(QFont)));
-		toolBarTexte->addWidget(police);
+	a_repeatText = new QAction("Répéter du texte", this);
+		a_repeatText->setIcon(QIcon(":/icones/editeur_de_texte/repeterTexte.png"));
+		connect(a_repeatText, SIGNAL(triggered()), this, SLOT(repeatText()));
+			toolBar->addAction(a_repeatText);
 
-
-	toolBarTexte->addSeparator();
-
-
-	couleur = new QAction("Couleur", this);
-		couleur->setIcon(QIcon(":/icones/editeur_de_texte/couleur.png"));
-		connect(couleur, SIGNAL(triggered()), this, SLOT(changerCouleur()));
-		toolBarTexte->addAction(couleur);
-
-
-	toolBarTexte->addSeparator();
-
-
-	selectionMajuscule = new QAction("Sélection en majuscule", this);
-		selectionMajuscule->setIcon(QIcon(":/icones/editeur_de_texte/selectionMajuscule.png"));
-		connect(selectionMajuscule, SIGNAL(triggered()), this, SLOT(slotSelectionMajuscule()));
-		toolBarTexte->addAction(selectionMajuscule);
-
-	selectionMinuscule = new QAction("Sélection en minuscule", this);
-		selectionMinuscule->setIcon(QIcon(":/icones/editeur_de_texte/selectionMinuscule.png"));
-		connect(selectionMinuscule, SIGNAL(triggered()), this, SLOT(slotSelectionMinuscule()));
-		toolBarTexte->addAction(selectionMinuscule);
-
-	nouveau = new QAction("Nouveau (Ctrl + N)", this);
-		nouveau->setIcon(QIcon(":/icones/editeur_de_texte/nouveau.png"));
-		nouveau->setShortcut(QKeySequence("Ctrl+N"));
-		connect(nouveau, SIGNAL(triggered()), this, SLOT(slotNouveau()));
-		toolBarOptions->addAction(nouveau);
-
-	enregistrer = new QAction("Enregistrer (Ctrl + s)", this);
-		enregistrer->setIcon(QIcon(":/icones/editeur_de_texte/enregistrer.png"));
-		enregistrer->setShortcut(QKeySequence("Ctrl+S"));
-		enregistrer->setDisabled(true);
-		connect(enregistrer, SIGNAL(triggered()), this, SLOT(slotEnregistrer()));
-		toolBarOptions->addAction(enregistrer);
-
-	enregistrerSous = new QAction("Enregistrer sous... (Ctrl + Shift + S)", this);
-		enregistrerSous->setIcon(QIcon(":/icones/editeur_de_texte/enregistrerSous.png"));
-		enregistrerSous->setShortcut(QKeySequence("Ctrl+Shift+S"));
-		connect(enregistrerSous, SIGNAL(triggered()), this, SLOT(slotEnregistrerSous()));
-		toolBarOptions->addAction(enregistrerSous);
-
-	ouvrir = new QAction("Ouvrir... (Ctrl + 0)", this);
-		ouvrir->setIcon(QIcon(":/icones/editeur_de_texte/ouvrir.png"));
-		ouvrir->setShortcut(QKeySequence("Ctrl+O"));
-		connect(ouvrir, SIGNAL(triggered()), this, SLOT(slotOuvrir()));
-		toolBarOptions->addAction(ouvrir);
-
-
-	toolBarOptions->addSeparator();
-
-
-	annuler = new QAction("Annuler (Ctrl + Z)", this);
-		annuler->setIcon(QIcon(":/icones/editeur_de_texte/annuler.png"));
-		annuler->setShortcut(QKeySequence("Ctrl+Z"));
-		annuler->setDisabled(true);
-		connect(annuler, SIGNAL(triggered()), this, SLOT(slotAnnuler()));
-		toolBarOptions->addAction(annuler);
-
-	retablir = new QAction("Rétablir (Ctrl + Y)", this);
-		retablir->setIcon(QIcon(":/icones/editeur_de_texte/retablir.png"));
-		retablir->setShortcut(QKeySequence("Ctrl+Y"));
-		retablir->setDisabled(true);
-		connect(retablir, SIGNAL(triggered()), this, SLOT(slotRetablir()));
-		toolBarOptions->addAction(retablir);
-
-
-	toolBarOptions->addSeparator();
-
-
-	supprimerSelection = new QAction("Supprimer (Suppr)", this);
-		supprimerSelection->setIcon(QIcon(":/icones/editeur_de_texte/supprimer.png"));
-		supprimerSelection->setShortcut(QKeySequence("Suppr"));
-		connect(supprimerSelection, SIGNAL(triggered()), this, SLOT(slotSupprimerSelection()));
-		toolBarOptions->addAction(supprimerSelection);
-
-
-	toolBarOptions->addSeparator();
-
-
-	rechercher = new QAction("Rechercher... (Ctrl + F)", this);
-		rechercher->setIcon(QIcon(":/icones/editeur_de_texte/rechercher.png"));
-		rechercher->setShortcut(QKeySequence("Ctrl+F"));
-		connect(rechercher, SIGNAL(triggered()), this, SLOT(slotRechercher()));
-		toolBarOptions->addAction(rechercher);
-
-	rechercherRemplacer = new QAction("Rechercher/Remplacer... (Ctrl + H)", this);
-		rechercherRemplacer->setIcon(QIcon(":/icones/editeur_de_texte/rechercherRemplacer.png"));
-		rechercherRemplacer->setShortcut(QKeySequence("Ctrl+H"));
-		connect(rechercherRemplacer, SIGNAL(triggered()), this, SLOT(slotRechercherRemplacer()));
-		toolBarOptions->addAction(rechercherRemplacer);
-
-
-	toolBarOptions->addSeparator();
-
-
-	imprimer = new QAction("Imprimer (Ctrl + P)", this);
-		imprimer->setIcon(QIcon(":/icones/editeur_de_texte/imprimer.png"));
-		imprimer->setShortcut(QKeySequence("Ctrl+P"));
-		connect(imprimer, SIGNAL(triggered()), this, SLOT(slotImprimer()));
-		toolBarOptions->addAction(imprimer);
-
-
-	toolBarOptions->addSeparator();
-
-
-	copier = new QAction("Copier (Ctrl + C)", this);
-		copier->setIcon(QIcon(":/icones/editeur_de_texte/copier.png"));
-		copier->setShortcut(QKeySequence("Ctrl+C"));
-		connect(copier, SIGNAL(triggered()), this, SLOT(slotCopier()));
-		toolBarOptions->addAction(copier);
-
-	couper = new QAction("Couper (Ctrl + X)", this);
-		couper->setIcon(QIcon(":/icones/editeur_de_texte/couper.png"));
-		couper->setShortcut(QKeySequence("Ctrl+X"));
-		connect(couper, SIGNAL(triggered()), this, SLOT(slotCouper()));
-		toolBarOptions->addAction(couper);
-
-	coller = new QAction("Coller (Ctrl + V)", this);
-		coller->setIcon(QIcon(":/icones/editeur_de_texte/coller.png"));
-		coller->setShortcut(QKeySequence("Ctrl+V"));
-		connect(coller, SIGNAL(triggered()), this, SLOT(slotColler()));
-		toolBarOptions->addAction(coller);
-
-	toutSelectionner = new QAction("Tout sélectionner (Ctrl + A)", this);
-		toutSelectionner->setIcon(QIcon(":/icones/editeur_de_texte/toutSelectionner.png"));
-		toutSelectionner->setShortcut(QKeySequence("Ctrl+A"));
-		connect(toutSelectionner, SIGNAL(triggered()), this, SLOT(slotToutSelectionner()));
-		toolBarOptions->addAction(toutSelectionner);
-
-	insererImage = new QAction("Insérer une image", this);
-		insererImage->setIcon(QIcon(":/icones/editeur_de_texte/insererImage.png"));
-		connect(insererImage, SIGNAL(triggered()), this, SLOT(slotInsererImage()));
-		toolBarOptions->addAction(insererImage);
-
-	repeterTexte = new QAction("Répéter du texte", this);
-		repeterTexte->setIcon(QIcon(":/icones/editeur_de_texte/repeterTexte.png"));
-		connect(repeterTexte, SIGNAL(triggered()), this, SLOT(slotRepeterTexte()));
-		toolBarOptions->addAction(repeterTexte);
+	return toolBar;
 }
 
-void EditeurDeTexte::slotChangementTexte()
+QToolBar *EditeurDeTexte::createSecondToolBar()
 {
-	QSettings reglagesSauvegarde(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
+	QToolBar *toolBar = addToolBar("Options");
+		toolBar->setObjectName("Options");
+	
+	a_bold = new QAction("Gras", this);
+		a_bold->setIcon(QIcon(":/icones/editeur_de_texte/gras.png"));
+		a_bold->setCheckable(true);
+		connect(a_bold, SIGNAL(triggered()), this, SLOT(bold()));
+			toolBar->addAction(a_bold);
+			
+	a_italic = new QAction("Italique", this);
+		a_italic->setIcon(QIcon(":/icones/editeur_de_texte/italique.png"));
+		a_italic->setCheckable(true);
+		connect(a_italic, SIGNAL(triggered()), this, SLOT(italic()));
+			toolBar->addAction(a_italic);
+			
+	a_underline = new QAction("Souligné", this);
+		a_underline->setIcon(QIcon(":/icones/editeur_de_texte/souligne.png"));
+		a_underline->setCheckable(true);
+		connect(a_underline, SIGNAL(triggered()), this, SLOT(underline()));
+			toolBar->addAction(a_underline);
+	
+	toolBar->addSeparator();
 
-	if (reglagesSauvegarde.value("enregistrement/enregistrement_automatique").toBool())
-	{
-		slotEnregistrer();
+	QActionGroup *groupAlignment = new QActionGroup(this);
+		connect(groupAlignment, SIGNAL(triggered(QAction *)), this, SLOT(alignment(QAction *)));
 
-		return;
-	}
+	a_alignLeft = groupAlignment->addAction("Gauche");
+		a_alignLeft->setIcon(QIcon(":/icones/editeur_de_texte/gauche.png"));
+		a_alignLeft->setCheckable(true);
+			toolBar->addAction(a_alignLeft);
 
-	onglets->setTabIcon(onglets->currentIndex(), QIcon(":/icones/editeur_de_texte/non_enregistre.png"));
-	pageActuelle()->setEstEnregistre(false);
-	pageActuelle()->setSauvegardeOk(true);
+	a_alignCenter = groupAlignment->addAction("Centré");
+		a_alignCenter->setIcon(QIcon(":/icones/editeur_de_texte/centre.png"));
+		a_alignCenter->setCheckable(true);
+			toolBar->addAction(a_alignCenter);
 
-	enregistrer->setEnabled(true);
+	a_alignRight = groupAlignment->addAction("Droite");
+		a_alignRight->setIcon(QIcon(":/icones/editeur_de_texte/droite.png"));
+		a_alignRight->setCheckable(true);
+			toolBar->addAction(a_alignRight);
+
+	a_alignJustify = groupAlignment->addAction("Justifié");
+		a_alignJustify->setIcon(QIcon(":/icones/editeur_de_texte/justifie.png"));
+		a_alignJustify->setCheckable(true);
+			toolBar->addAction(a_alignJustify);
+	
+	toolBar->addSeparator();
+
+	a_fontSize = new QComboBox;
+		
+		foreach (int size, QFontDatabase().standardSizes())
+			a_fontSize->addItem(QString::number(size));
+
+		connect(a_fontSize, SIGNAL(activated(QString)), this, SLOT(fontSize(QString)));
+		a_fontSize->setCurrentIndex(a_fontSize->findText(QString::number(QApplication::font().pointSize())));
+			toolBar->addWidget(a_fontSize);
+
+		toolBar->addWidget(new QLabel(" "));
+
+	a_font = new QFontComboBox;
+		connect(a_font, SIGNAL(activated(QString)), this, SLOT(font(QString)));
+			toolBar->addWidget(a_font);
+
+	a_selectColor = new QAction("Couleur de texte", this);
+		a_selectColor->setIcon(createColorIcon(Qt::black));
+		connect(a_selectColor, SIGNAL(triggered()), this, SLOT(selectColor()));
+			toolBar->addAction(a_selectColor);
+			
+	a_selectBackgroundColor = new QAction("Couleur de fond", this);
+		a_selectBackgroundColor->setIcon(createBackgroundColorIcon(Qt::white));
+		connect(a_selectBackgroundColor, SIGNAL(triggered()), this, SLOT(selectBackgroundColor()));
+			toolBar->addAction(a_selectBackgroundColor);
+
+	toolBar->addSeparator();
+
+	a_toUpper = new QAction("EN MAJUSCULE", this);
+		a_toUpper->setIcon(QIcon(":/icones/editeur_de_texte/selectionMajuscule.png"));
+		connect(a_toUpper, SIGNAL(triggered()), this, SLOT(toUpper()));
+			toolBar->addAction(a_toUpper);
+
+	a_toLower = new QAction("en miniscule", this);
+		a_toLower->setIcon(QIcon(":/icones/editeur_de_texte/selectionMinuscule.png"));
+		connect(a_toLower, SIGNAL(triggered()), this, SLOT(toLower()));
+			toolBar->addAction(a_toLower);
+
+	return toolBar;
 }
 
-void EditeurDeTexte::slotFermerOnglet(int onglet)
+QIcon EditeurDeTexte::createColorIcon(QColor color)
 {
-	onglets->setCurrentIndex(onglet);
+	QPixmap icon(32, 32);
+		icon.fill(Qt::transparent);
 
-	int reponse = QMessageBox::Yes;
+	QPixmap ellipse(32, 32);
+		ellipse.fill(Qt::transparent);
 
-	if (!pageActuelle()->estEnregistre())
+		QPainter painter;
+			painter.begin(&icon);
+				painter.setRenderHint(QPainter::Antialiasing, true);
+				painter.setPen(Qt::NoPen);
+				painter.setBrush(color);
+				painter.drawRoundedRect(0, 0, 32, 32, (qreal) 5, (qreal) 5);
+			painter.end();
+			painter.begin(&ellipse);
+				painter.setRenderHint(QPainter::Antialiasing, true);
+				painter.setPen(Qt::NoPen);
+				painter.setBrush(Qt::white);
+				painter.setOpacity(0.3);
+				painter.drawEllipse(-(32 - (32 / 6)),
+							-(32 + (32 / 3)),
+								32 * 2, 32 * 2);
+			painter.end();
+			painter.begin(&icon);
+				painter.setRenderHint(QPainter::Antialiasing, true);
+				painter.setPen(Qt::NoPen);
+				painter.setBrush(ellipse);
+				painter.drawRoundedRect(0, 0, 32, 32, (qreal) 5, (qreal) 5);
+			painter.end();
+
+	return QIcon(icon);
+}
+
+QIcon EditeurDeTexte::createBackgroundColorIcon(QColor color)
+{
+	QPixmap icon(32, 32);
+		icon.fill(Qt::transparent);
+
+	QPixmap ellipse(32, 32);
+		ellipse.fill(Qt::transparent);
+
+		QPainter painter;
+			painter.begin(&icon);
+				painter.setRenderHint(QPainter::Antialiasing, true);
+				painter.setPen(Qt::NoPen);
+				painter.setBrush(color);
+				painter.drawRoundedRect(0, 0, 32, 32, (qreal) 5, (qreal) 5);
+			painter.end();
+			painter.begin(&ellipse);
+				painter.setRenderHint(QPainter::Antialiasing, true);
+				painter.setPen(Qt::NoPen);
+				painter.setBrush(Qt::white);
+				painter.setOpacity(0.3);
+				painter.drawEllipse(-(32 - (32 / 6)),
+							-(32 + (32 / 3)),
+								32 * 2, 32 * 2);
+			painter.end();
+			painter.begin(&icon);
+				painter.setRenderHint(QPainter::Antialiasing, true);
+				painter.setPen(Qt::black);
+				
+					if (color == Qt::black)
+						painter.setPen(Qt::white);
+			
+				painter.drawText(0, 0, 32, 32, Qt::AlignCenter, "A");
+				painter.setPen(Qt::NoPen);
+				painter.setBrush(ellipse);
+				painter.drawRoundedRect(0, 0, 32, 32, (qreal) 5, (qreal) 5);
+			painter.end();
+
+	return QIcon(icon);
+}
+
+TextEdit *EditeurDeTexte::currentTextEdit()
+{
+	return qobject_cast<TextEdit *>(tabWidget->currentWidget());
+}
+
+TextEdit *EditeurDeTexte::textEditAt(int index)
+{
+	return qobject_cast<TextEdit *>(tabWidget->widget(index));
+}
+
+void EditeurDeTexte::mergeTextCharFormat(QTextCharFormat format)
+{
+	QTextCursor cursor = currentTextEdit()->textCursor();
+
+	if (!cursor.hasSelection())
+		cursor.select(QTextCursor::WordUnderCursor);
+
+	cursor.mergeCharFormat(format);
+	currentTextEdit()->mergeCurrentCharFormat(format);
+}
+
+bool EditeurDeTexte::isEverythingSaved()
+{
+	for (int i = 0; i < tabWidget->count(); i++)
 	{
-		reponse = QMessageBox::question(this, "Multiuso", "Toutes les modifications non enregistrées seront perdues<br />"
-				"Voulez-vous continuer ?", QMessageBox::Yes | QMessageBox::No);
+		if (textEditAt(i)->document()->isModified())
+			return false;
 	}
 
-	if (reponse == QMessageBox::Yes)
-	{
-		if (onglets->count() - 1 == 0)
-			slotNouveau();
-
-		onglets->removeTab(onglet);
-	}
+	return true;
 }
 
 void EditeurDeTexte::sauvegarderEtat()
@@ -342,591 +372,639 @@ void EditeurDeTexte::sauvegarderEtat()
 		enregistrer.setValue("etat_fenetre", saveState());
 }
 
-bool EditeurDeTexte::tousLesDocumentsEnregistres()
+void EditeurDeTexte::closeFile(int index)
 {
-	for (int i = 0; i < onglets->count(); i++)
+	if (textEditAt(index)->document()->isModified())
 	{
-		onglets->setCurrentIndex(i);
+		int answer = QMessageBox::warning(this, "Multiuso", "Tous les changements non sauvegardés apportés à "
+				"« " + currentTextEdit()->documentTitle() + " » seront définitivement perdus.<br />"
+				"Voulez-vous continuer ?", QMessageBox::Yes | QMessageBox::No);
 
-		TextEdit *textEdit = onglets->currentWidget()->findChild<TextEdit *>();
-
-		if (!textEdit->estEnregistre())
-			return false;
+		if (answer == QMessageBox::No)
+			return;
 	}
+
+	
+	if (tabWidget->count() - 1 == 0)
+		newFile();
+	
+	textEditAt(index)->deleteLater();
+	tabWidget->removeTab(index);
+
+}
+
+void EditeurDeTexte::newFile()
+{
+	TextEdit *textEdit = new TextEdit;
+		textEdit->setDocumentTitle("Nouveau document");
+		textEdit->setCurrentFileName("NONE");
+		textEdit->document()->setModified(false);
+		textEdit->setSavable(true);
+		connect(textEdit, SIGNAL(currentCharFormatChanged(QTextCharFormat)), this, SLOT(currentCharFormatChanged(QTextCharFormat)));
+		connect(textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+		connect(textEdit, SIGNAL(openFileRequested(QString)), this, SLOT(openFile(QString)));
+		connect(textEdit, SIGNAL(undoAvailable(bool)), a_undo, SLOT(setEnabled(bool)));
+		connect(textEdit, SIGNAL(redoAvailable(bool)), a_redo, SLOT(setEnabled(bool)));
+		connect(textEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
+
+	tabWidget->addTab(textEdit, QIcon(":/icones/editeur_de_texte/enregistre.png"), "Nouveau document");
+	tabWidget->setCurrentIndex(tabWidget->indexOf(textEdit));
+}
+
+void EditeurDeTexte::openFileFromAction()
+{
+	QAction *action = qobject_cast<QAction *>(sender());
+
+	if (action == 0)
+		return;
+
+	openFile(action->toolTip());
+}
+
+void EditeurDeTexte::openFile()
+{
+	QString file = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(), "Fichier texte (*)");
+
+	if (file.isEmpty())
+		return;
+
+	Multiuso::setLastPath(file);
+	openFile(file);
+}
+
+void EditeurDeTexte::openFile(QString file)
+{
+	QFile openFile(file);
+
+	if (!openFile.exists())
+	{
+		QMessageBox::critical(this, "Multiuso", "Le fichier n'existe pas !");
+
+		return;
+	}
+
+	if (!openFile.open(QIODevice::ReadOnly))
+	{
+		QMessageBox::critical(this, "Multiuso", "Impossible de lire le fichier !");
+
+		return;
+	}
+
+	if (currentTextEdit()->document()->isModified())
+	{
+		int answer = QMessageBox::warning(this, "Multiuso", "Tous les changements non sauvegardés apportés à<br />"
+				"« " + currentTextEdit()->documentTitle() + " » seront définitivement perdus.<br />"
+				"Voulez-vous continuer ?", QMessageBox::Yes | QMessageBox::No);
+
+		if (answer == QMessageBox::No)
+			return;
+	}
+	
+	setCursor(Qt::WaitCursor);
+
+	currentTextEdit()->setSavable(false);
+
+		QByteArray ba = openFile.readAll();
+			openFile.close();
+
+		QTextCodec *codec = Qt::codecForHtml(ba);
+		QString str = codec->toUnicode(ba);
+
+		if (Qt::mightBeRichText(str))
+		{
+			currentTextEdit()->setHtml(str);
+		}
+
+		else
+		{
+			str = QString::fromLocal8Bit(ba);
+			currentTextEdit()->setPlainText(str);
+		}
+
+	currentTextEdit()->setDocumentTitle(QFileInfo(file).fileName());
+	currentTextEdit()->setCurrentFileName(QFileInfo(file).absoluteFilePath());
+	currentTextEdit()->document()->setModified(false);
+	currentTextEdit()->setSavable(true);
+
+	tabWidget->setTabText(tabWidget->indexOf(currentTextEdit()), QFileInfo(file).fileName());
+	tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/enregistre.png"));
+
+	RecentTextFiles::addFile(file);
+	RecentTextFiles::setRecentFiles(a_open->menu(), this);
+
+	setCursor(Qt::ArrowCursor);
+}
+
+bool EditeurDeTexte::saveFile()
+{
+	if (!currentTextEdit()->isSavable())
+		return false;
+
+	if (currentTextEdit()->currentFileName() == "NONE")
+		return saveFileAs();
+
+	else
+		return saveFile(currentTextEdit()->currentFileName());
+}
+
+bool EditeurDeTexte::saveFile(QString file)
+{
+	if (!currentTextEdit()->isSavable())
+		return false;
+
+	setCursor(Qt::WaitCursor);
+	
+	QTextDocumentWriter writer(file);
+
+		if (!writer.write(currentTextEdit()->document()))
+		{
+			setCursor(Qt::ArrowCursor);
+			
+			QMessageBox::critical(this, "Multiuso", "Impossible d'écrire dans le fichier :<br /><em>"
+					+ QFileInfo(file).fileName() + "</em>");
+		
+			return false;
+		}
+
+	currentTextEdit()->setDocumentTitle(QFileInfo(file).fileName());
+	currentTextEdit()->setCurrentFileName(QFileInfo(file).absoluteFilePath());
+	currentTextEdit()->document()->setModified(false);
+
+	tabWidget->setTabText(tabWidget->indexOf(currentTextEdit()), QFileInfo(file).fileName());
+	tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/enregistre.png"));
+
+	setCursor(Qt::ArrowCursor);
 
 	return true;
 }
 
-void EditeurDeTexte::slotChangementOnglet(int onglet)
+bool EditeurDeTexte::saveFileAs()
 {
-	onglet = 0;
+	if (!currentTextEdit()->isSavable())
+		return false;
 
-	slotRemettreValeurs();
+	QString fileName = currentTextEdit()->documentTitle();
+
+	QString file = QFileDialog::getSaveFileName(this, "Multiuso", Multiuso::lastPath() + "/" + fileName,
+			"Fichier HTML (*.html *.htm);;Texte ODF (*.odt);;Tous les fichiers (*)");
+
+	if (file.isEmpty())
+		return false;
+
+	if (!(file.endsWith(".html", Qt::CaseInsensitive)
+			|| file.endsWith(".htm", Qt::CaseInsensitive)
+			|| file.endsWith(".odt", Qt::CaseInsensitive)))
+				file += ".html";
+
+	Multiuso::setLastPath(file);
+	
+	RecentTextFiles::addFile(file);
+	RecentTextFiles::setRecentFiles(a_open->menu(), this);
+
+	return saveFile(file);
 }
 
-QWidget *EditeurDeTexte::nouvelOnglet()
+void EditeurDeTexte::undo()
 {
-	TextEdit *champDeSaisie = new TextEdit;
-		champDeSaisie->setAcceptRichText(true);
-		champDeSaisie->setFontPointSize(11);
-		connect(champDeSaisie, SIGNAL(textChanged()), this, SLOT(slotChangementTexte()));
-		connect(champDeSaisie, SIGNAL(redoAvailable(bool)), this, SLOT(slotAMRedo(bool)));
-		connect(champDeSaisie, SIGNAL(undoAvailable(bool)), this, SLOT(slotAMUndo(bool)));
-		connect(champDeSaisie, SIGNAL(ouvrirFichier(QString)), this, SLOT(slotOuvrirFichier(QString)));
-
-	QVBoxLayout *layoutChampDeSaisie = new QVBoxLayout;
-		layoutChampDeSaisie->addWidget(champDeSaisie);
-		layoutChampDeSaisie->setContentsMargins(0, 0, 0, 0);
-
-	QWidget *widgetConteneur = new QWidget;
-		widgetConteneur->setLayout(layoutChampDeSaisie);
-
-	return widgetConteneur;
+	currentTextEdit()->undo();
 }
 
-TextEdit *EditeurDeTexte::pageActuelle()
+void EditeurDeTexte::redo()
 {
-	return onglets->currentWidget()->findChild<TextEdit *>();
+	currentTextEdit()->redo();
 }
 
-QString EditeurDeTexte::titreTabCourrant()
+void EditeurDeTexte::search()
 {
-	return onglets->tabText(onglets->currentIndex());
-}
+	QDialog *searchDialog = new QDialog(this);
+		searchDialog->setWindowTitle("Rechercher");
 
-void EditeurDeTexte::slotAMRedo(bool available)
-{
-	retablir->setEnabled(available);
-	pageActuelle()->setRedoOk(available);
-}
+	QLineEdit *textToFind = new QLineEdit;
+	QCheckBox *findBackward = new QCheckBox;
+	QCheckBox *findCaseSensitively = new QCheckBox;
+	QCheckBox *findWholeWords = new QCheckBox;
 
-void EditeurDeTexte::slotAMUndo(bool available)
-{
-	annuler->setEnabled(available);
-	pageActuelle()->setUndoOk(available);
-}
+	QFormLayout *contentLayout = new QFormLayout;
+		contentLayout->addRow("Rechercher :", textToFind);
+		contentLayout->addRow("Rechercher en arrière :", findBackward);
+		contentLayout->addRow("Recherche sensible à la casse :", findCaseSensitively);
+		contentLayout->addRow("Rechercher uniqument les mots entiers :", findWholeWords);
 
-void EditeurDeTexte::slotRemettreValeurs()
-{
-	annuler->setEnabled(pageActuelle()->undoOk());
-	retablir->setEnabled(pageActuelle()->redoOk());
+	QVBoxLayout *searchDialogLayout = new QVBoxLayout(searchDialog);
+		searchDialogLayout->addLayout(contentLayout);
+		searchDialogLayout->addLayout(Multiuso::dialogButtons(searchDialog, "Annuler", "Rechercher"));
 
-	gras->setChecked(pageActuelle()->estGras());
-	italique->setChecked(pageActuelle()->estItalique());
-	souligne->setChecked(pageActuelle()->estSouligne());
-
-	gauche->setChecked(pageActuelle()->estAligneGauche());
-	centre->setChecked(pageActuelle()->estAligneCentre());
-	droite->setChecked(pageActuelle()->estAligneDroite());
-	justifie->setChecked(pageActuelle()->estAligneJustifie());
-
-	taille->setCurrentIndex(pageActuelle()->tailleDuTexte());
-	police->setCurrentFont(pageActuelle()->policeDuTexte());
-}
-
-void EditeurDeTexte::slotGras()
-{
-	if (gras->isChecked())
+	if (searchDialog->exec() == QDialog::Accepted)
 	{
-		pageActuelle()->setFontWeight(QFont::Bold);
-		pageActuelle()->setEstGras(true);
+		QFlags<QTextDocument::FindFlags> findFlags;
+
+			if (findBackward->isChecked())
+				findFlags << QTextDocument::FindBackward;
+
+			if (findCaseSensitively->isChecked())
+				findFlags << QTextDocument::FindCaseSensitively;
+
+			if (findWholeWords->isChecked())
+				findFlags << QTextDocument::FindWholeWords;
 	}
 
-	else
+	searchDialog->deleteLater();
+}
+
+void EditeurDeTexte::replace()
+{
+}
+
+void EditeurDeTexte::printPreview()
+{
+	QPrinter printer(QPrinter::HighResolution);
+
+	QPrintPreviewDialog preview(&printer, this);
+		connect(&preview, SIGNAL(paintRequested(QPrinter *)), this, SLOT(printPreview(QPrinter *)));
+			preview.exec();
+}
+
+void EditeurDeTexte::printPreview(QPrinter *printer)
+{
+	currentTextEdit()->print(printer);
+}
+
+void EditeurDeTexte::print()
+{
+	QPrinter printer(QPrinter::HighResolution);
+
+	QPrintDialog *printDialog = new QPrintDialog(&printer, this);
+		printDialog->setWindowTitle("Imprimer « " + currentTextEdit()->documentTitle() + " »");
+
+		if (currentTextEdit()->textCursor().hasSelection())
+			printDialog->addEnabledOption(QAbstractPrintDialog::PrintSelection);
+
+	if (printDialog->exec() == QDialog::Accepted)
+		currentTextEdit()->print(&printer);
+
+	printDialog->deleteLater();
+}
+
+void EditeurDeTexte::printPDF()
+{
+	QString file = QFileDialog::getSaveFileName(this, "Multiuso", Multiuso::lastPath() +
+			QFileInfo(currentTextEdit()->documentTitle()).baseName() + "/", "*.pdf");
+
+	if (file.isEmpty())
+		return;
+
+	Multiuso::setLastPath(file);
+
+	if (!file.endsWith(".pdf", Qt::CaseInsensitive))
+		file += ".pdf";
+
+	QPrinter printer(QPrinter::HighResolution);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOutputFileName(file);
+
+	currentTextEdit()->print(&printer);
+}
+
+void EditeurDeTexte::copy()
+{
+	currentTextEdit()->copy();
+}
+
+void EditeurDeTexte::cut()
+{
+	currentTextEdit()->cut();
+}
+
+void EditeurDeTexte::paste()
+{
+	currentTextEdit()->paste();
+}
+
+void EditeurDeTexte::selectAll()
+{
+	currentTextEdit()->selectAll();
+}
+
+void EditeurDeTexte::insertImage()
+{
+	QString image = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(),
+			"Image (*.*)");
+
+	if (image.isNull())
+		return;
+
+	Multiuso::setLastPath(image);
+	
+	QStringList suffixes;
+		suffixes << "png" << "jpg" << "jpeg" << "bmp" << "gif" << "pbm"
+			<< "pgm" << "ppm" << "xbm" << "xpm" << "svg";
+	
+	QPixmap pixmap(image);
+
+	if (!suffixes.contains(QFileInfo(image).suffix().toLower())
+			|| pixmap.isNull())
 	{
-		pageActuelle()->setFontWeight(QFont::Normal);
-		pageActuelle()->setEstGras(false);
-	}
-}
+		QMessageBox::critical(this, "Multiuso", "Image invalide !");
 
-void EditeurDeTexte::slotItalique()
-{
-	if (italique->isChecked())
-	{
-		pageActuelle()->setFontItalic(true);
-		pageActuelle()->setEstItalique(true);
-	}
-
-	else
-	{
-		pageActuelle()->setFontItalic(false);
-		pageActuelle()->setEstItalique(false);
-	}
-}
-
-void EditeurDeTexte::slotSouligne()
-{
-	if (souligne->isChecked())
-	{
-		pageActuelle()->setFontUnderline(true);
-		pageActuelle()->setEstSouligne(true);
-	}
-
-	else
-	{
-		pageActuelle()->setFontUnderline(false);
-		pageActuelle()->setEstSouligne(false);
-	}
-}
-
-void EditeurDeTexte::slotGauche()
-{
-	pageActuelle()->setAlignment(Qt::AlignLeft);
-
-	pageActuelle()->setEstAligneGauche(true);
-	pageActuelle()->setEstAligneCentre(false);
-	pageActuelle()->setEstAligneDroite(false);
-	pageActuelle()->setEstAligneJustifie(false);
-
-	centre->setChecked(false);
-	droite->setChecked(false);
-	justifie->setChecked(false);
-}
-
-void EditeurDeTexte::slotCentre()
-{
-	pageActuelle()->setAlignment(Qt::AlignCenter);
-
-	pageActuelle()->setEstAligneGauche(false);
-	pageActuelle()->setEstAligneCentre(true);
-	pageActuelle()->setEstAligneDroite(false);
-	pageActuelle()->setEstAligneJustifie(false);
-
-	gauche->setChecked(false);
-	droite->setChecked(false);
-	justifie->setChecked(false);
-}
-
-void EditeurDeTexte::slotDroite()
-{
-	pageActuelle()->setAlignment(Qt::AlignRight);
-
-	pageActuelle()->setEstAligneGauche(false);
-	pageActuelle()->setEstAligneCentre(false);
-	pageActuelle()->setEstAligneDroite(true);
-	pageActuelle()->setEstAligneJustifie(false);
-
-	gauche->setChecked(false);
-	centre->setChecked(false);
-	justifie->setChecked(false);
-}
-
-void EditeurDeTexte::slotJustifie()
-{
-	pageActuelle()->setAlignment(Qt::AlignJustify);
-
-	pageActuelle()->setEstAligneGauche(false);
-	pageActuelle()->setEstAligneCentre(false);
-	pageActuelle()->setEstAligneDroite(false);
-	pageActuelle()->setEstAligneJustifie(true);
-
-	gauche->setChecked(false);
-	centre->setChecked(false);
-	droite->setChecked(false);
-}
-
-void EditeurDeTexte::changerTaille(QString)
-{
-	pageActuelle()->setFontPointSize(taille->currentText().toInt());
-	pageActuelle()->setTailleDuTexte(taille->currentIndex());
-}
-
-void EditeurDeTexte::changerPolice(QFont)
-{
-	pageActuelle()->setCurrentFont(police->currentFont());
-	pageActuelle()->setPoliceDuTexte(police->currentFont());
-}
-
-void EditeurDeTexte::changerCouleur()
-{
-	QColor nouvelleCouleur = QColorDialog::getColor(pageActuelle()->textColor(), this);
-
-	if (nouvelleCouleur.isValid())
-    		pageActuelle()->setTextColor(nouvelleCouleur);
-}
-
-void EditeurDeTexte::slotSelectionMajuscule()
-{
-	QString texte = pageActuelle()->textCursor().selectedText();
-		texte = texte.toUpper();
-
-	pageActuelle()->textCursor().removeSelectedText();
-	pageActuelle()->textCursor().insertText(texte);
-}
-
-void EditeurDeTexte::slotSelectionMinuscule()
-{
-	QString texte = pageActuelle()->textCursor().selectedText();
-		texte = texte.toLower();
-
-	pageActuelle()->textCursor().removeSelectedText();
-	pageActuelle()->textCursor().insertText(texte);
-}
-
-void EditeurDeTexte::slotNouveau()
-{
-	onglets->addTab(nouvelOnglet(), QIcon(":/icones/editeur_de_texte/enregistre.png"), "Nouveau document");
-	onglets->setCurrentIndex(onglets->count() - 1);
-	taille->setCurrentIndex(5);
-}
-
-void EditeurDeTexte::slotEnregistrer()
-{
-	QFile fichier(pageActuelle()->fichierOuvert());
-
-	if (fichier.exists() && fichier.open(QIODevice::WriteOnly | QIODevice::Text))
-	{
-		QFileInfo infosFichier(fichier);
-
-		if (infosFichier.fileName().contains(QRegExp("(.){1,}.(mlts)?html?$")))
-		{
-			fichier.write(pageActuelle()->toHtml().toAscii());
-		}
-
-		else
-		{
-			fichier.write(pageActuelle()->toPlainText().toAscii());
-		}
-
-		pageActuelle()->setEstEnregistre(true);
-		pageActuelle()->setSauvegardeOk(false);
-
-		enregistrer->setDisabled(true);
-
-		onglets->setTabIcon(onglets->currentIndex(), QIcon(":/icones/editeur_de_texte/enregistre.png"));
+		return;
 	}
 
-	else
+	if (currentTextEdit()->currentFileName() == "NONE" && !currentTextEdit()->documentTitle().endsWith(".odt"))
 	{
-		slotEnregistrerSous();
+		int answer = QMessageBox::question(this, "Multiuso", "Ce document n'a pas encore été enregistré "
+			"et de ce fait, Multiuso ne peut connaître le répertoire dans lequel il doit copier l'image.<br />"
+			"Voulez-vous enregistrer le fichier ?", QMessageBox::Yes | QMessageBox::No);
+
+		if (answer == QMessageBox::No)
+			return;
+
+		if (!saveFileAs())
+			return;
 	}
 
-	fichier.close();
-}
+	QString path;
 
-void EditeurDeTexte::slotEnregistrerSous()
-{
-	QString cheminDuFichier = QFileDialog::getSaveFileName(this, "Multiuso", Multiuso::lastPath() + "/Nouveau document.mltshtml", "Texte (*)");
-
-	Multiuso::setLastPath(cheminDuFichier);
-
-	QFile fichier(cheminDuFichier);
-
-	if (fichier.open(QIODevice::WriteOnly | QIODevice::Text))
+	if (!currentTextEdit()->documentTitle().endsWith(".odt"))
 	{
-		QFileInfo infosFichier(fichier);
-
-		if (infosFichier.fileName().contains(QRegExp("(.){1,}.(mlts)?html?$")))
-			fichier.write(pageActuelle()->toHtml().toAscii());
-
-		else
-			fichier.write(pageActuelle()->toPlainText().toAscii());
-
-		QString titre = infosFichier.fileName();
-
-		onglets->setTabText(onglets->currentIndex(), titre);
-		onglets->setTabIcon(onglets->currentIndex(), QIcon(":/icones/editeur_de_texte/enregistre.png"));
-
-		pageActuelle()->setEstEnregistre(true);
-		pageActuelle()->setSauvegardeOk(false);
-		pageActuelle()->setFichierOuvert(cheminDuFichier);
-
-		enregistrer->setDisabled(true);
+       		path = QFileInfo(currentTextEdit()->currentFileName()).path();
+		path = Multiuso::addSlash(path) + QFileInfo(currentTextEdit()->currentFileName()).baseName();
+		path = Multiuso::addSlash(path);
 	}
 
-	fichier.close();
-}
-
-void EditeurDeTexte::slotOuvrir()
-{
-	QString cheminFichier = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(), "Texte (*)");
-
-	Multiuso::setLastPath(cheminFichier);
-
-	if (!cheminFichier.isEmpty())
-		slotOuvrirFichier(cheminFichier);
-}
-
-void EditeurDeTexte::slotOuvrirFichier(QString cheminFichier)
-{
-	QFile fichier(cheminFichier);
-
-	if (fichier.exists() && fichier.open(QIODevice::ReadOnly | QIODevice::Text))
+	else // If the file is an ODF file, we can read it anymore, so we don't need to save the file.
 	{
-		if (onglets->count() == 1 && onglets->tabText(onglets->currentIndex()) == "Nouveau document" && pageActuelle()->estEnregistre())
-		{
-		}
-
-		else
-		{
-			slotNouveau();
-		}
-
-		onglets->setCurrentIndex(onglets->count());
-
-		QFileInfo infosFichier(fichier);
-
-		if (infosFichier.fileName().contains(QRegExp("(.){1,}.(mlts)?html?$")))
-			pageActuelle()->setHtml(fichier.readAll());
-
-		else
-			pageActuelle()->setPlainText(fichier.readAll());
-
-		onglets->setTabText(onglets->currentIndex(), infosFichier.fileName());
-		onglets->setTabIcon(onglets->currentIndex(), QIcon(":/icones/editeur_de_texte/enregistre.png"));
-
-		pageActuelle()->setEstEnregistre(true);
-		pageActuelle()->setSauvegardeOk(false);
-		pageActuelle()->setFichierOuvert(cheminFichier);
-
-		enregistrer->setDisabled(true);
+		path = Multiuso::addSlash(Multiuso::tempPath());
 	}
 
-	fichier.close();
+	QDir().mkpath(path);
+
+	QString fileName = "{" + QString::number(Multiuso::randomNumber(1000, 4999)) + "}-"
+				"{" + QString::number(Multiuso::randomNumber(5000, 9999)) + "}.png";
+
+	pixmap.save(path + fileName);
+
+	QTextImageFormat textImage;
+		textImage.setName(path + fileName);
+
+	currentTextEdit()->textCursor().insertImage(textImage);
 }
 
-
-void EditeurDeTexte::slotAnnuler()
+void EditeurDeTexte::insertTable()
 {
-	pageActuelle()->undo();
-}
+	QDialog *tableDialog = new QDialog(this);
+		tableDialog->setWindowTitle("Insérer un tableau");
 
-void EditeurDeTexte::slotRetablir()
-{
-	pageActuelle()->redo();
-}
+	QSpinBox *rows = new QSpinBox;
+		rows->setRange(1, 2147483647);
+		rows->setValue(5);
 
-void EditeurDeTexte::slotSupprimerSelection()
-{
-	pageActuelle()->textCursor().removeSelectedText();
-}
+	QSpinBox *columns = new QSpinBox;
+		columns->setRange(1, 2147483647);
+		columns->setValue(7);
 
-void EditeurDeTexte::slotRechercher()
-{
-	l_rechercher = new QLineEdit;
+	QComboBox *alignment = new QComboBox;
+		alignment->addItems(QStringList() << "À gauche" << "Au centre" << "À droite" << "en justifié");
 
-	if (pageActuelle()->textCursor().hasSelection())
-		l_rechercher->setText(pageActuelle()->textCursor().selectedText());
+	QGridLayout *widgetsLayout = new QGridLayout;
+		widgetsLayout->addWidget(new QLabel("Créer un tableau de :"), 0, 0, 1, 1);
+		widgetsLayout->addWidget(rows, 1, 0, 1, 1);
+		widgetsLayout->addWidget(new QLabel(" ligne(s) sur "), 1, 1, 1, 1);
+		widgetsLayout->addWidget(columns, 1, 2, 1, 1);
+		widgetsLayout->addWidget(new QLabel(" colonnes"), 1, 3, 1, 1);
+		widgetsLayout->addWidget(new QLabel("et aligné "), 2, 0, 1, 1);
+		widgetsLayout->addWidget(alignment, 2, 1, 1, 2);
 
-	QLabel *l_motARechercher = new QLabel("Mot à rechercher :");
+	QVBoxLayout *tableDialogLayout = new QVBoxLayout(tableDialog);
+		tableDialogLayout->addLayout(widgetsLayout);
+		tableDialogLayout->addLayout(Multiuso::dialogButtons(tableDialog, "Annuler", "OK"));
 
-	QPushButton *b_rechercher = new QPushButton("&Rechercher");
-	QPushButton *b_ok = new QPushButton("&OK");
-
-	QGridLayout *layoutPrincipal = new QGridLayout;
-		layoutPrincipal->addWidget(l_motARechercher, 0, 0, 1, 1);
-		layoutPrincipal->addWidget(l_rechercher, 0, 1, 1, 1);
-		layoutPrincipal->addWidget(b_rechercher, 1, 0, 1, 1, Qt::AlignRight);
-		layoutPrincipal->addWidget(b_ok, 1, 1, 1, 1, Qt::AlignRight);
-
-	QDialog *d_rechercher = new QDialog(this);
-		d_rechercher->setLayout(layoutPrincipal);
-		d_rechercher->setWindowTitle("Éditeur de texte - Rechercher");
-		d_rechercher->setWindowIcon(QIcon(":/icones/editeur_de_texte/rechercher.png"));
-
-	connect(b_rechercher, SIGNAL(clicked()), this, SLOT(slotRechercher2()));
-	connect(b_ok, SIGNAL(clicked()), d_rechercher, SLOT(accept()));
-
-	d_rechercher->exec();
-}
-
-void EditeurDeTexte::slotRechercher2()
-{
-	QTextCursor curseurActuel = pageActuelle()->textCursor();
-
-	if (pageActuelle()->textCursor().selectedText() == l_rechercher->text())
-		pageActuelle()->textCursor().setPosition(pageActuelle()->textCursor().position() + pageActuelle()->textCursor().selectedText().length());
-
-	else
-		pageActuelle()->moveCursor(QTextCursor::Start);
-
-	bool trouve = pageActuelle()->find(l_rechercher->text());
-
-	if (!trouve)
+	if (tableDialog->exec() == QDialog::Accepted)
 	{
-		QMessageBox::critical(this, "Multiuso", "Impossible de trouver :<br /><strong>" + l_rechercher->text() + "</strong>");
-		pageActuelle()->setTextCursor(curseurActuel);
+		Qt::Alignment tableAlignment;
+
+			if (alignment->currentText() == "À gauche")
+				tableAlignment = (Qt::AlignLeft | Qt::AlignAbsolute);
+
+			else if (alignment->currentText() == "Au centre")
+				tableAlignment = Qt::AlignHCenter;
+
+			else if (alignment->currentText() == "À droite")
+				tableAlignment = (Qt::AlignRight | Qt::AlignAbsolute);
+
+			else if (alignment->currentText() == "en justifié")
+				tableAlignment = Qt::AlignJustify;
+
+		QTextTableFormat format;
+			format.setAlignment(tableAlignment);
+			format.setCellPadding(3);
+
+		currentTextEdit()->textCursor().insertTable(rows->value(), columns->value(), format);
+	}
+
+	tableDialog->deleteLater();
+}
+
+void EditeurDeTexte::repeatText()
+{
+	TextEdit *te = currentTextEdit();
+	QTextCursor cursor = te->textCursor();
+
+	if (!cursor.hasSelection())
+	{
+		QMessageBox::information(this, "Multiuso", "Sélectionnez le texte à répéter !");
+
+		return;
+	}
+
+	QString text = cursor.selectedText();
+
+	bool ok;
+
+	int howManyTimes = QInputDialog::getInt(this, "Multiuso", "Combien de fois voulez-vous "
+			"répéter ce texte ?<br /><em>(texte d'origine inclus)</em>", 36,
+			1, 2147483647, 1, &ok);
+
+	if (!ok || howManyTimes == 1)
+		return;
+
+	for (int i = 0; i < howManyTimes; i++)
+	{
+		QCoreApplication::processEvents();
+	
+		te->textCursor().insertText(text);
 	}
 }
 
-void EditeurDeTexte::slotRechercherRemplacer()
+void EditeurDeTexte::bold()
 {
-	l_rechercher = new QLineEdit;
-	l_remplacer = new QLineEdit;
+	QTextCharFormat format;
+		format.setFontWeight(a_bold->isChecked() ? QFont::Bold : QFont::Normal);
 
-	if (pageActuelle()->textCursor().hasSelection())
-		l_rechercher->setText(pageActuelle()->textCursor().selectedText());
-
-	QLabel *l_motARechercher = new QLabel("Mot à rechercher :");
-	QLabel *l_motARemplacer = new QLabel("Remplacer ce mot par :");
-
-	QPushButton *b_rechercher = new QPushButton("&Rechercher");
-	QPushButton *b_remplacer = new QPushButton("Rem&placer");
-	QPushButton *b_ok = new QPushButton("&OK");
-
-	QGridLayout *layoutPrincipal = new QGridLayout;
-		layoutPrincipal->addWidget(l_motARechercher, 0, 0, 1, 1);
-		layoutPrincipal->addWidget(l_rechercher, 0, 1, 1, 1);
-		layoutPrincipal->addWidget(l_motARemplacer, 1, 0, 1, 1);
-		layoutPrincipal->addWidget(l_remplacer, 1, 1, 1, 1);
-		layoutPrincipal->addWidget(b_rechercher, 2, 0, 1, 1);
-		layoutPrincipal->addWidget(b_remplacer, 2, 1, 1, 1);
-		layoutPrincipal->addWidget(b_ok, 3, 0, 1, 2);
-
-	QDialog *d_rechercher = new QDialog(this);
-		d_rechercher->setLayout(layoutPrincipal);
-		d_rechercher->setWindowTitle("Éditeur de texte - Rechercher/Remplacer");
-		d_rechercher->setWindowIcon(QIcon(":/icones/editeur_de_texte/rechercherRemplacer.png"));
-
-	connect(b_rechercher, SIGNAL(clicked()), this, SLOT(slotRechercher2()));
-	connect(b_remplacer, SIGNAL(clicked()), this, SLOT(slotRechercherRemplacer2()));
-	connect(b_ok, SIGNAL(clicked()), d_rechercher, SLOT(accept()));
-
-	d_rechercher->exec();
+	mergeTextCharFormat(format);
 }
 
-void EditeurDeTexte::slotRechercherRemplacer2()
+void EditeurDeTexte::italic()
 {
-	if (pageActuelle()->textCursor().hasSelection())
+	QTextCharFormat format;
+		format.setFontItalic(a_italic->isChecked());
+
+	mergeTextCharFormat(format);
+}
+
+void EditeurDeTexte::underline()
+{
+	QTextCharFormat format;
+		format.setFontUnderline(a_underline->isChecked());
+
+	mergeTextCharFormat(format);
+}
+
+void EditeurDeTexte::alignment(QAction *action)
+{
+	if (action == a_alignLeft)
+		currentTextEdit()->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
+
+	else if (action == a_alignCenter)
+		currentTextEdit()->setAlignment(Qt::AlignHCenter);
+
+	else if (action == a_alignRight)
+		currentTextEdit()->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
+
+	else if (action == a_alignJustify)
+		currentTextEdit()->setAlignment(Qt::AlignJustify);
+}
+
+void EditeurDeTexte::fontSize(QString size)
+{
+	qreal fontPointSize = size.toFloat();
+
+	if (fontPointSize > 0)
 	{
-		pageActuelle()->textCursor().removeSelectedText();
-		pageActuelle()->textCursor().insertText(l_remplacer->text());
+		QTextCharFormat format;
+			format.setFontPointSize(fontPointSize);
+	
+		mergeTextCharFormat(format);
 	}
 }
 
-void EditeurDeTexte::slotImprimer()
+void EditeurDeTexte::font(QString font)
 {
-	QPrinter *imprimante = new QPrinter(QPrinter::ScreenResolution);
-		imprimante->setDocName(titreTabCourrant());
-		imprimante->setPaperSize(QPrinter::A4);
-		imprimante->setOrientation(QPrinter::Portrait);
+	QTextCharFormat format;
+		format.setFontFamily(font);
 
-	QPrintDialog *dialogueImpression = new QPrintDialog(imprimante, this);
-		dialogueImpression->setWindowTitle("Éditeur de texte - Imprimer");
-		dialogueImpression->setWindowIcon(QIcon(":/icones/editeur_de_texte/editeur_de_texte.png"));
-
-		if (pageActuelle()->textCursor().hasSelection())
-			dialogueImpression->setOption(QAbstractPrintDialog::PrintSelection);
-
-		connect(dialogueImpression, SIGNAL(accepted(QPrinter *)), this, SLOT(imprimerTexte(QPrinter *)));
-
-		dialogueImpression->exec();
+	mergeTextCharFormat(format);
 }
 
-void EditeurDeTexte::imprimerTexte(QPrinter *imprimante)
+void EditeurDeTexte::selectColor()
 {
-	pageActuelle()->print(imprimante);
+	QColor old = currentTextEdit()->currentCharFormat().foreground().color();
+	QColor color = QColorDialog::getColor(old, this, "Sélectionnez une couleur");
+
+	if (!color.isValid())
+		return;
+	
+	QTextCharFormat format;
+		format.setForeground(color);
+
+	mergeTextCharFormat(format);
+
+	a_selectColor->setIcon(createColorIcon(color));
 }
 
-void EditeurDeTexte::slotCopier()
+void EditeurDeTexte::selectBackgroundColor()
 {
-	pageActuelle()->copy();
+	QColor old = currentTextEdit()->currentCharFormat().background().color();
+	QColor color = QColorDialog::getColor(old, this, "Sélectionnez une couleur");
+
+	if (!color.isValid())
+		return;
+
+	QTextCharFormat format;
+		format.setBackground(color);
+	
+	mergeTextCharFormat(format);
+
+	a_selectBackgroundColor->setIcon(createBackgroundColorIcon(color));
 }
 
-void EditeurDeTexte::slotCouper()
+void EditeurDeTexte::toUpper()
 {
-	pageActuelle()->cut();
+	QTextCursor cursor = currentTextEdit()->textCursor();
+
+	if (!cursor.hasSelection())
+		cursor.select(QTextCursor::WordUnderCursor);
+	
+	QString text = cursor.selectedText().toUpper();
+	cursor.insertText(text);
 }
 
-void EditeurDeTexte::slotColler()
+void EditeurDeTexte::toLower()
 {
-	pageActuelle()->paste();
+	QTextCursor cursor = currentTextEdit()->textCursor();
+
+	if (!cursor.hasSelection())
+		cursor.select(QTextCursor::WordUnderCursor);
+
+	QString text = cursor.selectedText().toLower();
+	cursor.insertText(text);
 }
 
-void EditeurDeTexte::slotToutSelectionner()
+void EditeurDeTexte::textChanged()
 {
-	pageActuelle()->selectAll();
-}
+	QSettings settings(Multiuso::appDirPath() + "/ini/editeur_de_texte.ini", QSettings::IniFormat);
 
-void EditeurDeTexte::slotInsererImage()
-{
-	QFile fichierInsertion(pageActuelle()->fichierOuvert());
-
-	QFileInfo infosFichierOuvert(fichierInsertion);
-
-	if (infosFichierOuvert.fileName().contains(QRegExp("(.){1,}.(mlts)?html?$")))
+	if (settings.value("enregistrement/enregistrement_automatique").toBool())
 	{
-		QString image = QFileDialog::getOpenFileName(this, "Multiuso", Multiuso::lastPath(), "Image (*)");
+		saveFile();
 
-		Multiuso::setLastPath(image);
-
-		if (!image.isEmpty())
-		{
-			QFile imageAInserer(image);
-
-			QFileInfo infosImage(imageAInserer);
-
-			imageAInserer.copy(infosFichierOuvert.path() + "/" + infosImage.fileName());
-
-			pageActuelle()->textCursor().insertHtml("<img src=\"" + infosImage.fileName()  + "\" />");
-		}
+		return;
 	}
 
-	else
-	{
-		QMessageBox::critical(this, "Multiuso", "Multiuso ne peut insérer des images que dans les formats de fichier :"
-				"<br /><strong>*.mltshtml</strong>, <strong>*.htm</strong> et <strong>*.html</strong>");
-	}
+	if (currentTextEdit()->document()->isModified())
+		tabWidget->setTabIcon(tabWidget->indexOf(currentTextEdit()), QIcon(":/icones/editeur_de_texte/non_enregistre.png"));
 }
 
-void EditeurDeTexte::slotRepeterTexte()
+void EditeurDeTexte::currentCharFormatChanged(QTextCharFormat format)
 {
-	QDialog *dialogue = new QDialog(this);
-
-	texteARepeter = new QTextEdit;
-		texteARepeter->setWordWrapMode(QTextOption::NoWrap);
-
-		if (pageActuelle()->textCursor().hasSelection())
-			texteARepeter->setPlainText(pageActuelle()->textCursor().selectedText());
-
-	nombreDeFois = new QLineEdit;
-
-	QPushButton *repeter = new QPushButton("&Répéter !");
-		connect(repeter, SIGNAL(clicked()), this, SLOT(slotRepeterTexte2()));
-		connect(repeter, SIGNAL(clicked()), dialogue, SLOT(accept()));
-
-	QFormLayout *layoutRepeter = new QFormLayout;
-		layoutRepeter->addRow("Texte à répéter :", texteARepeter);
-		layoutRepeter->addRow("Nombre de fois :", nombreDeFois);
-		layoutRepeter->addWidget(repeter);
-
-	dialogue->setWindowTitle("Éditeur de texte - Répéter du texte");
-	dialogue->setWindowIcon(QIcon(":/icones/editeur_de_texte/repeterTexte.png"));
-	dialogue->resize(600, 260);
-	dialogue->setLayout(layoutRepeter);
-	dialogue->exec();
+	fontChanged(format.font());
+	colorChanged(format.foreground().color());
+	backgroundColorChanged(format.background().color().isValid() ? format.background().color() : Qt::white);
 }
 
-void EditeurDeTexte::slotRepeterTexte2()
+void EditeurDeTexte::cursorPositionChanged()
 {
-	slotRepeter(texteARepeter->toPlainText(), nombreDeFois->text().toInt());
+	alignmentChanged(currentTextEdit()->alignment());
 }
 
-void EditeurDeTexte::slotRepeter(QString texte, int nombreDeFois)
+void EditeurDeTexte::fontChanged(QFont font)
 {
-	if (nombreDeFois > 2500)
-	{
-		nombreDeFois = 2500;
+	a_fontSize->setCurrentIndex(a_fontSize->findText(QString::number(font.pointSize())));
+	a_font->setCurrentIndex(a_font->findText(QFontInfo(font).family()));
+	a_bold->setChecked(font.bold());
+	a_italic->setChecked(font.italic());
+	a_underline->setChecked(font.underline());
+}
 
-		QMessageBox::warning(this, "Multiuso", "Le nombre de répétitions est limité à 2500, ce texte ne sera donc répété que 2500 fois.");
-	}
+void EditeurDeTexte::colorChanged(QColor color)
+{
+	a_selectColor->setIcon(createColorIcon(color));
+}
 
+void EditeurDeTexte::backgroundColorChanged(QColor color)
+{
+	a_selectBackgroundColor->setIcon(createBackgroundColorIcon(color));
+}
 
-	QFile fichier(pageActuelle()->fichierOuvert());
+void EditeurDeTexte::alignmentChanged(Qt::Alignment alignment)
+{
+	a_alignLeft->setChecked(alignment & Qt::AlignLeft);
+	a_alignCenter->setChecked(alignment & Qt::AlignHCenter);
+	a_alignRight->setChecked(alignment & Qt::AlignRight);
+	a_alignJustify->setChecked(alignment & Qt::AlignJustify);
+}
 
-	QFileInfo infosFichier(fichier);
-
-	for (int i = 0; i < nombreDeFois; i++)
-	{
-		if (infosFichier.fileName().contains(QRegExp("(.){1,}.(mlts)?html?$")))
-		{
-			texte = texte.replace("\n", "<br />");
-			pageActuelle()->insertHtml(texte);
-		}
-
-		else
-		{
-			pageActuelle()->insertPlainText(texte);
-		}
-	}
+void EditeurDeTexte::currentChanged(int)
+{
+	currentCharFormatChanged(currentTextEdit()->currentCharFormat());
+	cursorPositionChanged();
 }

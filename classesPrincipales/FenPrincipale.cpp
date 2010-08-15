@@ -206,7 +206,7 @@ FenPrincipale::FenPrincipale()
 
 	layoutCentral = new QVBoxLayout;
 		layoutCentral->addWidget(pagesDuProgramme);
-		layoutCentral->setContentsMargins(4, 4, 4, 4);
+		layoutCentral->setContentsMargins(0, 0, 0, 0);
 
 	widgetCentral = new QWidget;
 		widgetCentral->setLayout(layoutCentral);
@@ -853,9 +853,9 @@ void FenPrincipale::slotQuitter()
 	if (!loaded)
 		return;
 
-	if (!editeurDeTexte->tousLesDocumentsEnregistres() || !editeurDeCode->tousLesDocumentsEnregistres())
+	if (!editeurDeTexte->isEverythingSaved() || !editeurDeCode->tousLesDocumentsEnregistres())
 	{
-		int reponse = QMessageBox::warning(this, "Multiuso", "Un ou plusieurs documents texte ne sont pas enregitrés,<br />"
+		int reponse = QMessageBox::warning(this, "Multiuso", "Un ou plusieurs documents texte ne sont pas enregistrés,<br />"
 			"voulez-vous quitter Multiuso malgré tout ?", QMessageBox::Yes | QMessageBox::No);
 
 		if (reponse == QMessageBox::No)
@@ -1172,7 +1172,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 
 	if (textesFormates.contains(suffixe.toLower()))
 	{
-		editeurDeTexte->slotOuvrirFichier(fichier);
+		editeurDeTexte->openFile(fichier);
 
 		if (!Multiuso::openTabsList(pagesDuProgramme).contains("Éditeur de texte"))
 			accueil->openTab("Éditeur de texte");
