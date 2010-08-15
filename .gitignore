@@ -2,6 +2,7 @@ Multiuso
 Makefile
 moc_*.cpp
 qrc_*.cpp
+lib*
 *.o
 *.swp
 *.swo
