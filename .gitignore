@@ -9,6 +9,8 @@ lib*
 *.cache
 *.db
 *.so
+codecs/*
+imageformats/*
 tmp/*
 ini/*
 navigateurWeb/*
