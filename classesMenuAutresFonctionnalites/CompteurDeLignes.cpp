@@ -89,7 +89,9 @@ void CompteurDeLignes::selectionFichiers()
 				if (fichier.open(QIODevice::ReadOnly | QIODevice::Text))
 				{
 					int nombreDeLignes = 0;
+
 					QTextStream fluxFichier(&fichier);
+						fluxFichier.setCodec("UTF-8");
 
 					while (!fluxFichier.atEnd())
 					{

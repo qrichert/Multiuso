@@ -96,6 +96,7 @@ void Messagerie::getConnectionReply()
 		replyConnection->deleteLater();
 
 		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
 
 		reply.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -218,6 +219,8 @@ void Messagerie::addContact(QString pseudo)
 				"Ô rage ! Ô désespoir ! Ô bouletitude ennemie !<br />"
 				"N'as tu donc tant vécu que pour être ton seul ami ?");
 
+		messagesWidget->reload();
+
 		return;
 	}
 
@@ -243,6 +246,7 @@ void Messagerie::getContactReply()
 		replyContacts->deleteLater();
 
 		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
 
 		reply.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -308,6 +312,7 @@ void Messagerie::getRContactReply()
 		replyRContacts->deleteLater();
 
 		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
 
 		reply.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -373,6 +378,7 @@ void Messagerie::getSendMessageReply()
 		replyMessages->deleteLater();
 
 		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
 
 		reply.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -437,6 +443,7 @@ void Messagerie::getRemoveMessageReply()
 		replyRMessages->deleteLater();
 
 		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
 
 		reply.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -506,6 +513,7 @@ void Messagerie::getModifyPasswordReply()
 		replyModifyPassword->deleteLater();
 
 		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
 
 		reply.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -575,6 +583,7 @@ void Messagerie::getBlockReply()
 		replyBlock->deleteLater();
 
 		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
 
 		reply.open(QIODevice::ReadOnly | QIODevice::Text);
 

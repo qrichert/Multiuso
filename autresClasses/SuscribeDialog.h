@@ -131,6 +131,7 @@ class SuscribeDialog : public QWidget // Not QObject because PasswordDialog excp
 			suscribeReply->deleteLater();
 
 			QTextStream stream(&reply);
+				stream.setCodec("UTF-8");
 
 			reply.open(QIODevice::ReadOnly | QIODevice::Text);
 

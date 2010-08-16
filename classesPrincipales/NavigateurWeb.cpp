@@ -57,6 +57,7 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 		if (completer.open(QIODevice::ReadOnly | QIODevice::Text))
 		{
 			QTextStream in(&completer);
+				in.setCodec("UTF-8");
 
 			while (!in.atEnd())
 				sitesVisites << in.readLine();
@@ -145,6 +146,7 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 		if (historique.open(QIODevice::ReadOnly | QIODevice::Text))
 		{
 			QTextStream inH(&historique);
+				inH.setCodec("UTF-8");
 
 			while (!inH.atEnd())
 				liensHistorique << inH.readLine();

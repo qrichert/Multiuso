@@ -464,8 +464,15 @@ void EditeurDeTexte::openFile(QString file)
 
 	currentTextEdit()->setSavable(false);
 
-		QByteArray ba = openFile.readAll();
-			openFile.close();
+		QTextStream in(&openFile);
+			in.setCodec("UTF-8");
+
+		QByteArray ba;
+
+			while (!in.atEnd())
+				ba += in.readLine();
+	
+		openFile.close();
 
 		QTextCodec *codec = Qt::codecForHtml(ba);
 		QString str = codec->toUnicode(ba);

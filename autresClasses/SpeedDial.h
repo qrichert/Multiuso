@@ -58,6 +58,7 @@ class GetPageUrl : public QDialog
 			if (completer.open(QIODevice::ReadOnly | QIODevice::Text))
 			{
 				QTextStream in(&completer);
+					in.setCodec("UTF-8");
 	
 				while (!in.atEnd())
 					links << in.readLine();

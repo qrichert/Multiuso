@@ -53,6 +53,7 @@ Cookies::~Cookies()
 	if (cookieFile.open(QIODevice::WriteOnly))
 	{
 		QTextStream out(&cookieFile);
+			out.setCodec("UTF-8");
 
 		foreach(const QNetworkCookie &cookie, allCookies())
 		{
