@@ -200,7 +200,6 @@ void BlocNotes::saveText()
 	QSettings settings(Multiuso::appDirPath() + "/ini/bloc_notes.ini", QSettings::IniFormat);
 		settings.setValue(QString::number(m_tabWidget->currentIndex()) + "/content", textEdit->toPlainText());
 
-
 	updateView();
 }
 
@@ -373,6 +372,8 @@ void BlocNotes::getSafeguardReply()
 	if (text.startsWith("ERROR:1"))
 	{
 		QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe icorrect !");
+
+		setDisabled(false);
 
 		return;
 	}

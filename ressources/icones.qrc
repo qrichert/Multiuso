@@ -244,8 +244,10 @@
 		<file>icones/navigateur_web/navigateur_web.png</file>
 		<file>icones/navigateur_web/renommer.png</file>
 		<file>icones/navigateur_web/supprimer.png</file>
-		
+
+		<file>icones/organisateur/get.png</file>
 		<file>icones/organisateur/modifier.png</file>
+		<file>icones/organisateur/put.png</file>
 		<file>icones/organisateur/supprimer.png</file>
 
 		<file>icones/preferences/accueil.png</file>

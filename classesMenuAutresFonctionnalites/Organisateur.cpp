@@ -18,12 +18,13 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Organisateur.h"
+#include "autresClasses/LoginDialog.h"
 
 Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 {
 	setWindowTitle("Multiuso - Organisteur");
 	setWindowIcon(QIcon(":/icones/actions/actionOrganisteur.png"));
-	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
+	resize(Multiuso::screenWidth() / 2, (Multiuso::screenHeight() / 2) + 20);
 
 	m_sortBy = new QComboBox;
 		m_sortBy->addItems(QStringList() << "Tout" << "Priorité très élevée" << "Priorité élevée"
@@ -46,12 +47,36 @@ Organisateur::Organisateur(QWidget *parent = 0) : QDialog(parent)
 		mainTable->horizontalHeader()->setStretchLastSection(true);
 		connect(mainTable, SIGNAL(itemDoubleClicked(QTableWidgetItem *)), this, SLOT(slotShowTask(QTableWidgetItem *)));
 
-	QGridLayout *mainLayout = new QGridLayout(this);
+	QGridLayout *mainLayout = new QGridLayout;
 		mainLayout->addWidget(new QLabel("Double-cliquez sur une tâche pour l'afficher"), 0, 0, 1, 2);
 		mainLayout->addWidget(m_sortBy, 0, 2, 1, 1);
 		mainLayout->addWidget(addTask, 0, 3, 1, 1);
 		mainLayout->addWidget(mainTable, 1, 0, 1, 4);
 		mainLayout->addWidget(Multiuso::closeButton(this), 2, 3, 1, 1);
+
+	QWidget *centralWidget = new QWidget;
+		centralWidget->setLayout(mainLayout);
+
+	QMainWindow *mainWindow = new QMainWindow;
+		mainWindow->setCentralWidget(centralWidget);
+
+	QVBoxLayout *centralLayout = new QVBoxLayout(this);
+		centralLayout->addWidget(mainWindow);
+		centralLayout->setContentsMargins(0, 0, 0, 0);
+	
+	QToolBar *toolBar = mainWindow->addToolBar("Options");
+		toolBar->setMovable(false);
+		toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
+		QAction *actionPut = new QAction("Sauvegarder", this);
+			actionPut->setIcon(QIcon(":/icones/organisateur/put.png"));
+			connect(actionPut, SIGNAL(triggered()), this, SLOT(putSafeguard()));
+				toolBar->addAction(actionPut);
+
+		QAction *actionGet = new QAction("Rétablir à la dernière sauvagarde", this);
+			actionGet->setIcon(QIcon(":/icones/organisateur/get.png"));
+			connect(actionGet, SIGNAL(triggered()), this, SLOT(getSafeguard()));
+				toolBar->addAction(actionGet);
 
 	m_sortBy->setCurrentIndex(m_sortBy->findText("Tout"));
 	initializeTasks();
@@ -367,3 +392,205 @@ void Organisateur::slotShowTask(QTableWidgetItem *item)
 	}
 }
 
+void Organisateur::putSafeguard()
+{
+	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
+
+	QString pseudo;
+	QString password;
+	bool login = false;
+	
+	if (!settings.value("pseudo").toString().isEmpty()
+		&& !settings.value("password").toString().isEmpty())
+	{
+		pseudo = settings.value("pseudo").toString();
+		password = settings.value("password").toString();
+		login = true;
+	}
+
+	if (!login)
+	{
+		LoginDialog *dialog = new LoginDialog(windowIcon(), this);
+		
+		if (dialog->exec() == QDialog::Rejected)
+		{
+			dialog->deleteLater();
+
+			return;
+		}
+
+		pseudo = dialog->getPseudo();
+		password = dialog->getPassword();
+
+		dialog->deleteLater();
+	}
+	
+	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1).toHex();
+	
+	QFile file(Multiuso::appDirPath() + "/ini/task_manager.ini");
+		file.open(QIODevice::ReadOnly | QIODevice::Text);
+			QString text = file.readAll();
+		file.close();
+
+	text.replace("&", "|0088amp;|");
+
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "organizer.php?request=put"
+								"&pseudo=" + pseudo +
+								"&pwd=" + password +
+								"&text=" + text);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	r_put = manager->get(request);
+		connect(r_put, SIGNAL(finished()), this, SLOT(putSafeguardReply()));
+		connect(r_put, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(putSafeguardReply(QNetworkReply::NetworkError)));
+
+	setDisabled(true);
+}
+
+void Organisateur::putSafeguardReply()
+{
+	QFile reply(Multiuso::tempPath() + "/reply");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(r_put->readAll());
+		reply.close();
+
+		r_put->deleteLater();
+
+		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
+
+		reply.open(QIODevice::ReadOnly | QIODevice::Text);
+
+		while (!stream.atEnd())
+		{
+			QString line = stream.readLine();
+
+			if (line.startsWith("ERROR:"))
+			{
+				int error = line.replace(QRegExp("ERROR:([0-9]+)"), "\\1").toInt();
+
+				switch (error)
+				{
+					case 0: QMessageBox::information(this, "Multiuso", "Sauvegarde réussie !"); break;
+					case 1: QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					default: QMessageBox::critical(this, "Multiuso", "Erreur inconnue !"); break;
+				}
+			}
+		}
+
+	reply.close();
+	reply.remove();
+
+	setDisabled(false);
+}
+
+void Organisateur::putSafeguardReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+	{
+		reply->abort();
+		reply->deleteLater();
+	}
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de sauvegarde, réessayez plus tard.");
+	
+	setDisabled(false);
+}
+
+void Organisateur::getSafeguard()
+{
+	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
+
+	QString pseudo;
+	QString password;
+	bool login = false;
+	
+	if (!settings.value("pseudo").toString().isEmpty()
+		&& !settings.value("password").toString().isEmpty())
+	{
+		pseudo = settings.value("pseudo").toString();
+		password = settings.value("password").toString();
+		login = true;
+	}
+
+	if (!login)
+	{
+		LoginDialog *dialog = new LoginDialog(windowIcon(), this);
+		
+		if (dialog->exec() == QDialog::Rejected)
+		{
+			dialog->deleteLater();
+
+			return;
+		}
+
+		pseudo = dialog->getPseudo();
+		password = dialog->getPassword();
+
+		dialog->deleteLater();
+	}
+	
+	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1).toHex();
+	
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "organizer.php?request=get"
+								"&pseudo=" + pseudo +
+								"&pwd=" + password);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	r_get = manager->get(request);
+		connect(r_get, SIGNAL(finished()), this, SLOT(getSafeguardReply()));
+		connect(r_get, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getSafeguardReply(QNetworkReply::NetworkError)));
+	
+	setDisabled(true);
+}
+
+void Organisateur::getSafeguardReply()
+{
+	QString text = r_get->readAll();
+		r_get->deleteLater();
+
+	QRegExp rx("^<head>(.+)</head>\n(.+)");
+		rx.setMinimal(true);
+
+	text.replace(rx, "\\2");
+		
+	if (text.startsWith("ERROR:1"))
+	{
+		QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe icorrect !");
+	
+		setDisabled(false);
+
+		return;
+	}
+	
+	text.replace("|0088amp;|", "&");
+
+	QFile reply(Multiuso::appDirPath() + "/ini/task_manager.ini");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(text.toAscii());
+		reply.close();
+	
+	m_sortBy->setCurrentIndex(m_sortBy->findText("Tout"));
+	initializeTasks();
+	
+	setDisabled(false);
+}
+
+void Organisateur::getSafeguardReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+	{
+		reply->abort();
+		reply->deleteLater();
+	}
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de sauvegarde, réessayez plus tard.");
+	
+	setDisabled(false);
+}

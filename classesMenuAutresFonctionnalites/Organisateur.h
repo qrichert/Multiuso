@@ -21,6 +21,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #define HEADER_ORGANISATEUR
 
 #include "../CurrentIncludes.h"
+#include <QtNetwork>
 
 class EditWidget : public QWidget
 {
@@ -80,6 +81,14 @@ class Organisateur : public QDialog
 		void slotEditTask();
 		void slotDeleteTask();
 		void slotShowTask(QTableWidgetItem *item);
+		
+		void putSafeguard();
+		void putSafeguardReply();
+		void putSafeguardReply(QNetworkReply::NetworkError);
+		
+		void getSafeguard();
+		void getSafeguardReply();
+		void getSafeguardReply(QNetworkReply::NetworkError);
 
 	private:
 		QComboBox *m_sortBy;
@@ -92,6 +101,9 @@ class Organisateur : public QDialog
 		QList<QStringList> priorityNormal;
 		QList<QStringList> priorityLow;
 		QList<QStringList> priorityVeryLow;
+		
+		QNetworkReply *r_put;
+		QNetworkReply *r_get;
 };
 
 #endif
