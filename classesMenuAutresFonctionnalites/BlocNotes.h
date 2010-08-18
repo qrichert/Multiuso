@@ -21,6 +21,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #define HEADER_BLOC_NOTES
 
 #include "../CurrentIncludes.h"
+#include <QtNetwork>
 
 class BlocNotes : public QDialog
 {
@@ -38,12 +39,22 @@ class BlocNotes : public QDialog
 		void removeTab(int index);
 		void tabChanged(int tab);
 		void saveText();
+
+		void putSafeguard();
+		void putSafeguardReply();
+		void putSafeguardReply(QNetworkReply::NetworkError);
+		
+		void getSafeguard();
+		void getSafeguardReply();
+		void getSafeguardReply(QNetworkReply::NetworkError);
 	
 	private:
 		QTabWidget *m_tabWidget;
 		QVBoxLayout *m_containerLayout;
 		QWidget *m_container;
 
+		QNetworkReply *r_put;
+		QNetworkReply *r_get;
 };
 
 #endif

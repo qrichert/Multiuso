@@ -18,6 +18,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BlocNotes.h"
+#include "autresClasses/LoginDialog.h"
 
 BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 {
@@ -25,7 +26,7 @@ BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 	setWindowIcon(QIcon(":/icones/actions/actionBlocNotes.png"));
 
 	resize(Multiuso::screenWidth() / 2, Multiuso::screenHeight() / 2);
-
+	
 	QAction *actionAddTab = new QAction(this);
 		actionAddTab->setIcon(QIcon(":/icones/bloc_notes/actionAddTab.png"));
 		connect(actionAddTab, SIGNAL(triggered()), this, SLOT(addTab()));
@@ -52,19 +53,40 @@ BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 		containerLayout->addWidget(m_container);
 		containerLayout->setContentsMargins(0, 0, 0, 0);
 
-	QVBoxLayout *mainLayout = new QVBoxLayout(this);
+	QVBoxLayout *mainLayout = new QVBoxLayout;
 		mainLayout->addLayout(containerLayout);
 		mainLayout->addWidget(Multiuso::closeButton(this));
 		mainLayout->setContentsMargins(4, 4, 4, 4);
+
+	QWidget *mainWidget = new QWidget;
+		mainWidget->setLayout(mainLayout);
+
+	QMainWindow *mainWindow = new QMainWindow;
+		mainWindow->setCentralWidget(mainWidget);
+
+	QVBoxLayout *mainWindowLayout = new QVBoxLayout(this);
+		mainWindowLayout->addWidget(mainWindow);
+		mainWindowLayout->setContentsMargins(0, 0, 0, 0);	
+	
+	QToolBar *toolBar = mainWindow->addToolBar("Options");
+		toolBar->setMovable(false);
+		toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
+		QAction *actionPut = new QAction("Sauvegarder", this);
+			actionPut->setIcon(QIcon(":/icones/bloc_notes/put.png"));
+			connect(actionPut, SIGNAL(triggered()), this, SLOT(putSafeguard()));
+				toolBar->addAction(actionPut);
+
+		QAction *actionGet = new QAction("Rétablir à la dernière sauvagarde", this);
+			actionGet->setIcon(QIcon(":/icones/bloc_notes/get.png"));
+			connect(actionGet, SIGNAL(triggered()), this, SLOT(getSafeguard()));
+				toolBar->addAction(actionGet);
 
 	loadNotes();
 }
 
 void BlocNotes::loadNotes()
-{
-	for (int i = 0; i < m_tabWidget->count(); i++)
-		removeTab(i);
-
+{	
 	QSettings settings(Multiuso::appDirPath() + "/ini/bloc_notes.ini", QSettings::IniFormat);
 
 	int last_index = settings.value("last_index").toInt();
@@ -179,3 +201,205 @@ void BlocNotes::saveText()
 
 	updateView();
 }
+
+void BlocNotes::putSafeguard()
+{
+	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
+
+	QString pseudo;
+	QString password;
+	bool login = false;
+	
+	if (!settings.value("pseudo").toString().isEmpty()
+		&& !settings.value("password").toString().isEmpty())
+	{
+		pseudo = settings.value("pseudo").toString();
+		password = settings.value("password").toString();
+		login = true;
+	}
+
+	if (!login)
+	{
+		LoginDialog *dialog = new LoginDialog(windowIcon(), this);
+		
+		if (dialog->exec() == QDialog::Rejected)
+		{
+			dialog->deleteLater();
+
+			return;
+		}
+
+		pseudo = dialog->getPseudo();
+		password = dialog->getPassword();
+
+		dialog->deleteLater();
+	}
+	
+	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1).toHex();
+	
+	QFile file(Multiuso::appDirPath() + "/ini/bloc_notes.ini");
+		file.open(QIODevice::ReadOnly | QIODevice::Text);
+			QString text = file.readAll();
+		file.close();
+
+	text.replace("&", "|0088amp;|");
+
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "notepad.php?request=put"
+								"&pseudo=" + pseudo +
+								"&pwd=" + password +
+								"&text=" + text);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	r_put = manager->get(request);
+		connect(r_put, SIGNAL(finished()), this, SLOT(putSafeguardReply()));
+		connect(r_put, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(putSafeguardReply(QNetworkReply::NetworkError)));
+
+	setDisabled(true);
+}
+
+void BlocNotes::putSafeguardReply()
+{
+	QFile reply(Multiuso::tempPath() + "/reply");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(r_put->readAll());
+		reply.close();
+
+		r_put->deleteLater();
+
+		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
+
+		reply.open(QIODevice::ReadOnly | QIODevice::Text);
+
+		while (!stream.atEnd())
+		{
+			QString line = stream.readLine();
+
+			if (line.startsWith("ERROR:"))
+			{
+				int error = line.replace(QRegExp("ERROR:([0-9]+)"), "\\1").toInt();
+
+				switch (error)
+				{
+					case 0: QMessageBox::information(this, "Multiuso", "Sauvegarde réussie !"); break;
+					case 1: QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					default: QMessageBox::critical(this, "Multiuso", "Erreur inconnue !"); break;
+				}
+			}
+		}
+
+	reply.close();
+	reply.remove();
+
+	setDisabled(false);
+}
+
+void BlocNotes::putSafeguardReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+	{
+		reply->abort();
+		reply->deleteLater();
+	}
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de sauvegarde, réessayez plus tard.");
+	
+	setDisabled(false);
+}
+
+void BlocNotes::getSafeguard()
+{
+	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
+
+	QString pseudo;
+	QString password;
+	bool login = false;
+	
+	if (!settings.value("pseudo").toString().isEmpty()
+		&& !settings.value("password").toString().isEmpty())
+	{
+		pseudo = settings.value("pseudo").toString();
+		password = settings.value("password").toString();
+		login = true;
+	}
+
+	if (!login)
+	{
+		LoginDialog *dialog = new LoginDialog(windowIcon(), this);
+		
+		if (dialog->exec() == QDialog::Rejected)
+		{
+			dialog->deleteLater();
+
+			return;
+		}
+
+		pseudo = dialog->getPseudo();
+		password = dialog->getPassword();
+
+		dialog->deleteLater();
+	}
+	
+	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1).toHex();
+	
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "notepad.php?request=get"
+								"&pseudo=" + pseudo +
+								"&pwd=" + password);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	r_get = manager->get(request);
+		connect(r_get, SIGNAL(finished()), this, SLOT(getSafeguardReply()));
+		connect(r_get, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getSafeguardReply(QNetworkReply::NetworkError)));
+	
+	setDisabled(true);
+}
+
+void BlocNotes::getSafeguardReply()
+{
+	QString text = r_get->readAll();
+		r_get->deleteLater();
+
+	QRegExp rx("^<head>(.+)</head>\n(.+)");
+		rx.setMinimal(true);
+
+	text.replace(rx, "\\2");
+		
+	if (text.startsWith("ERROR:1"))
+	{
+		QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe icorrect !");
+
+		return;
+	}
+	
+	for (int i = 0; i < m_tabWidget->count(); i++)
+		removeTab(i);
+
+	QFile reply(Multiuso::appDirPath() + "/ini/bloc_notes.ini");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(text.toAscii());
+		reply.close();
+	
+	loadNotes();
+	
+	setDisabled(false);
+}
+
+void BlocNotes::getSafeguardReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+	{
+		reply->abort();
+		reply->deleteLater();
+	}
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de sauvegarde, réessayez plus tard.");
+	
+	setDisabled(false);
+}
+
