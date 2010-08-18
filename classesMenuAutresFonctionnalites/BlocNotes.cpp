@@ -380,7 +380,7 @@ void BlocNotes::getSafeguardReply()
 	
 	text.replace("|0088amp;|", "&");
 
-	for (int i = 0; i < m_tabWidget->count(); i++)
+	for (int i = m_tabWidget->count() - 1; i >= 0; i--) // Because index 1 would be index 0 (and index 1 will no longer exist).
 		removeTab(i);
 
 	QFile reply(Multiuso::appDirPath() + "/ini/bloc_notes.ini");
