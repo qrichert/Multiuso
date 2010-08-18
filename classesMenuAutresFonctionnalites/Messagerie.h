@@ -298,6 +298,7 @@ class ReplyButton : public QPushButton
 	public:
 		ReplyButton(QString text) : QPushButton(text), m_receiver("")
 		{
+			setIcon(QIcon(":/icones/messagerie/new_message.png"));
 		}
 
 		void setReceiver(QString receiver)
@@ -542,8 +543,8 @@ class MessagesWidget : public QMainWindow
 					connect(reply, SIGNAL(b_clicked(QString)), this, SLOT(slotNewMsg(QString)));
 
 				QHBoxLayout *buttonsLayout = new QHBoxLayout;
-					buttonsLayout->addWidget(reply);
 					buttonsLayout->addWidget(Multiuso::closeButton(dialog));
+					buttonsLayout->addWidget(reply);
 					buttonsLayout->setAlignment(Qt::AlignRight);
 
 				QVBoxLayout *layout = new QVBoxLayout(dialog);
@@ -614,9 +615,13 @@ class MessagesWidget : public QMainWindow
 				QPushButton *reject = new QPushButton("Annuler");
 					connect(reject, SIGNAL(clicked()), dialog, SLOT(reject()));
 
+				QPushButton *accept = new QPushButton("Envoyer");
+					accept->setIcon(QIcon(":/icones/messagerie/new_message.png"));
+					connect(accept, SIGNAL(clicked()), dialog, SLOT(accept()));
+
 				QHBoxLayout *buttonsLayout = new QHBoxLayout;
 					buttonsLayout->addWidget(reject);
-					buttonsLayout->addWidget(Multiuso::closeButton(dialog, "Envoyer"));
+					buttonsLayout->addWidget(accept);
 					buttonsLayout->setAlignment(Qt::AlignRight);
 
 				QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
