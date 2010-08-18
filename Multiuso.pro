@@ -44,6 +44,7 @@ HEADERS += CurrentIncludes.h \
            autresClasses/EasterEggCafe.h \
            autresClasses/EditerStyle.h \
            autresClasses/LineEdit.h \
+           autresClasses/LoginDialog.h \
            autresClasses/MdiSubWindow.h \
            autresClasses/PasswordDialog.h \
            autresClasses/RechercherRemplacer.h \
