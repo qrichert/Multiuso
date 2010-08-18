@@ -131,6 +131,8 @@ void BlocNotes::updateView()
 		if (text.size() > 17)
 			text = text.left(14) + "...";
 
+		text.replace("&", "&&");
+
 		m_tabWidget->setTabText(i, text);
 	}
 }
@@ -375,6 +377,8 @@ void BlocNotes::getSafeguardReply()
 		return;
 	}
 	
+	text.replace("|0088amp;|", "&");
+
 	for (int i = 0; i < m_tabWidget->count(); i++)
 		removeTab(i);
 
