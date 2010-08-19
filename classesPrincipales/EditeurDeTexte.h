@@ -99,6 +99,7 @@ class EditeurDeTexte : public QMainWindow
 		void undo();
 		void redo();
 		void search();
+		void search(QString word, QFlags<QTextDocument::FindFlag> findFlags);
 		void replace();
 		void printPreview();
 		void printPreview(QPrinter *printer);

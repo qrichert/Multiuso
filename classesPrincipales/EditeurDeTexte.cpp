@@ -587,6 +587,8 @@ void EditeurDeTexte::search()
 		searchDialog->setWindowTitle("Rechercher");
 
 	QLineEdit *textToFind = new QLineEdit;
+		textToFind->setText(currentTextEdit()->textCursor().selectedText());
+
 	QCheckBox *findBackward = new QCheckBox;
 	QCheckBox *findCaseSensitively = new QCheckBox;
 	QCheckBox *findWholeWords = new QCheckBox;
@@ -603,19 +605,63 @@ void EditeurDeTexte::search()
 
 	if (searchDialog->exec() == QDialog::Accepted)
 	{
-		QFlags<QTextDocument::FindFlags> findFlags;
+		QFlags<QTextDocument::FindFlag> findFlags;
 
-			if (findBackward->isChecked())
-				findFlags << QTextDocument::FindBackward;
+			bool f_backward = findBackward->isChecked();
+			bool f_case = findCaseSensitively->isChecked();
+			bool f_whole = findWholeWords->isChecked();
 
-			if (findCaseSensitively->isChecked())
-				findFlags << QTextDocument::FindCaseSensitively;
+			if (f_backward)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindBackward);
 
-			if (findWholeWords->isChecked())
-				findFlags << QTextDocument::FindWholeWords;
+			else if (f_backward && f_case)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindBackward
+										| QTextDocument::FindCaseSensitively);
+
+			else if (f_backward && f_whole)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindBackward
+										| QTextDocument::FindWholeWords);
+
+			else if (f_case)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindCaseSensitively);
+
+			else if (f_case && f_whole)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindCaseSensitively
+										| QTextDocument::FindWholeWords);
+
+			else if (f_whole)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindWholeWords);
+
+			else if (f_backward && f_case && f_whole)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindBackward
+										| QTextDocument::FindCaseSensitively
+										| QTextDocument::FindWholeWords);
+
+		search(textToFind->text(), findFlags);
 	}
 
 	searchDialog->deleteLater();
+}
+
+void EditeurDeTexte::search(QString word, QFlags<QTextDocument::FindFlag> findFlags)
+{
+	int answer;
+
+	do
+	{
+		if (currentTextEdit()->textCursor().atEnd())
+			currentTextEdit()->textCursor().movePosition(QTextCursor::Start);
+		
+		if (!currentTextEdit()->find(word, findFlags))
+		{
+			QMessageBox::critical(this, "Multiuso", "« " + word + " » n'a pas été trouvé !");
+
+			return;
+		}
+
+		answer = QMessageBox::question(this, "Multiuso", "Rechercher le mot suivant ?", QMessageBox::Yes | QMessageBox::No);
+	}
+	while (answer == QMessageBox::Yes);
 }
 
 void EditeurDeTexte::replace()
