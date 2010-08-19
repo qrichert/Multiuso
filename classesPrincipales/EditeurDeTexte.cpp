@@ -645,13 +645,12 @@ void EditeurDeTexte::search()
 
 void EditeurDeTexte::search(QString word, QFlags<QTextDocument::FindFlag> findFlags)
 {
+	currentTextEdit()->textCursor().movePosition(QTextCursor::Start);
+
 	int answer;
 
 	do
 	{
-		if (currentTextEdit()->textCursor().atEnd())
-			currentTextEdit()->textCursor().movePosition(QTextCursor::Start);
-		
 		if (!currentTextEdit()->find(word, findFlags))
 		{
 			QMessageBox::critical(this, "Multiuso", "« " + word + " » n'a pas été trouvé !");
@@ -666,6 +665,102 @@ void EditeurDeTexte::search(QString word, QFlags<QTextDocument::FindFlag> findFl
 
 void EditeurDeTexte::replace()
 {
+	QDialog *searchDialog = new QDialog(this);
+		searchDialog->setWindowTitle("Rechercher");
+
+	QLineEdit *textToFind = new QLineEdit;
+		textToFind->setText(currentTextEdit()->textCursor().selectedText());
+
+	QLineEdit *textToReplace = new QLineEdit;
+	QCheckBox *findBackward = new QCheckBox;
+	QCheckBox *findCaseSensitively = new QCheckBox;
+	QCheckBox *findWholeWords = new QCheckBox;
+
+	QFormLayout *contentLayout = new QFormLayout;
+		contentLayout->addRow("Rechercher :", textToFind);
+		contentLayout->addRow("Remplacer par :", textToReplace);
+		contentLayout->addRow("Rechercher en arrière :", findBackward);
+		contentLayout->addRow("Recherche sensible à la casse :", findCaseSensitively);
+		contentLayout->addRow("Rechercher uniqument les mots entiers :", findWholeWords);
+
+	QVBoxLayout *searchDialogLayout = new QVBoxLayout(searchDialog);
+		searchDialogLayout->addLayout(contentLayout);
+		searchDialogLayout->addLayout(Multiuso::dialogButtons(searchDialog, "Annuler", "Rechercher"));
+
+	if (searchDialog->exec() == QDialog::Accepted)
+	{
+		QFlags<QTextDocument::FindFlag> findFlags;
+
+			bool f_backward = findBackward->isChecked();
+			bool f_case = findCaseSensitively->isChecked();
+			bool f_whole = findWholeWords->isChecked();
+
+			if (f_backward)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindBackward);
+
+			else if (f_backward && f_case)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindBackward
+										| QTextDocument::FindCaseSensitively);
+
+			else if (f_backward && f_whole)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindBackward
+										| QTextDocument::FindWholeWords);
+
+			else if (f_case)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindCaseSensitively);
+
+			else if (f_case && f_whole)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindCaseSensitively
+										| QTextDocument::FindWholeWords);
+
+			else if (f_whole)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindWholeWords);
+
+			else if (f_backward && f_case && f_whole)
+				findFlags = QFlags<QTextDocument::FindFlag>(QTextDocument::FindBackward
+										| QTextDocument::FindCaseSensitively
+										| QTextDocument::FindWholeWords);
+
+		replace(textToFind->text(), textToReplace->text(), findFlags);
+	}
+
+	searchDialog->deleteLater();
+}
+
+void EditeurDeTexte::replace(QString word, QString word2, QFlags<QTextDocument::FindFlag> findFlags)
+{
+	currentTextEdit()->textCursor().movePosition(QTextCursor::Start);
+
+	int answer;
+
+	do
+	{
+		if (!currentTextEdit()->find(word, findFlags))
+		{
+			QMessageBox::critical(this, "Multiuso", "« " + word + " » n'a pas été trouvé !");
+
+			return;
+		}
+
+		answer = QMessageBox::question(this, "Multiuso", "Remplacer cette occurence ?",
+				QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel | QMessageBox::YesToAll);
+
+		if (answer == QMessageBox::Yes)
+		{
+			currentTextEdit()->textCursor().insertText(word2);
+		}
+
+		else if (answer == QMessageBox::YesToAll)
+		{
+			currentTextEdit()->textCursor().insertText(word2); // To replace current selection.
+
+			while (currentTextEdit()->find(word, findFlags))
+				currentTextEdit()->textCursor().insertText(word2);
+
+			return;
+		}
+	}
+	while (answer != QMessageBox::Cancel);
 }
 
 void EditeurDeTexte::printPreview()

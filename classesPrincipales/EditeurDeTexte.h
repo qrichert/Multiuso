@@ -101,6 +101,7 @@ class EditeurDeTexte : public QMainWindow
 		void search();
 		void search(QString word, QFlags<QTextDocument::FindFlag> findFlags);
 		void replace();
+		void replace(QString word, QString word2, QFlags<QTextDocument::FindFlag> findFlags);
 		void printPreview();
 		void printPreview(QPrinter *printer);
 		void print();
