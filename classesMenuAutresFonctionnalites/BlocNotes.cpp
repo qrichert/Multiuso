@@ -77,7 +77,7 @@ BlocNotes::BlocNotes(QWidget *parent = 0) : QDialog(parent)
 			connect(actionPut, SIGNAL(triggered()), this, SLOT(putSafeguard()));
 				toolBar->addAction(actionPut);
 
-		QAction *actionGet = new QAction("Rétablir à la dernière sauvagarde", this);
+		QAction *actionGet = new QAction("Rétablir à la dernière sauvegarde", this);
 			actionGet->setIcon(QIcon(":/icones/bloc_notes/get.png"));
 			connect(actionGet, SIGNAL(triggered()), this, SLOT(getSafeguard()));
 				toolBar->addAction(actionGet);
@@ -371,7 +371,7 @@ void BlocNotes::getSafeguardReply()
 		
 	if (text.startsWith("ERROR:1"))
 	{
-		QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe icorrect !");
+		QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !");
 
 		setDisabled(false);
 
