@@ -853,7 +853,7 @@ void FenPrincipale::slotQuitter()
 	if (!loaded)
 		return;
 
-	if (!editeurDeTexte->isEverythingSaved() || !editeurDeCode->tousLesDocumentsEnregistres())
+	if (!editeurDeTexte->isEverythingSaved() || !editeurDeCode->isEverythingSaved())
 	{
 		int reponse = QMessageBox::warning(this, "Multiuso", "Un ou plusieurs documents texte ne sont pas enregistrés,<br />"
 			"voulez-vous quitter Multiuso malgré tout ?", QMessageBox::Yes | QMessageBox::No);
@@ -1182,7 +1182,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 
 	else if (textes.contains(suffixe.toLower()))
 	{
-		editeurDeCode->slotOuvrirFichier(fichier);
+		editeurDeCode->openFile(fichier);
 		editeurDeCode->highlighterFor(suffixe);
 
 		if (!Multiuso::openTabsList(pagesDuProgramme).contains("Éditeur de code"))
@@ -1230,8 +1230,8 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 
 void FenPrincipale::ouvrirFichierGenere(QString fichier)
 {
-	editeurDeCode->slotNouveau();
-	editeurDeCode->setTextActuel(fichier);
+	editeurDeCode->newFile();
+	editeurDeCode->setPlainText(fichier);
 
 	if (!Multiuso::openTabsList(pagesDuProgramme).contains("Éditeur de code"))
 			accueil->openTab("Éditeur de code");

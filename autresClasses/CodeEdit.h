@@ -63,100 +63,27 @@ class CodeEdit : public QPlainTextEdit
 	Q_OBJECT
 
 	public:
-		CodeEdit(QObject *parent);
-		void dessinageAireLignes(QPaintEvent *event);
-		int largeurAireLignes();
+		CodeEdit();
 
-		void changeHighlighter(int highlighter);
+		void setSavable(bool savable);
+		bool isSavable();
+
+		void setCurrentFileName(QString fileName);
+		QString currentFileName();
 
 		void indent();
 
 	protected:
-		void resizeEvent(QResizeEvent *event);
+		void keyPressEvent(QKeyEvent *event);
 		void dragEnterEvent(QDragEnterEvent *event);
 		void dropEvent(QDropEvent *event);
-		void keyPressEvent(QKeyEvent *event);
-
-	public:
-		bool sauvegardeOk();
-		bool undoOk();
-		bool redoOk();
-
-		QString fichierOuvert();
-		bool estEnregistre();
-
-		int colorisationCourante();
-
-	public:
-		void setSauvegardeOk(bool ok);
-		void setUndoOk(bool ok);
-		void setRedoOk(bool ok);
-
-		void setFichierOuvert(QString fichier);
-		void setEstEnregistre(bool ok);
-
-		void setColorisation(int item);
-
-	public slots:
-		void MajLargeurAireLignes(int);
-		void MajAireLignes(QRect rect, int dy);
-		void surlignerLigneCourante();
-		
-	public slots:
-		void codeChanged();
 
 	signals:
-		void ouvrirFichier(QString fichier);
-		void newCode(QString newCode);
+		void openFileRequested(QString file);
 
 	private:
-		bool m_sauvegardeOk;
-		bool m_undoOk;
-		bool m_redoOk;
-
-		QString m_fichierOuvert;
-		bool m_enregistre;
-
-		int m_colorisation;
-
-	private:
-		QObject *pointeurSurParent;
-
-		QWidget *aireLignes;
-
-	private:
-		HighlighterAutoIT *colorisationSyntaxiqueAutoIT;
-		HighlighterBF *colorisationSyntaxiqueBF;
-		HighlighterC *colorisationSyntaxiqueC;
-		HighlighterCaml *colorisationSyntaxiqueCaml;
-		HighlighterCPP *colorisationSyntaxiqueCPP;
-		HighlighterCSharp *colorisationSyntaxiqueCSharp;
-		HighlighterCSS *colorisationSyntaxiqueCSS;
-		HighlighterD *colorisationSyntaxiqueD;
-		HighlighterErlang *colorisationSyntaxiqueErlang;
-		HighlighterFSharp *colorisationSyntaxiqueFSharp;
-		HighlighterGLSL *colorisationSyntaxiqueGLSL;
-		HighlighterHaskell *colorisationSyntaxiqueHaskell;
-		HighlighterHTML *colorisationSyntaxiqueHTML;
-		HighlighterINI *colorisationSyntaxiqueINI;
-		HighlighterIntercal *colorisationSyntaxiqueIntercal;
-		HighlighterJava *colorisationSyntaxiqueJava;
-		HighlighterLexYacc *colorisationSyntaxiqueLexYacc;
-		HighlighterLisp *colorisationSyntaxiqueLisp;
-		HighlighterPerl *colorisationSyntaxiquePerl;
-		HighlighterPHP *colorisationSyntaxiquePHP;
-		HighlighterPython *colorisationSyntaxiquePython;
-		HighlighterRuby *colorisationSyntaxiqueRuby;
-		HighlighterSQL *colorisationSyntaxiqueSQL;
-		HighlighterActionScript *colorisationSyntaxiqueActionScript;
-		HighlighterASM *colorisationSyntaxiqueASM;
-		HighlighterBefunge *colorisationSyntaxiqueBefunge;
-		HighlighterFortran *colorisationSyntaxiqueFortran;
-		HighlighterIO *colorisationSyntaxiqueIo;
-		HighlighterJavaScript *colorisationSyntaxiqueJavaScript;
-		HighlighterLua *colorisationSyntaxiqueLua;
-		HighlighterMiranda *colorisationSyntaxiqueMiranda;
-		HighlighterPascal *colorisationSyntaxiquePascal;
+		bool m_isSavable;
+		QString m_fileName;
 };
 
 #endif

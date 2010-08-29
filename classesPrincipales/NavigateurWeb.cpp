@@ -729,7 +729,7 @@ void NavigateurWeb::slotOuvrirHistorique(QModelIndex index)
 
 void NavigateurWeb::slotOuvrirCode()
 {
-	pointeurSurEditeurDeCode->openContent(pageActuelle()->page()->mainFrame()->toHtml(), pageActuelle()->title());
+	pointeurSurEditeurDeCode->openWebPage(pageActuelle()->page()->mainFrame()->toHtml(), pageActuelle()->title());
 
 	FenPrincipale *fen = qobject_cast<FenPrincipale *>(pointeurSurParent);
 
