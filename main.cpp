@@ -302,7 +302,7 @@ void checkFiles()
 					QSettings homePage(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 
 					if (Multiuso::currentOS() == "mac")
-						homePage.setValue("page_acceuil", "http://www.lovelymac.fr/");
+						homePage.setValue("page_accueil", "http://www.lovelymac.fr/");
 
 					else
 						homePage.setValue("page_accueil", QCoreApplication::organizationDomain());
