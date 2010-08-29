@@ -296,6 +296,17 @@ void checkFiles()
 						newFile.write(file.readAll());
 					newFile.close();
 				file.close();
+
+				if (fileInfo.fileName() == "navigateur.ini")
+				{
+					QSettings homePage(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
+
+					if (Multiuso::currentOS() == "mac")
+						homePage.setValue("page_acceuil", "http://www.lovelymac.fr/");
+
+					else
+						homePage.setValue("page_accueil", QCoreApplication::organizationDomain());
+				}
 			}
 		}
 	}

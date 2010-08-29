@@ -579,7 +579,12 @@ void Preferences::reglagesParDefaut()
 	enregistrementAutomatiqueCode->setCheckState(Qt::Unchecked);
 	indentationAutomatiqueCode->setCheckState(Qt::Checked);
 
-	pageAccueil->setText(QCoreApplication::organizationDomain());
+	if (Multiuso::currentOS() == "mac")
+		pageAccueil->setText("http://www.lovelymac.fr/");
+
+	else
+		pageAccueil->setText(QCoreApplication::organizationDomain());
+
 	nouvelOngletMoteurRecherche->setCheckState(Qt::Checked);
 	moteurDeRecherche->setCurrentIndex(moteurDeRecherche->findText("Google"));
 	moteurPersonnalise->setText("");
@@ -672,7 +677,7 @@ void Preferences::changementEtatStyle(bool)
 	else if (styleExterne->isChecked())
 	{
 		editerLeStyle->setDisabled(true);
-	moteurDeRecherche->setCurrentIndex(moteurDeRecherche->findText("Google"));
+		moteurDeRecherche->setCurrentIndex(moteurDeRecherche->findText("Google"));
 		parcourirStyleExterne->setDisabled(false);
 		listeStylesQt->setDisabled(true);
 	}
