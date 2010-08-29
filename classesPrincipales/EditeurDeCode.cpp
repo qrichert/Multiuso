@@ -148,6 +148,18 @@ QToolBar *EditeurDeCode::createFirstToolBar()
 		connect(a_repeatText, SIGNAL(triggered()), this, SLOT(repeatText()));
 			toolBar->addAction(a_repeatText);
 
+	toolBar->addSeparator();
+
+	a_toUpper = new QAction("EN MAJUSCULE", this);
+		a_toUpper->setIcon(QIcon(":/icones/editeur_de_texte/selectionMajuscule.png"));
+		connect(a_toUpper, SIGNAL(triggered()), this, SLOT(toUpper()));
+			toolBar->addAction(a_toUpper);
+
+	a_toLower = new QAction("en miniscule", this);
+		a_toLower->setIcon(QIcon(":/icones/editeur_de_texte/selectionMinuscule.png"));
+		connect(a_toLower, SIGNAL(triggered()), this, SLOT(toLower()));
+			toolBar->addAction(a_toLower);
+
 	return toolBar;
 }
 
