@@ -119,134 +119,134 @@ void CodeEdit::setHighlighter(QString highlighter)
 {
 	m_highlighter = highlighter;
 	
-	highlighterActionScript->setParent(NULL);
-	highlighterASM->setParent(NULL);
-	highlighterAutoIT->setParent(NULL);
-	highlighterBefunge->setParent(NULL);
-	highlighterBF->setParent(NULL);
-	highlighterC->setParent(NULL);
-	highlighterCaml->setParent(NULL);
-	highlighterCPP->setParent(NULL);
-	highlighterCSharp->setParent(NULL);
-	highlighterCSS->setParent(NULL);
-	highlighterD->setParent(NULL);
-	highlighterErlang->setParent(NULL);
-	highlighterFortran->setParent(NULL);
-	highlighterFSharp->setParent(NULL);
-	highlighterGLSL->setParent(NULL);
-	highlighterHaskell->setParent(NULL);
-	highlighterHTML->setParent(NULL);
-	highlighterINI->setParent(NULL);
-	highlighterIntercal->setParent(NULL);
-	highlighterIo->setParent(NULL);
-	highlighterJava->setParent(NULL);
-	highlighterJavaScript->setParent(NULL);
-	highlighterLexYacc->setParent(NULL);
-	highlighterLisp->setParent(NULL);
-	highlighterLua->setParent(NULL);
-	highlighterMiranda->setParent(NULL);
-	highlighterPascal->setParent(NULL);
-	highlighterPerl->setParent(NULL);
-	highlighterPHP->setParent(NULL);
-	highlighterPython->setParent(NULL);
-	highlighterRuby->setParent(NULL);
-	highlighterSQL->setParent(NULL);
+	highlighterActionScript->setDocument(NULL);
+	highlighterASM->setDocument(NULL);
+	highlighterAutoIT->setDocument(NULL);
+	highlighterBefunge->setDocument(NULL);
+	highlighterBF->setDocument(NULL);
+	highlighterC->setDocument(NULL);
+	highlighterCaml->setDocument(NULL);
+	highlighterCPP->setDocument(NULL);
+	highlighterCSharp->setDocument(NULL);
+	highlighterCSS->setDocument(NULL);
+	highlighterD->setDocument(NULL);
+	highlighterErlang->setDocument(NULL);
+	highlighterFortran->setDocument(NULL);
+	highlighterFSharp->setDocument(NULL);
+	highlighterGLSL->setDocument(NULL);
+	highlighterHaskell->setDocument(NULL);
+	highlighterHTML->setDocument(NULL);
+	highlighterINI->setDocument(NULL);
+	highlighterIntercal->setDocument(NULL);
+	highlighterIo->setDocument(NULL);
+	highlighterJava->setDocument(NULL);
+	highlighterJavaScript->setDocument(NULL);
+	highlighterLexYacc->setDocument(NULL);
+	highlighterLisp->setDocument(NULL);
+	highlighterLua->setDocument(NULL);
+	highlighterMiranda->setDocument(NULL);
+	highlighterPascal->setDocument(NULL);
+	highlighterPerl->setDocument(NULL);
+	highlighterPHP->setDocument(NULL);
+	highlighterPython->setDocument(NULL);
+	highlighterRuby->setDocument(NULL);
+	highlighterSQL->setDocument(NULL);
 	
 	if (highlighter == "ActionScript")
-		highlighterActionScript->setParent(document());
+		highlighterActionScript->setDocument(document());
 
 	else if (highlighter == "ASM")
-		highlighterASM->setParent(document());
+		highlighterASM->setDocument(document());
 
 	else if (highlighter == "AutoIT")
-		highlighterAutoIT->setParent(document());
+		highlighterAutoIT->setDocument(document());
 
 	else if (highlighter == "Befunge")
-		highlighterBefunge->setParent(document());
+		highlighterBefunge->setDocument(document());
 
 	else if (highlighter == "BrainFuck")
-		highlighterBF->setParent(document());
+		highlighterBF->setDocument(document());
 
 	else if (highlighter == "C")
-		highlighterC->setParent(document());
+		highlighterC->setDocument(document());
 
 	else if (highlighter == "Caml")
-		highlighterCaml->setParent(document());
+		highlighterCaml->setDocument(document());
 
 	else if (highlighter == "C++")
-		highlighterCPP->setParent(document());
+		highlighterCPP->setDocument(document());
 
 	else if (highlighter == "C#")
-		highlighterCSharp->setParent(document());
+		highlighterCSharp->setDocument(document());
 
 	else if (highlighter == "CSS")
-		highlighterCSS->setParent(document());
+		highlighterCSS->setDocument(document());
 
 	else if (highlighter == "D")
-		highlighterD->setParent(document());
+		highlighterD->setDocument(document());
 
 	else if (highlighter == "Erlang")
-		highlighterErlang->setParent(document());
+		highlighterErlang->setDocument(document());
 
 	else if (highlighter == "Fortran")
-		highlighterFortran->setParent(document());
+		highlighterFortran->setDocument(document());
 
 	else if (highlighter == "F#")
-		highlighterFSharp->setParent(document());
+		highlighterFSharp->setDocument(document());
 
 	else if (highlighter == "GLSL")
-		highlighterGLSL->setParent(document());
+		highlighterGLSL->setDocument(document());
 
 	else if (highlighter == "Haskell")
-		highlighterHaskell->setParent(document());
+		highlighterHaskell->setDocument(document());
 
 	else if (highlighter == "HTML / (x)HTML / XML")
-		highlighterHTML->setParent(document());
+		highlighterHTML->setDocument(document());
 
 	else if (highlighter == "INI")
-		highlighterINI->setParent(document());
+		highlighterINI->setDocument(document());
 
 	else if (highlighter == "Intercal")
-		highlighterIntercal->setParent(document());
+		highlighterIntercal->setDocument(document());
 
 	else if (highlighter == "Io")
-		highlighterIo->setParent(document());
+		highlighterIo->setDocument(document());
 
 	else if (highlighter == "Java")
-		highlighterJava->setParent(document());
+		highlighterJava->setDocument(document());
 
 	else if (highlighter == "JavaScript")
-		highlighterJavaScript->setParent(document());
+		highlighterJavaScript->setDocument(document());
 
 	else if (highlighter == "Lex et Yacc")
-		highlighterLexYacc->setParent(document());
+		highlighterLexYacc->setDocument(document());
 
 	else if (highlighter == "Lisp")
-		highlighterLisp->setParent(document());
+		highlighterLisp->setDocument(document());
 
 	else if (highlighter == "Lua")
-		highlighterLua->setParent(document());
+		highlighterLua->setDocument(document());
 
 	else if (highlighter == "Miranda")
-		highlighterMiranda->setParent(document());
+		highlighterMiranda->setDocument(document());
 
 	else if (highlighter == "Pascal")
-		highlighterPascal->setParent(document());
+		highlighterPascal->setDocument(document());
 
 	else if (highlighter == "Perl")
-		highlighterPerl->setParent(document());
+		highlighterPerl->setDocument(document());
 
 	else if (highlighter == "PHP")
-		highlighterPHP->setParent(document());
+		highlighterPHP->setDocument(document());
 
 	else if (highlighter == "Python")
-		highlighterPython->setParent(document());
+		highlighterPython->setDocument(document());
 
 	else if (highlighter == "Ruby")
-		highlighterRuby->setParent(document());
+		highlighterRuby->setDocument(document());
 
 	else if (highlighter == "SQL")
-		highlighterSQL->setParent(document());
+		highlighterSQL->setDocument(document());
 }
 
 QString CodeEdit::getHighlighter()
