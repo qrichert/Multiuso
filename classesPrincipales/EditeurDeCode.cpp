@@ -35,6 +35,8 @@ EditeurDeCode::EditeurDeCode(QWidget *parent = 0) : QMainWindow(parent)
 	setCentralWidget(tabWidget);
 
 	newFile();
+
+	pointeurSurParent = parent;
 }
 
 QToolBar *EditeurDeCode::createFirstToolBar()
@@ -159,6 +161,13 @@ QToolBar *EditeurDeCode::createFirstToolBar()
 		a_toLower->setIcon(QIcon(":/icones/editeur_de_texte/selectionMinuscule.png"));
 		connect(a_toLower, SIGNAL(triggered()), this, SLOT(toLower()));
 			toolBar->addAction(a_toLower);
+
+	toolBar->addSeparator();
+
+	a_openInWebBrowser = new QAction("Ouvrir dans le navigateur Web", this);
+		a_openInWebBrowser->setIcon(QIcon(":/icones/editeur_de_code/openInWebBrowser.png"));
+		connect(a_openInWebBrowser, SIGNAL(triggered()), this, SLOT(openInWebBrowser()));
+			toolBar->addAction(a_openInWebBrowser);
 
 	return toolBar;
 }
@@ -685,6 +694,26 @@ void EditeurDeCode::toLower()
 
 	QString text = cursor.selectedText().toLower();
 	cursor.insertText(text);
+}
+
+void EditeurDeCode::openInWebBrowser()
+{
+	if (p_webBrowser == NULL)
+		return;
+
+	NavigateurWeb *browser = qobject_cast<NavigateurWeb *>(p_webBrowser);
+
+	if (browser == 0)
+		return;
+
+	browser->openCodeEditDocument(currentCodeEdit()->documentTitle(), currentCodeEdit()->toPlainText());
+
+	FenPrincipale *fen = qobject_cast<FenPrincipale *>(pointeurSurParent);
+
+	if (!Multiuso::openTabsList(fen->tabWidget()).contains("Navigateur Web"))
+		fen->homeTab()->openTab("Navigateur Web");
+
+	fen->setTabIndex(Multiuso::tabIndexOf("Navigateur Web", fen->tabWidget()));
 }
 
 void EditeurDeCode::textChanged()

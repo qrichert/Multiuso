@@ -114,6 +114,8 @@ class EditeurDeCode : public QMainWindow
 		void toUpper();
 		void toLower();
 
+		void openInWebBrowser();
+
 		void textChanged();
 
 		void currentChanged(int index);
@@ -140,7 +142,10 @@ class EditeurDeCode : public QMainWindow
 		QAction *a_toUpper;
 		QAction *a_toLower;
 
+		QAction *a_openInWebBrowser;
+
 		QMainWindow *p_webBrowser;
+		QWidget *pointeurSurParent;
 };
 
 #endif
