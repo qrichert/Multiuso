@@ -28,6 +28,8 @@ CodeEdit::CodeEdit()
 
 	m_isSavable = false;
 	
+	setWordWrapMode(QTextOption::NoWrap);
+
 	initializeHighlighters();
 }
 
