@@ -163,6 +163,21 @@ QToolBar *EditeurDeCode::createFirstToolBar()
 			toolBar->addAction(a_toLower);
 
 	toolBar->addSeparator();
+	
+	QStringList s_highlighters;
+		s_highlighters << "Texte brut" << "ActionScript" << "ASM" << "AutoIT" << "Befunge"
+				<< "BrainFuck" << "C" << "Caml" << "C++" << "C#" << "CSS" << "D" << "Erlang"
+				<< "Fortran" << "F#" << "GLSL" << "Haskell" << "HTML / (x)HTML / XML"
+				<< "INI" << "Intercal" << "Io" << "Java" << "JavaScript" << "Lex et Yacc"
+				<< "Lisp" << "Lua" << "Miranda" << "Pascal" << "Perl" << "PHP"
+				<< "Python" << "Ruby" << "SQL";
+
+	c_highlighters = new QComboBox;
+		c_highlighters->addItems(s_highlighters);
+		connect(c_highlighters, SIGNAL(currentIndexChanged(QString)), this, SLOT(highlighterChanged(QString)));
+			toolBar->addWidget(c_highlighters);
+
+	toolBar->addSeparator();
 
 	a_openInWebBrowser = new QAction("Ouvrir dans le navigateur Web", this);
 		a_openInWebBrowser->setIcon(QIcon(":/icones/editeur_de_code/openInWebBrowser.png"));
@@ -193,11 +208,14 @@ void EditeurDeCode::openWebPage(QString content, QString title)
 		newFile();
 
 	setPlainText(content);
+	
+	currentCodeEdit()->setDocumentTitle(title);
+	currentCodeEdit()->setCurrentFileName("NONE");
+	currentCodeEdit()->document()->setModified(false);
+	currentCodeEdit()->setSavable(true);
 
 	tabWidget->setTabText(tabWidget->currentIndex(), title);
-	tabWidget->setTabIcon(tabWidget->currentIndex(), QIcon(":/icones/editeur_de_texte/non_enregistre.png"));
-
-	currentCodeEdit()->document()->setModified(false);
+	tabWidget->setTabIcon(tabWidget->currentIndex(), QIcon(":/icones/editeur_de_texte/enregistre.png"));
 
 	highlighterFor("html");
 }
@@ -254,6 +272,8 @@ void EditeurDeCode::newFile()
 
 	tabWidget->addTab(codeEdit, QIcon(":/icones/editeur_de_texte/enregistre.png"), "Nouveau document");
 	tabWidget->setCurrentIndex(tabWidget->indexOf(codeEdit));
+	
+	c_highlighters->setCurrentIndex(c_highlighters->findText("Texte brut"));
 }
 
 void EditeurDeCode::openFileFromAction()
@@ -331,6 +351,8 @@ void EditeurDeCode::openFile(QString file)
 
 	RecentCodeFiles::addFile(file);
 	RecentCodeFiles::setRecentFiles(a_open->menu(), this);
+	
+	highlighterFor(QFileInfo(file).suffix());
 
 	setCursor(Qt::ArrowCursor);
 }
@@ -696,6 +718,11 @@ void EditeurDeCode::toLower()
 	cursor.insertText(text);
 }
 
+void EditeurDeCode::highlighterChanged(QString highlighter)
+{
+	currentCodeEdit()->setHighlighter(highlighter);
+}
+
 void EditeurDeCode::openInWebBrowser()
 {
 	if (p_webBrowser == NULL)
@@ -733,12 +760,12 @@ void EditeurDeCode::textChanged()
 
 void EditeurDeCode::currentChanged(int)
 {
+	c_highlighters->setCurrentIndex(c_highlighters->findText(currentCodeEdit()->getHighlighter()));
 }
 
 void EditeurDeCode::highlighterFor(QString suffix)
 {
-	Q_UNUSED(suffix);
-	/*QStringList highlightersC;
+	QStringList highlightersC;
 		highlightersC << "c" << "h";
 
 	QStringList highlightersCaml;
@@ -786,56 +813,56 @@ void EditeurDeCode::highlighterFor(QString suffix)
 	QStringList highlightersSQL;
 		highlightersSQL << "sql" << "rsd" << "trn" << "fdb" << "ldf" << "mdf" << "ndf";
 
-	if (highlightersC.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("C"));
+	if (highlightersC.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("C"));
 
-	else if (highlightersCaml.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("Caml"));
+	else if (highlightersCaml.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("Caml"));
 
-	else if (highlightersCPP.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("C++"));
+	else if (highlightersCPP.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("C++"));
 
-	else if (highlightersCSharp.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("C#"));
+	else if (highlightersCSharp.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("C#"));
 
-	else if (highlightersD.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("D"));
+	else if (highlightersD.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("D"));
 
-	else if (highlightersErlang.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("Erlang"));
+	else if (highlightersErlang.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("Erlang"));
 
-	else if (highlightersFSharp.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("F#"));
+	else if (highlightersFSharp.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("F#"));
 
-	else if (highlightersHaskell.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("Haskell"));
+	else if (highlightersHaskell.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("Haskell"));
 
-	else if (highlightersHTML.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("HTML / (x)HTML"));
+	else if (highlightersHTML.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("HTML / (x)HTML / XML"));
 
-	else if (highlightersJava.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("Java"));
+	else if (highlightersJava.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("Java"));
 
-	else if (highlightersJavaScript.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("JavaScript"));
+	else if (highlightersJavaScript.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("JavaScript"));
 
-	else if (highlightersPerl.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("Perl"));
+	else if (highlightersPerl.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("Perl"));
 
-	else if (highlightersPHP.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("PHP"));
+	else if (highlightersPHP.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("PHP"));
 
-	else if (highlightersPython.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("Python"));
+	else if (highlightersPython.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("Python"));
 
-	else if (highlightersRuby.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("Ruby"));
+	else if (highlightersRuby.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("Ruby"));
 
-	else if (highlightersSQL.contains(extension))
-		colorisation->setCurrentIndex(colorisation->findText("SQL"));
+	else if (highlightersSQL.contains(suffix))
+		c_highlighters->setCurrentIndex(c_highlighters->findText("SQL"));
 
 	else
-		colorisation->setCurrentIndex(colorisation->findText("Texte brut"));*/
+		c_highlighters->setCurrentIndex(c_highlighters->findText("Texte brut"));
 }
 
 void EditeurDeCode::setWebBrowser(QMainWindow *browser)

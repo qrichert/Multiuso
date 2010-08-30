@@ -110,10 +110,9 @@ class EditeurDeCode : public QMainWindow
 		void paste();
 		void selectAll();
 		void repeatText();
-
 		void toUpper();
 		void toLower();
-
+		void highlighterChanged(QString highlighter);
 		void openInWebBrowser();
 
 		void textChanged();
@@ -141,6 +140,8 @@ class EditeurDeCode : public QMainWindow
 
 		QAction *a_toUpper;
 		QAction *a_toLower;
+		
+		QComboBox *c_highlighters;
 
 		QAction *a_openInWebBrowser;
 
