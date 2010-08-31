@@ -58,6 +58,8 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "classesHighlighters/HighlighterRuby.h"
 #include "classesHighlighters/HighlighterSQL.h"
 
+class LineNumberArea;
+
 class CodeEdit : public QPlainTextEdit
 {
 	Q_OBJECT
@@ -76,10 +78,14 @@ class CodeEdit : public QPlainTextEdit
 		void setHighlighter(QString highlighter);
 		QString getHighlighter();
 
+		void lineNumberAreaPaintEvent(QPaintEvent *event);
+		int lineNumberAreaWidth();
+
 	protected:
 		void keyPressEvent(QKeyEvent *event);
 		void dragEnterEvent(QDragEnterEvent *event);
 		void dropEvent(QDropEvent *event);
+		void resizeEvent(QResizeEvent *event);
 
 	signals:
 		void openFileRequested(QString file);
@@ -121,6 +127,36 @@ class CodeEdit : public QPlainTextEdit
 		HighlighterPython *highlighterPython;
 		HighlighterRuby *highlighterRuby;
 		HighlighterSQL *highlighterSQL;
+
+		QWidget *lineNumberArea;
+
+	private slots:
+		void updateLineNumberAreaWidth(int);
+		void highlightCurrentLine();
+		void updateLineNumberArea(QRect rect, int dy);
+};
+
+class LineNumberArea : public QWidget
+{
+	public:
+		LineNumberArea(CodeEdit *codeEdit) : QWidget(codeEdit)
+		{
+			m_codeEdit = codeEdit;
+		}
+
+		QSize sizeHint()
+		{
+			return QSize(m_codeEdit->lineNumberAreaWidth(), 0);
+		}
+
+	protected:
+		void paintEvent(QPaintEvent *event)
+		{
+			m_codeEdit->lineNumberAreaPaintEvent(event);
+		}
+
+	private:
+		CodeEdit *m_codeEdit;
 };
 
 #endif
