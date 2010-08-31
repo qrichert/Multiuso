@@ -214,8 +214,19 @@ void APropos::slotLicence()
 void APropos::slotEasterEgg()
 {
 	static int passages = 0;
+		passages++;
 
-	passages++;
+	#ifdef Q_WS_X11
+		if (system("clear")) {}
+	#endif
+
+	#ifdef Q_WS_MAC
+		if (system("clear")) {}
+	#endif
+
+	#ifdef Q_WS_WIN
+		if (system("cls")) {}
+	#endif
 
 	if (passages == 1)
 	{

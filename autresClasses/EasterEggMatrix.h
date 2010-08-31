@@ -42,6 +42,8 @@ class EasterEggMatrix : public QObject
 			#ifdef Q_WS_WIN
 				if (system("color 02")) {}
 			#endif
+
+			clear();
 		}
 		
 		void end()
@@ -53,6 +55,8 @@ class EasterEggMatrix : public QObject
 			#ifdef Q_WS_WIN
 				if (system("color 08")) {}
 			#endif
+
+			clear();
 		}
 		
 		void clear()
@@ -61,10 +65,13 @@ class EasterEggMatrix : public QObject
 				if (system("clear")) {}
 			#endif
 
+			#ifdef Q_WS_MAC
+				if (system("clear")) {}
+			#endif
+
 			#ifdef Q_WS_WIN
 				if (system("cls")) {}
 			#endif
-				std::cout << "\r";
 		}
 
 	public slots:
@@ -73,41 +80,41 @@ class EasterEggMatrix : public QObject
 			static int step = 0;
 				step++;
 
+			clear();
+
 			if (step == 1)
 			{
 				start();
-				clear();
 
-				std::cout << "Wake up, " + m_userName.toStdString() + "...";
+				std::cout << "Wake up, " + m_userName.toStdString() + "...\n";
 				
 				QTimer::singleShot(15000, this, SLOT(showText()));
 			}
 			
 			else if (step == 2)
 			{
-				std::cout << "\rThe Matrix has you...";
+				std::cout << "The Matrix has you...\n";
 				
 				QTimer::singleShot(7000, this, SLOT(showText()));
 			}
 			
 			else if (step == 3)
 			{
-				std::cout << "\rFollow the white rabbit.";
-				
+				std::cout << "Follow the white rabbit.\n";
+
 				QTimer::singleShot(8000, this, SLOT(showText()));
 			}
 			
 			else if (step == 4)
 			{
-				std::cout << "\rKnock, knock, " + m_userName.toStdString() + ".";
-				
+				std::cout << "Knock, knock, " + m_userName.toStdString() + ".\n";
+
 				QTimer::singleShot(10000, this, SLOT(showText()));
 			}
 			
 			else if (step == 5)
 			{
 				end();
-				clear();
 			}
 		}
 

@@ -880,7 +880,12 @@ void NavigateurWeb::slotChangerAdresse()
 
 	else if (barreAdresse->text() == "about:matrix")
 	{
-		easterEggMatrix->showText();
+		static bool showable = true;
+
+		if (showable)
+			easterEggMatrix->showText();
+
+		showable = false;
 	}
 
 	// </Easter Egg>
