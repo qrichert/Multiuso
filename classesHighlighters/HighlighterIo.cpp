@@ -19,7 +19,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "HighlighterIo.h"
 
-HighlighterIO::HighlighterIO(QTextDocument *parent = 0) : QSyntaxHighlighter(parent)
+HighlighterIo::HighlighterIo(QTextDocument *parent = 0) : QSyntaxHighlighter(parent)
 {
         RegleDeSurlignage regle;
 
@@ -78,7 +78,7 @@ HighlighterIO::HighlighterIO(QTextDocument *parent = 0) : QSyntaxHighlighter(par
         finCommentaire = QRegExp("\\*/");
 }
 
-void HighlighterIO::highlightBlock(const QString &texte)
+void HighlighterIo::highlightBlock(const QString &texte)
 {
         foreach (const RegleDeSurlignage &regle, reglesDeSurlignage)
         {

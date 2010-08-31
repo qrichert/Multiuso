@@ -25,12 +25,12 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 #include <QTextCharFormat>
 
-class HighlighterIO : public QSyntaxHighlighter
+class HighlighterIo : public QSyntaxHighlighter
 {
         Q_OBJECT
 
         public:
-                HighlighterIO(QTextDocument *parent);
+                HighlighterIo(QTextDocument *parent);
 
         protected:
                 void highlightBlock(const QString &texte);

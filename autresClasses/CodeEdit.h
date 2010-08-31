@@ -25,7 +25,10 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPaintEvent>
 #include <QDropEvent>
 #include <QKeyEvent>
+#include "classesHighlighters/HighlighterActionScript.h"
+#include "classesHighlighters/HighlighterASM.h"
 #include "classesHighlighters/HighlighterAutoIT.h"
+#include "classesHighlighters/HighlighterBefunge.h"
 #include "classesHighlighters/HighlighterBF.h"
 #include "classesHighlighters/HighlighterC.h"
 #include "classesHighlighters/HighlighterCaml.h"
@@ -34,29 +37,28 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "classesHighlighters/HighlighterCSS.h"
 #include "classesHighlighters/HighlighterD.h"
 #include "classesHighlighters/HighlighterErlang.h"
+#include "classesHighlighters/HighlighterFortran.h"
 #include "classesHighlighters/HighlighterFSharp.h"
 #include "classesHighlighters/HighlighterGLSL.h"
 #include "classesHighlighters/HighlighterHaskell.h"
 #include "classesHighlighters/HighlighterHTML.h"
 #include "classesHighlighters/HighlighterINI.h"
 #include "classesHighlighters/HighlighterIntercal.h"
+#include "classesHighlighters/HighlighterIo.h"
 #include "classesHighlighters/HighlighterJava.h"
+#include "classesHighlighters/HighlighterJavaScript.h"
 #include "classesHighlighters/HighlighterLexYacc.h"
 #include "classesHighlighters/HighlighterLisp.h"
+#include "classesHighlighters/HighlighterLua.h"
+#include "classesHighlighters/HighlighterMiranda.h"
+#include "classesHighlighters/HighlighterPascal.h"
 #include "classesHighlighters/HighlighterPerl.h"
 #include "classesHighlighters/HighlighterPHP.h"
 #include "classesHighlighters/HighlighterPython.h"
 #include "classesHighlighters/HighlighterRuby.h"
 #include "classesHighlighters/HighlighterSQL.h"
-#include "classesHighlighters/HighlighterActionScript.h"
-#include "classesHighlighters/HighlighterASM.h"
-#include "classesHighlighters/HighlighterBefunge.h"
-#include "classesHighlighters/HighlighterFortran.h"
-#include "classesHighlighters/HighlighterIo.h"
-#include "classesHighlighters/HighlighterJavaScript.h"
-#include "classesHighlighters/HighlighterLua.h"
-#include "classesHighlighters/HighlighterMiranda.h"
-#include "classesHighlighters/HighlighterPascal.h"
+
+class LineNumberArea;
 
 class CodeEdit : public QPlainTextEdit
 {
@@ -64,19 +66,26 @@ class CodeEdit : public QPlainTextEdit
 
 	public:
 		CodeEdit();
+		
+		void initializeHighlighters();
 
 		void setSavable(bool savable);
 		bool isSavable();
 
 		void setCurrentFileName(QString fileName);
 		QString currentFileName();
+		
+		void setHighlighter(QString highlighter);
+		QString getHighlighter();
 
-		void indent();
+		void lineNumberAreaPaintEvent(QPaintEvent *event);
+		int lineNumberAreaWidth();
 
 	protected:
 		void keyPressEvent(QKeyEvent *event);
 		void dragEnterEvent(QDragEnterEvent *event);
 		void dropEvent(QDropEvent *event);
+		void resizeEvent(QResizeEvent *event);
 
 	signals:
 		void openFileRequested(QString file);
@@ -84,6 +93,70 @@ class CodeEdit : public QPlainTextEdit
 	private:
 		bool m_isSavable;
 		QString m_fileName;
+		QString m_highlighter;
+
+		HighlighterActionScript *highlighterActionScript;
+		HighlighterASM *highlighterASM;
+		HighlighterAutoIT *highlighterAutoIT;
+		HighlighterBefunge *highlighterBefunge;
+		HighlighterBF *highlighterBF;
+		HighlighterC *highlighterC;
+		HighlighterCaml *highlighterCaml;
+		HighlighterCPP *highlighterCPP;
+		HighlighterCSharp *highlighterCSharp;
+		HighlighterCSS *highlighterCSS;
+		HighlighterD *highlighterD;
+		HighlighterErlang *highlighterErlang;
+		HighlighterFortran *highlighterFortran;
+		HighlighterFSharp *highlighterFSharp;
+		HighlighterGLSL *highlighterGLSL;
+		HighlighterHaskell *highlighterHaskell;
+		HighlighterHTML *highlighterHTML;
+		HighlighterINI *highlighterINI;
+		HighlighterIntercal *highlighterIntercal;
+		HighlighterIo *highlighterIo;
+		HighlighterJava *highlighterJava;
+		HighlighterJavaScript *highlighterJavaScript;
+		HighlighterLexYacc *highlighterLexYacc;
+		HighlighterLisp *highlighterLisp;
+		HighlighterLua *highlighterLua;
+		HighlighterMiranda *highlighterMiranda;
+		HighlighterPascal *highlighterPascal;
+		HighlighterPerl *highlighterPerl;
+		HighlighterPHP *highlighterPHP;
+		HighlighterPython *highlighterPython;
+		HighlighterRuby *highlighterRuby;
+		HighlighterSQL *highlighterSQL;
+
+		QWidget *lineNumberArea;
+
+	private slots:
+		void updateLineNumberAreaWidth(int);
+		void highlightCurrentLine();
+		void updateLineNumberArea(QRect rect, int dy);
+};
+
+class LineNumberArea : public QWidget
+{
+	public:
+		LineNumberArea(CodeEdit *codeEdit) : QWidget(codeEdit)
+		{
+			m_codeEdit = codeEdit;
+		}
+
+		QSize sizeHint()
+		{
+			return QSize(m_codeEdit->lineNumberAreaWidth(), 0);
+		}
+
+	protected:
+		void paintEvent(QPaintEvent *event)
+		{
+			m_codeEdit->lineNumberAreaPaintEvent(event);
+		}
+
+	private:
+		CodeEdit *m_codeEdit;
 };
 
 #endif
