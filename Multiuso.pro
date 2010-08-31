@@ -40,7 +40,7 @@ HEADERS += CurrentIncludes.h \
            autresClasses/CodePageWebGenere.h \
            autresClasses/ConfigurerFavoris.h \
            autresClasses/Cookies.h \
-           autresClasses/EasterEggCafe.h \
+           autresClasses/EasterEggMatrix.h \
            autresClasses/EditerStyle.h \
            autresClasses/LineEdit.h \
            autresClasses/LoginDialog.h \
@@ -124,7 +124,6 @@ SOURCES += main.cpp \
            autresClasses/CodePageWebGenere.cpp \
            autresClasses/ConfigurerFavoris.cpp \
            autresClasses/Cookies.cpp \
-           autresClasses/EasterEggCafe.cpp \
            autresClasses/EditerStyle.cpp \
            autresClasses/SpeedDial.cpp \
            autresClasses/SplashScreen.cpp \
@@ -190,7 +189,6 @@ SOURCES += main.cpp \
            classesMenuAutresFonctionnalites/FeedTarsiers/Tarsier.cpp
 RESOURCES += ressources/astuces.qrc \
              ressources/default_files.qrc \
-             ressources/easter_eggs.qrc \
              ressources/icones.qrc \
              ressources/images.qrc \
              ressources/splash_screen.qrc

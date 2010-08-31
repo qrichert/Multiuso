@@ -1,8 +1,0 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
-	<qresource>
-		<file>easter_eggs/easter_egg_cafe_1.png</file>
-		<file>easter_eggs/easter_egg_cafe_2.png</file>
-		<file>easter_eggs/easter_egg_cafe_icone.png</file>
-	</qresource>
- </RCC>

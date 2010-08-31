@@ -29,6 +29,11 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "autresClasses/CodeEdit.h"
 #include "autresClasses/WebPageScreenshot.h"
 
+// <Easter Egg>
+
+#include "autresClasses/EasterEggMatrix.h"
+
+// </Easter Egg>
 
 class NavigateurWeb : public QMainWindow
 {
@@ -77,9 +82,6 @@ class NavigateurWeb : public QMainWindow
 		void slotStop();
 		void slotAccueil();
 		void slotChangerAdresse();
-		// <Easter Egg>
-			void slotEasterEgg();
-		// </Easter Egg>
 		void slotRechercherMoteurRecherche();
 		void slotAjouterFavori();
 		void slotOuvrirFavori();
@@ -169,6 +171,12 @@ class NavigateurWeb : public QMainWindow
  		       QHttp *httpConnexion;
  		       QNetworkProxy *proxy;
 		// </Stalker (www.siteduzero.com)>
+
+		// <Easter Egg>
+
+			EasterEggMatrix *easterEggMatrix;
+
+		// </Easter Egg>
 };
 
 #endif

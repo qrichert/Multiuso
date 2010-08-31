@@ -25,12 +25,6 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "classesHighlighters/HighlighterHTML.h"
 #include "classesPrincipales/FenPrincipale.h"
 
-// <Easter Egg>
-
-#include "autresClasses/EasterEggCafe.h"
-
-// </Easter Egg>
-
 NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargements, EditeurDeCode *editeurDeCode) : QMainWindow(parent)
 {
 	QDir cacheDir(Multiuso::appDirPath() + "/navigateurWeb/cache"); // cache
@@ -229,6 +223,12 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 		httpConnexion = new QHttp(this);
 		proxy = new QNetworkProxy;
 	// </Stalker (www.siteduzero.com)>
+
+	// <Easter Egg>
+
+		easterEggMatrix = new EasterEggMatrix(this);
+
+	// </Easter Egg>
 
 	if (restaurer.value("restaurer_onglets").toBool())
 	{
@@ -878,9 +878,9 @@ void NavigateurWeb::slotChangerAdresse()
 
 	// <Easter Egg>
 
-	else if (barreAdresse->text() == "about:coffee")
+	else if (barreAdresse->text() == "about:matrix")
 	{
-		slotEasterEgg();
+		easterEggMatrix->showText();
 	}
 
 	// </Easter Egg>
@@ -967,17 +967,6 @@ void NavigateurWeb::slotChangerAdresse()
 		slotOuvrirUrl(barreAdresse->text());
 	}
 }
-
-// <Easter Egg>
-
-void NavigateurWeb::slotEasterEgg()
-{
-	EasterEggCafe *easterEggCafe = new EasterEggCafe(this);
-		easterEggCafe->exec();
-		easterEggCafe->deleteLater();
-}
-
-// </Easter Egg>
 
 void NavigateurWeb::slotRechercherMoteurRecherche()
 {
