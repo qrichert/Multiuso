@@ -38,7 +38,11 @@ class EasterEggMatrix : public QObject
 			#ifdef Q_WS_X11
 				std::cout << "\033[32;32m\n";
 			#endif
-			
+
+			#ifdef Q_WS_MAC
+				std::cout << "\033[32;32m\n";
+			#endif
+
 			#ifdef Q_WS_WIN
 				if (system("color 02")) {}
 			#endif
@@ -51,7 +55,11 @@ class EasterEggMatrix : public QObject
 			#ifdef Q_WS_X11
 				std::cout <<  "\033[0m\n";
 			#endif
-			
+
+			#ifdef Q_WS_MAC
+				std::cout <<  "\033[0m\n";
+			#endif
+
 			#ifdef Q_WS_WIN
 				if (system("color 08")) {}
 			#endif
