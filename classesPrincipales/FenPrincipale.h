@@ -54,7 +54,7 @@ class FenPrincipale : public QMainWindow
 		void resizeEvent(QResizeEvent *event);
 		void moveEvent(QMoveEvent *event);
 
-	public slots: // Initilisation de la fenêtre.
+	public slots:
 		void creerReglages(); // Règlages de la fenêtre (titre, icône...).
 		void creerBarreMenus(); // Barre des menus de la fenêtre (fichier, affichage...).
 		void creerActions(); // Actions du programme (quitter, preferences...).
@@ -69,7 +69,6 @@ class FenPrincipale : public QMainWindow
 		void updateSubWindowsMenu(QString windowTitle);
 		void disableEnableWidgetsMenuActions();
 
-	public slots: // Slots personnalisés.
 		void slotActivationSystemTray(QSystemTrayIcon::ActivationReason reason);
 		void slotTelechargements();
 		void slotDesactiverIconeTelechargements();
@@ -96,26 +95,23 @@ class FenPrincipale : public QMainWindow
 		void slotAPropos();
 		void slotAstuces();
 
-	public slots:
 		void appliquerReglages();
 		void ouvrirFichier(QString chemin);
 		void ouvrirFichierGenere(QString chemin);
 
-	public slots:
+		// Update
 		void verifierMAJ();
-		void verificationMajProgresse(qint64 recu, qint64 total);
-		void comparerMaj();
-		void annulerVerificationMaj();
-		void MajDisponible();
-		void erreurDL(QNetworkReply::NetworkError);
-		void assistantDeMiseAJour();
+		void verifOk();
+		void verifError(QNetworkReply::NetworkError);
 
-	public slots:
-		void telechargementNouvelleVersionContinue(qint64 recu, qint64 total);
-		void telechargementNouvelleVersionFini();
-		void arreterTelechargementNouvelleVersion();
+		void newVersionAvailable();
 
-	private: // Les menus.
+		void DlNewVersionProgress(qint64 got, qint64 total);
+		void DlNewVersionStop();
+		void DlNewVersionFinished();
+		void DlNewVersionError(QNetworkReply::NetworkError);
+	
+	private:
 		QMenu *menuMultiuso;
 		QMenu *menuEdition;
 		QMenu *menuAffichage;
@@ -127,7 +123,6 @@ class FenPrincipale : public QMainWindow
 
 		QMenu *menuSystemTray;
 
-	private: // Éléments composant la fenêtre.
 		QSystemTrayIcon *systemTray;
 		QStatusBar *barreDEtat;
 		QTabWidget *pagesDuProgramme;
@@ -135,7 +130,6 @@ class FenPrincipale : public QMainWindow
 		QWidget *widgetCentral;
 		TelechargerFichier *telechargements;
 
-	private: // Pages principales
 		Accueil *accueil;
 		NavFichiers *navFichiers;
 		Widgets *widgets;
@@ -145,7 +139,6 @@ class FenPrincipale : public QMainWindow
 		NavigateurWeb *navigateur;
 		VisionneurImages *visionneurImages;
 
-	private:
 		QWidget *tabAccueil;
 		QWidget *tabNavFichiers;
 		QWidget *tabWidgets;
@@ -155,12 +148,9 @@ class FenPrincipale : public QMainWindow
 		QWidget *tabNavigateur;
 		QWidget *tabVisionneurImages;
 
-	private: // Les actions.
-
-			/* MENU FICHIER */
+			/* MENU MULTIUSO */
 		QAction *actionTelechargements;
 		QAction *actionVerifierMaj;
-		QAction *actionAssistantMaj;
 		QAction *actionGestionnaireDesPlugins;
 		QAction *actionQuitter;
 
@@ -196,19 +186,16 @@ class FenPrincipale : public QMainWindow
 		QAction *actionAProposDeQt;
 		QAction *actionAstuces;
 
-	private:
-		QProgressDialog *verificationMaj;
-		QNetworkReply *fichierMaj;
-		QString derniereMaj;
-		bool confirmationVerificationMaj;
+		bool verifPerformedByUser;
+
+		QNetworkReply *r_verifMaj;
+
+		QString newVersion;
+		
+		QProgressDialog *d_verifMajProgress;
+		QNetworkReply *r_dlMaj;
+
 		QStringList noms;
-
-	private:
-		QProgressDialog *telechargerNouvelleVersion;
-		QNetworkReply *nouvelleVersion;
-		QString emplacementTelechargementNouvelleVersion;
-
-	private:
 		bool loaded;
 };
 

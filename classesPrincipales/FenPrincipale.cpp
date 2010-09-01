@@ -331,9 +331,6 @@ FenPrincipale::FenPrincipale()
 	if (useSplashScreen)
 		splash.setSplashPicture(100);
 
-
-	confirmationVerificationMaj = false;
-
 	verifierMAJ();
 
 	qApp->processEvents();
@@ -397,11 +394,6 @@ void FenPrincipale::creerActions()
 		actionVerifierMaj->setIcon(QIcon(":/icones/actions/actionVerifierMaj.png"));
 		actionVerifierMaj->setStatusTip("Vérifier si une nouvelle version de Multiuso est disponible");
 		connect(actionVerifierMaj, SIGNAL(triggered()), this, SLOT(verifierMAJ()));
-
-	actionAssistantMaj = new QAction("&Assistant de mise à jour", this);
-		actionAssistantMaj->setIcon(QIcon(":/icones/actions/actionAssistantMaj.png"));
-		actionAssistantMaj->setStatusTip("Lancer l'assistant de mise à jour");
-		connect(actionAssistantMaj, SIGNAL(triggered()), this, SLOT(assistantDeMiseAJour()));
 
 	actionGestionnaireDesPlugins = new QAction("Gestionnaire des &plugins", this);
 		actionGestionnaireDesPlugins->setIcon(QIcon(":/icones/actions/actionGestionnaireDesPlugins.png"));
@@ -543,7 +535,6 @@ void FenPrincipale::creerMenus()
 {
 	menuMultiuso->addAction(actionTelechargements);
 	menuMultiuso->addAction(actionVerifierMaj);
-	menuMultiuso->addAction(actionAssistantMaj);
 	menuMultiuso->addAction(actionGestionnaireDesPlugins);
 	menuMultiuso->addSeparator();
 	menuMultiuso->addAction(actionQuitter);
@@ -1261,163 +1252,135 @@ void FenPrincipale::slotDesactiverIconeTelechargements()
 
 void FenPrincipale::verifierMAJ()
 {
-	QNetworkRequest requete(QUrl(QCoreApplication::organizationDomain() + "maj/maj.ini"));
+	QAction *action = qobject_cast<QAction *>(sender());
 
-	QNetworkAccessManager *manager = new QNetworkAccessManager;
-
-	fichierMaj = manager->get(requete);
-
-	verificationMaj = new QProgressDialog("Vérification des mises à jour en cours...", "Annuler", 0, 100, this);
-		verificationMaj->setWindowTitle("Multiuso - Vérification des mises à jour");
-
-	connect(fichierMaj, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(verificationMajProgresse(qint64, qint64)));
-	connect(fichierMaj, SIGNAL(finished()), this, SLOT(comparerMaj()));
-	connect(fichierMaj, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(erreurDL(QNetworkReply::NetworkError)));
-	connect(verificationMaj, SIGNAL(canceled()), this, SLOT(annulerVerificationMaj()));
-}
-
-void FenPrincipale::verificationMajProgresse(qint64 recu, qint64 total)
-{
-	if (total != -1)
-	{
-		verificationMaj->setRange(0, total);
-		verificationMaj->setValue(recu);
-	}
-}
-
-void FenPrincipale::comparerMaj()
-{
-	QFile tmp(Multiuso::tempPath() + "/MAJ.ini");
-
-		if (tmp.exists())
-			tmp.remove();
-
-		tmp.open(QIODevice::WriteOnly | QIODevice::Truncate);
-		tmp.write(fichierMaj->readAll());
-		tmp.close();
-
-		QSettings derVersion(Multiuso::tempPath() + "/MAJ.ini", QSettings::IniFormat);
-			derniereMaj = derVersion.value("version_actuelle").toString();
-
-		tmp.remove();
-
-	QString versionActuelle = QCoreApplication::applicationVersion();
-
-	if (derniereMaj != versionActuelle)
-	{
-		if (!derniereMaj.isEmpty())
-		{
-			if (derniereMaj.left(1) == versionActuelle.left(1)) // versionActuelle.left(1) retourne la "tranche" de version, ex: |2|.0.0
-				MajDisponible();
-		}
-	}
+	if (action)
+		verifPerformedByUser = true;
 
 	else
-	{
-		if (confirmationVerificationMaj)
-			QMessageBox::information(this, "Multiuso", "Aucune nouvelle version n'est disponible !");
-	}
+		verifPerformedByUser = false;
 
-	confirmationVerificationMaj = true;
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "maj/maj.ini");
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	r_verifMaj = manager->get(request);
+
+	connect(r_verifMaj, SIGNAL(finished()), this, SLOT(verifOk()));	
+	connect(r_verifMaj, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(verifError(QNetworkReply::NetworkError)));
 }
 
-void FenPrincipale::annulerVerificationMaj()
+void FenPrincipale::verifOk()
 {
-	fichierMaj->abort();
-	verificationMaj->close();
+	QFile iniFile(Multiuso::tempPath() + "/maj.ini");
+
+	iniFile.open(QIODevice::WriteOnly | QIODevice::Text);
+		iniFile.write(r_verifMaj->readAll());
+	iniFile.close();
+
+		QSettings update(Multiuso::tempPath() + "/maj.ini", QSettings::IniFormat);
+
+		newVersion = update.value("version_actuelle").toString();
+
+			if (QCoreApplication::applicationVersion() != newVersion)
+			{
+				newVersionAvailable();
+			}
+
+			else
+			{
+				if (verifPerformedByUser)
+					QMessageBox::information(this, "Multiuso", "Aucune nouvelle version n'est disponible !");
+			}
+
+	iniFile.remove();
+	r_verifMaj->deleteLater();
 }
 
-void FenPrincipale::MajDisponible()
+void FenPrincipale::verifError(QNetworkReply::NetworkError)
 {
-	int reponse = QMessageBox::question(this, "Multiuso", "La version " + derniereMaj + " de Multiuso est disponible !\n"
-			"Voulez-vous la télécharger maintenant ?", QMessageBox::Yes | QMessageBox::No);
-
-	if (reponse == QMessageBox::Yes)
-	{
-		QString os = Multiuso::currentOS();
-
-		QNetworkRequest requete(QUrl(QCoreApplication::organizationDomain() + "telechargements_" + os + "/Multiuso_" + derniereMaj.left(7) + ".zip"));
-
-		QFile fichier(requete.url().toString());
-
-		QFileInfo infosFichier(fichier);
-
-		emplacementTelechargementNouvelleVersion = QFileDialog::getSaveFileName(this, "Multiuso",
-				Multiuso::lastPath() + "/" + infosFichier.fileName(), "Fichier (*)");
-
-		Multiuso::setLastPath(emplacementTelechargementNouvelleVersion);
-
-		if (emplacementTelechargementNouvelleVersion.isEmpty())
-			return;
-
-		QNetworkAccessManager *manager = new QNetworkAccessManager;
-
-		nouvelleVersion = manager->get(requete);
-
-		telechargerNouvelleVersion = new QProgressDialog("Téléchargement de la nouvelle version en cours...", "Annuler", 0, 100, this);
-			telechargerNouvelleVersion->setWindowTitle("Multiuso - Téléchargement de la nouvelle version");
-
-		connect(nouvelleVersion, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(telechargementNouvelleVersionContinue(qint64, qint64)));
-		connect(nouvelleVersion, SIGNAL(finished()), this, SLOT(telechargementNouvelleVersionFini()));
-		connect(telechargerNouvelleVersion, SIGNAL(canceled()), this, SLOT(arreterTelechargementNouvelleVersion()));
-	}
+	r_verifMaj->abort();
+	r_verifMaj->deleteLater();
+	
+	QSettings settings(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
+		settings.setValue("reseau/internet", false);
 }
 
-void FenPrincipale::erreurDL(QNetworkReply::NetworkError)
+void FenPrincipale::newVersionAvailable()
 {
-	QSettings connecteReseau(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
-		connecteReseau.setValue("reseau/internet", false);
+	int answer = QMessageBox::question(this, "Multiuso", "La version « " + newVersion + " » de Multiuso est disponible,<br />"
+			"Voulez-vous la télécharger ?", QMessageBox::Yes | QMessageBox::No);
+
+	if (answer == QMessageBox::No)
+		return;
+
+	d_verifMajProgress = new QProgressDialog("Téléchargement de la nouvelle version en cours...", "Annuler", 0, 100, this);
+		d_verifMajProgress->setWindowTitle("Multiuso");
+
+	QNetworkRequest request(QCoreApplication::organizationDomain() +
+			"telechargements_" + Multiuso::currentOS() + "/Multiuso_" + newVersion + ".zip");
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	r_dlMaj = manager->get(request);
+
+	connect(r_dlMaj, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(DlNewVersionProgress(qint64, qint64)));
+	connect(r_dlMaj, SIGNAL(finished()), this, SLOT(DlNewVersionFinished()));
+	connect(r_dlMaj, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(DlNewVersionError(QNetworkReply::NetworkError)));
+	connect(d_verifMajProgress, SIGNAL(canceled()), this, SLOT(DlNewVersionStop()));
 }
 
-void FenPrincipale::telechargementNouvelleVersionContinue(qint64 recu, qint64 total)
+void FenPrincipale::DlNewVersionProgress(qint64 got, qint64 total)
 {
 	if (total != -1)
 	{
-		telechargerNouvelleVersion->setRange(0, total);
-		telechargerNouvelleVersion->setValue(recu);
+		d_verifMajProgress->setMaximum(total);
+		d_verifMajProgress->setValue(got);
 	}
 }
 
-void FenPrincipale::telechargementNouvelleVersionFini()
+void FenPrincipale::DlNewVersionStop()
 {
-	QFile fichier(emplacementTelechargementNouvelleVersion);
+	r_dlMaj->deleteLater();
 
-		if (fichier.exists())
-			fichier.remove();
-
-		fichier.open(QIODevice::WriteOnly | QIODevice::Truncate);
-		fichier.write(nouvelleVersion->readAll());
-		fichier.close();
-
-	int answer = QMessageBox::question(this, "Multiuso", "La nouvelle version a été téléchargée avec succès !<br />"
-			"Voulez-vous fermer Multiuso et lancer l'assistant de mise à jour ?",
-			QMessageBox::Yes | QMessageBox::No);
-
-	if (answer == QMessageBox::Yes)
-	{
-		QProcess::startDetached(Multiuso::openCommand() + Multiuso::appDirPath() + "/Updater" + Multiuso::currentSuffix());
-
-		Multiuso::quit();
-	}
+	d_verifMajProgress->deleteLater();
 }
 
-void FenPrincipale::arreterTelechargementNouvelleVersion()
+void FenPrincipale::DlNewVersionFinished()
 {
-	nouvelleVersion->abort();
-	telechargerNouvelleVersion->close();
+	QFile file(Multiuso::tempPath() + "/Multiuso_" + newVersion + ".zip");
+
+	file.open(QIODevice::WriteOnly);
+		file.write(r_dlMaj->readAll());
+	file.close();
+
+		if (!Multiuso::unzip(Multiuso::tempPath() + "/Multiuso_" + newVersion + ".zip",
+			Multiuso::tempPath() + "/newVersion"))
+		{
+			QMessageBox::critical(this, "Multiuso", "Impossible d'extraire l'archive !");
+
+			return;
+		}
+
+	file.remove();
+
+	r_dlMaj->deleteLater();
+	d_verifMajProgress->deleteLater();
+
+	QSettings config(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
+		config.setValue("mot_de_passe", false);
+
+	QProcess::startDetached(Multiuso::tempPath() + "/newVersion/Multiuso/updater" + Multiuso::currentSuffix(),
+			QStringList() << Multiuso::appDirPath());
+
+	qApp->quit();
 }
 
-void FenPrincipale::assistantDeMiseAJour()
+void FenPrincipale::DlNewVersionError(QNetworkReply::NetworkError)
 {
-	int answer = QMessageBox::question(this, "Multiuso", "Voulez-vous fermer Multiuso et lancer l'assistant de mise à jour ?",
-			QMessageBox::Yes | QMessageBox::No);
+	r_dlMaj->deleteLater();
 
-	if (answer == QMessageBox::Yes)
-	{
-		QProcess::startDetached(Multiuso::openCommand() + Multiuso::appDirPath() + "/Updater" + Multiuso::currentSuffix());
-
-		Multiuso::quit();
-	}
+	d_verifMajProgress->deleteLater();
 }
 
 QTabWidget *FenPrincipale::tabWidget()

@@ -1,6 +1,7 @@
 /*
 
 Copyright © 2009-2010 Quentin RICHERT
+Copyright © QuaZIP
 
 Multiuso is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +23,8 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtGui>
 #include "time.h"
+#include <quazip/quazip.h>
+#include <quazip/quazipfile.h>
 
 struct Pair
 {
@@ -617,6 +620,138 @@ class Multiuso
 
 			return QString(stringSize + " " + type);
 		}
+
+		// <QuaZIP>
+			static bool unzip(QString zipFile, QString outDir)
+			{
+				QuaZip zip(zipFile);
+
+				if (!zip.open(QuaZip::mdUnzip))
+					return false;
+
+				zip.setFileNameCodec("IBM866");
+
+				QuaZipFileInfo info;
+
+				QuaZipFile file(&zip);
+
+				QFile out;
+				QString name;
+
+				char c;
+
+				for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile())
+				{
+					if (!zip.getCurrentFileInfo(&info))
+						return false;
+
+					if (!file.open(QIODevice::ReadOnly))
+						return false;
+
+					name = file.getActualFileName();
+
+					if (file.getZipError() != UNZ_OK)
+						return false;
+
+					QString dirn = outDir + "/" + name;
+
+					if (name.contains('/'))
+					{
+						dirn.chop(dirn.length() - dirn.lastIndexOf("/"));
+						QDir().mkpath(dirn);
+					}
+
+					out.setFileName(outDir + "/" + name);
+					out.open(QIODevice::WriteOnly);
+
+					char buf[4096];
+					int len = 0;
+
+					while (file.getChar(&c))
+					{
+						buf[len++] = c;
+
+						if (len >= 4096)
+						{
+							out.write(buf, len);
+							len = 0;
+						}
+					}
+
+					if (len > 0)
+						out.write(buf, len);
+
+					out.close();
+
+					if (file.getZipError() != UNZ_OK)
+						return false;
+
+					if (!file.atEnd())
+						return false;
+
+					file.close();
+
+					if (file.getZipError() != UNZ_OK)
+						return false;
+				}
+
+				zip.close();
+
+				if (zip.getZipError() != UNZ_OK)
+					return false;
+
+				return true;
+			}
+
+			static bool zip(QString zippedFile, QStringList files)
+			{
+				QuaZip zip(zippedFile);
+
+				if (!zip.open(QuaZip::mdCreate))
+					return false;
+
+				QFile inFile;
+
+				QuaZipFile outFile(&zip);
+
+				char c;
+
+				foreach (QString fileToCheck, files)
+				{
+					QFileInfo file(fileToCheck);
+
+					if (!file.isFile() || file.fileName() == zippedFile)
+						continue;
+
+					inFile.setFileName(file.fileName());
+
+					if (!inFile.open(QIODevice::ReadOnly))
+						return false;
+
+					if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(inFile.fileName(), inFile.fileName())))
+						return false;
+
+					while (inFile.getChar(&c) && outFile.putChar(c));
+
+					if (outFile.getZipError() != UNZ_OK)
+						return false;
+
+					outFile.close();
+
+					if (outFile.getZipError() != UNZ_OK)
+						return false;
+
+					inFile.close();
+				}
+
+				zip.close();
+
+				if (zip.getZipError() != 0)
+					return false;
+
+				return true;
+			}
+		// </QuaZIP>
 };
 
 #endif

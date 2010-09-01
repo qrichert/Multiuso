@@ -119,9 +119,13 @@ void APropos::populateModel(QStandardItemModel *model)
 		itemEveraldoCoelho->appendRow(new StandardItem("Icônes \"Crystal\""));
 			model->appendRow(itemEveraldoCoelho);
 
-	StandardItem *itemQuentinRichert = new StandardItem("Quentin RICHERT");
+	StandardItem *itemQuentinRichert = new StandardItem("Quentin RICHERT (multiuso.sourceforge.net)");
 		itemQuentinRichert->appendRow(new StandardItem("Chef de projet (upstream)"));
 			model->appendRow(itemQuentinRichert);
+
+	StandardItem *itemSergeyATachenov = new StandardItem("Sergey A. Tachenov (quazip.sourceforge.net)");
+		itemSergeyATachenov->appendRow(new StandardItem("QuaZIP"));
+			model->appendRow(itemSergeyATachenov);
 
 	StandardItem *itemShydowSdZ = new StandardItem("Shydow (www.siteduzero.com)");
 		itemShydowSdZ->appendRow(new StandardItem("Highlighter ActionScript"));
