@@ -128,7 +128,6 @@ HEADERS += CurrentIncludes.h \
            classesMenuAutresFonctionnalites/FeedTarsiers/FeedTarsiersScene.h \
            classesMenuAutresFonctionnalites/FeedTarsiers/Tarsier.h
 SOURCES += main.cpp \
-           qrc_easter_eggs.cpp \
            autresClasses/Agenda.cpp \
            autresClasses/Astuces.cpp \
            autresClasses/Calculatrice.cpp \
