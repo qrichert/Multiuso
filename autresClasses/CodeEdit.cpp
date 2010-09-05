@@ -92,9 +92,10 @@ void CodeEdit::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
 
-			QString text = toPlainText().left(textCursor().position());
-				text = text.replace(QRegExp("^(.+)\n$"), "\\1");
-				text = text.replace(QRegExp("^(.+)\n([^\n]*)$"), "\\2");
+			// Hello\nworld\n|! (| = text cursor) → world
+			QString text = toPlainText().left(textCursor().position()); // Hello\nworld\n! → Hello\nworld\n
+				text.replace(QRegExp("^(.*)\n$"), "\\1"); // Hello\nworld\n → Hello\nworld
+				text.replace(QRegExp("^(.*)\n([^\n]*)$"), "\\2"); // Hello\nworld → world
 
 			while (text.startsWith("\t"))
 			{
