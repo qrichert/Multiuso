@@ -331,6 +331,10 @@ FenPrincipale::FenPrincipale()
 	if (useSplashScreen)
 		splash.setSplashPicture(100);
 
+	verifPerformedByUser = false;
+	errorWhileCheckUpdate = false;
+	errorWhileUpdate = false;
+
 	verifierMAJ();
 
 	qApp->processEvents();
@@ -1272,6 +1276,17 @@ void FenPrincipale::verifierMAJ()
 
 void FenPrincipale::verifOk()
 {
+	if (errorWhileCheckUpdate)
+	{
+		errorWhileCheckUpdate = false;
+
+		if (verifPerformedByUser)
+			QMessageBox::critical(this, "Multiuso", "<strong>Impossible de vérifier si une mise à jour est disponible !</strong><br />"
+				"<em>Vérifiez que vous soyez bien connecté à Internet. Si tel est le cas, réessayez plus tard.</em>");
+
+		return;
+	}
+
 	QFile iniFile(Multiuso::tempPath() + "/maj.ini");
 
 	iniFile.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -1295,20 +1310,21 @@ void FenPrincipale::verifOk()
 
 	iniFile.remove();
 	r_verifMaj->deleteLater();
+
+	errorWhileCheckUpdate = false;
 }
 
 void FenPrincipale::verifError(QNetworkReply::NetworkError)
 {
-	r_verifMaj->abort();
-	r_verifMaj->deleteLater();
-	
+	errorWhileCheckUpdate = true;
+
 	QSettings settings(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 		settings.setValue("reseau/internet", false);
 }
 
 void FenPrincipale::newVersionAvailable()
 {
-	int answer = QMessageBox::question(this, "Multiuso", "La version « " + newVersion + " » de Multiuso est disponible,<br />"
+	int answer = QMessageBox::question(this, "Multiuso", "La version <strong>" + newVersion + "</strong> de Multiuso est disponible,<br />"
 			"Voulez-vous la télécharger ?", QMessageBox::Yes | QMessageBox::No);
 
 	if (answer == QMessageBox::No)
@@ -1344,10 +1360,19 @@ void FenPrincipale::DlNewVersionStop()
 	r_dlMaj->deleteLater();
 
 	d_verifMajProgress->deleteLater();
+
+	errorWhileUpdate = true;
 }
 
 void FenPrincipale::DlNewVersionFinished()
 {
+	if (errorWhileUpdate)
+	{
+		errorWhileUpdate = false;
+
+		return;
+	}
+
 	QFile file(Multiuso::tempPath() + "/Multiuso_" + newVersion + ".zip");
 
 	file.open(QIODevice::WriteOnly);
@@ -1378,9 +1403,7 @@ void FenPrincipale::DlNewVersionFinished()
 
 void FenPrincipale::DlNewVersionError(QNetworkReply::NetworkError)
 {
-	r_dlMaj->deleteLater();
-
-	d_verifMajProgress->deleteLater();
+	errorWhileUpdate = true;
 }
 
 QTabWidget *FenPrincipale::tabWidget()

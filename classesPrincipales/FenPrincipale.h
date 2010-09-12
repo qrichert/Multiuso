@@ -187,6 +187,8 @@ class FenPrincipale : public QMainWindow
 		QAction *actionAstuces;
 
 		bool verifPerformedByUser;
+		bool errorWhileCheckUpdate;
+		bool errorWhileUpdate;
 
 		QNetworkReply *r_verifMaj;
 
