@@ -1055,6 +1055,9 @@ void NavigateurWeb::telechargerFichierAuto(QNetworkReply *reponse)
 	{
 		QString lien = reponse->url().toString();
 
+		if (lien.contains("ad_type=iframe"))
+			return;
+
 		pointeurSurTelechargements->nouveauTelechargement(lien);
 	}
 
@@ -1068,6 +1071,9 @@ void NavigateurWeb::telechargerFichierAuto(QNetworkReply *reponse)
 void NavigateurWeb::telechargerFichier(QNetworkRequest requete)
 {
 	QString lien = requete.url().toString();
+
+	if (lien.contains("ad_type=iframe"))
+			return;
 
 	pointeurSurTelechargements->nouveauTelechargement(lien);
 }
