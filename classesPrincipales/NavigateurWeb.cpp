@@ -45,6 +45,8 @@ NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargement
 		favorisDir.mkdir(Multiuso::appDirPath() + "/navigateurWeb/favoris");
 
 	creerActions();
+	
+	loadUserscripts();
 
 	QFile completer(Multiuso::appDirPath() + "/navigateurWeb/autre/completer.mltscompleter");
 
@@ -352,6 +354,69 @@ void NavigateurWeb::creerActions()
 		ajouterFavori->setShortcut(QKeySequence("Ctrl+D"));
 		ajouterFavori->setMenu(menuFavoris);
 		connect(ajouterFavori, SIGNAL(triggered()), this, SLOT(slotAjouterFavori()));
+}
+
+void NavigateurWeb::loadUserscripts()
+{
+	foreach (QString file, QDir(Multiuso::appDirPath() + "/extensions/userscripts").entryList())
+	{
+		file.prepend(Multiuso::appDirPath() + "/extensions/userscripts/");
+
+		if (QFileInfo(file).suffix() != "js")
+			continue;
+
+		QFile userscript(file);
+			userscript.open(QIODevice::ReadOnly | QIODevice::Text);
+
+			QTextStream in(&userscript);
+
+				in.setCodec("UTF-8");
+					QString str;
+
+					while (!in.atEnd())
+						str += in.readLine() + "\n";
+
+			userscript.close();
+
+		QString strForIncludes = str;
+		QStringList includes;
+
+
+			bool hasBegun = false;
+
+			foreach (QString line, strForIncludes.split("\n"))
+			{
+				if (line.contains("==UserScript=="))
+				{
+					hasBegun = true;
+
+					continue;
+				}
+
+				if (line.contains("==/UserScript=="))
+				{
+					hasBegun = false;
+
+					continue;
+				}
+
+				if (!hasBegun)
+					continue;
+
+				if (line.contains("@include"))
+				{
+					line.replace(QRegExp("(.*)//(.*)@include(.+)"), "\\3");
+					line.replace(" ", "");
+					line.replace("\t", "");
+
+					includes << line;
+				}
+			}
+
+		QPair<QStringList, QString> pair(includes, str);
+
+		m_userscripts << pair;
+	}
 }
 
 void NavigateurWeb::slotFermerOnglet(int onglet)
@@ -1073,7 +1138,7 @@ void NavigateurWeb::telechargerFichier(QNetworkRequest requete)
 	QString lien = requete.url().toString();
 
 	if (lien.contains("ad_type=iframe"))
-			return;
+		return;
 
 	pointeurSurTelechargements->nouveauTelechargement(lien);
 }

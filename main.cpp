@@ -222,6 +222,7 @@ void checkFiles()
 	QDir().mkpath(Multiuso::appDirPath() + "/extensions/images"); // empty
 	QDir().mkpath(Multiuso::appDirPath() + "/extensions/plugins"); // empty
 	QDir().mkpath(Multiuso::appDirPath() + "/extensions/styles"); // empty
+	QDir().mkpath(Multiuso::appDirPath() + "/extensions/userscripts"); // empty
 
 	// INI
 	QDir().mkpath(Multiuso::appDirPath() + "/ini"); // empty

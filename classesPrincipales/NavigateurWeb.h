@@ -43,6 +43,8 @@ class NavigateurWeb : public QMainWindow
 		NavigateurWeb(QWidget *parent = 0, TelechargerFichier *telechargements = 0, EditeurDeCode *editeurDeCode = 0);
 
 		void creerActions();
+		void loadUserscripts();
+
 		void openCodeEditDocument(QString title, QString contents);
 		QDialog *authenticationDialog(QString message, bool password = true, bool username = true, QString title = "Authentification requise");
 
@@ -123,6 +125,8 @@ class NavigateurWeb : public QMainWindow
 		QWidget *pointeurSurParent;
 		TelechargerFichier *pointeurSurTelechargements;
 		EditeurDeCode *pointeurSurEditeurDeCode;
+
+		QList< QPair<QStringList, QString> > m_userscripts;
 
 		QAction *actionNouveau;
 		QAction *actionFermer;
