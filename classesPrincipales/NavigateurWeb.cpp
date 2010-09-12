@@ -1192,6 +1192,11 @@ void NavigateurWeb::changementIcone()
 
 void NavigateurWeb::chargementFini(bool ok)
 {
+	QWebView *view = qobject_cast<QWebView *>(sender());
+
+	if (view == 0)
+		return;
+
 	progression->hide();
 	termine->show();
 	actionRecharger->setVisible(true);
@@ -1207,10 +1212,10 @@ void NavigateurWeb::chargementFini(bool ok)
 
 			if (completer.open(QIODevice::Append | QIODevice::Text))
 			{
-				if (!sitesVisites.contains(pageActuelle()->url().toString()))
+				if (!sitesVisites.contains(view->url().toString()))
 				{
-					completer.write(QString(pageActuelle()->url().toString() + "\n").toAscii());
-					sitesVisites << pageActuelle()->url().toString();
+					completer.write(QString(view->url().toString() + "\n").toAscii());
+					sitesVisites << view->url().toString();
 
 					QCompleter *completerBarreAdresse = new QCompleter(sitesVisites, this);
 						completerBarreAdresse->setCaseSensitivity(Qt::CaseInsensitive);
@@ -1226,12 +1231,33 @@ void NavigateurWeb::chargementFini(bool ok)
 
 			if (historique.open(QIODevice::Append | QIODevice::Text))
 			{
-				historique.write(QString(pageActuelle()->url().toString() + "\n").toAscii());
-				liensHistorique << pageActuelle()->url().toString();
+				historique.write(QString(view->url().toString() + "\n").toAscii());
+				liensHistorique << view->url().toString();
 				modeleHistorique->setStringList(liensHistorique);
 			}
 
 			historique.close();
+		}
+
+		if (!m_userscripts.isEmpty())
+		{
+			for (int i = 0; i < m_userscripts.size(); i++)
+			{
+				QPair<QStringList, QString> pair = m_userscripts.value(i);
+
+				foreach (QString link, pair.first)
+				{
+					if (view->url().toString().contains(QRegExp(link)))
+					{
+						pair.second.replace(QRegExp("//([^\n]*)\n"), "");
+						pair.second.replace("\n", "");
+
+						view->page()->mainFrame()->evaluateJavaScript(pair.second);
+
+						qDebug() << pair.second;
+					}
+				}
+			}	
 		}
 	}
 
