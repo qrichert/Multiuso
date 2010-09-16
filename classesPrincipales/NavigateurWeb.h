@@ -60,6 +60,14 @@ class NavigateurWeb : public QMainWindow
 		void configurerFavoris();
 		QPixmap capturerPage();
 
+		void putSafeguard();
+		void putSafeguardReply();
+		void putSafeguardReply(QNetworkReply::NetworkError);
+
+		void getSafeguard();
+		void getSafeguardReply();
+		void getSafeguardReply(QNetworkReply::NetworkError);
+
 		void slotNouvelOnglet();
 		void slotFermerOnglet();
 		void slotLinkClicked(QUrl url);
@@ -149,6 +157,9 @@ class NavigateurWeb : public QMainWindow
 		QMenu *menuNavigation;
 		QMenu *menuFavoris;
 		QAction *ajouterFavori;
+
+		QNetworkReply *r_put;
+		QNetworkReply *r_get;
 
 		QStringList liensHistorique;
 		QStringList sitesVisites;

@@ -239,8 +239,10 @@
 		<file>icones/navigateur_web/actionZoomPlus.png</file>
 		<file>icones/navigateur_web/ajouterFavori.png</file>
 		<file>icones/navigateur_web/chargement.png</file>
+		<file>icones/navigateur_web/get.png</file>
 		<file>icones/navigateur_web/modifier.png</file>
 		<file>icones/navigateur_web/navigateur_web.png</file>
+		<file>icones/navigateur_web/put.png</file>
 		<file>icones/navigateur_web/renommer.png</file>
 		<file>icones/navigateur_web/supprimer.png</file>
 

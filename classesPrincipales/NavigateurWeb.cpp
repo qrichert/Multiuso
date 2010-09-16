@@ -24,6 +24,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "autresClasses/ConfigurerFavoris.h"
 #include "classesHighlighters/HighlighterHTML.h"
 #include "classesPrincipales/FenPrincipale.h"
+#include "autresClasses/LoginDialog.h"
 
 NavigateurWeb::NavigateurWeb(QWidget *parent, TelechargerFichier *telechargements, EditeurDeCode *editeurDeCode) : QMainWindow(parent)
 {
@@ -593,7 +594,17 @@ void NavigateurWeb::actualiserFavoris()
 	QAction *configurerFavoris = new QAction("&Configurer les favoris", this);
 		configurerFavoris->setIcon(QIcon(":/icones/actions/actionPreferences.png"));
 		connect(configurerFavoris, SIGNAL(triggered()), this, SLOT(configurerFavoris()));
-		menuFavoris->addAction(configurerFavoris);
+			menuFavoris->addAction(configurerFavoris);
+		
+	QAction *actionPut = new QAction("Sauvegarder", this);
+		actionPut->setIcon(QIcon(":/icones/navigateur_web/put.png"));
+		connect(actionPut, SIGNAL(triggered()), this, SLOT(putSafeguard()));
+			menuFavoris->addAction(actionPut);
+
+	QAction *actionGet = new QAction("Rétablir à la dernière sauvegarde", this);
+		actionGet->setIcon(QIcon(":/icones/navigateur_web/get.png"));
+		connect(actionGet, SIGNAL(triggered()), this, SLOT(getSafeguard()));
+			menuFavoris->addAction(actionGet);
 }
 
 void NavigateurWeb::configurerFavoris()
@@ -606,6 +617,228 @@ void NavigateurWeb::configurerFavoris()
 QPixmap NavigateurWeb::capturerPage()
 {
 	return QPixmap::grabWidget(pageActuelle());
+}
+
+void NavigateurWeb::putSafeguard()
+{
+	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
+
+	QString pseudo;
+	QString password;
+	bool login = false;
+	
+	if (!settings.value("pseudo").toString().isEmpty()
+		&& !settings.value("password").toString().isEmpty())
+	{
+		pseudo = settings.value("pseudo").toString();
+		password = settings.value("password").toString();
+		login = true;
+	}
+
+	if (!login)
+	{
+		LoginDialog *dialog = new LoginDialog(windowIcon(), this);
+		
+		if (dialog->exec() == QDialog::Rejected)
+		{
+			dialog->deleteLater();
+
+			return;
+		}
+
+		pseudo = dialog->getPseudo();
+		password = dialog->getPassword();
+
+		dialog->deleteLater();
+	}
+	
+	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1).toHex();
+
+	QString text;
+
+	foreach (QString bookmark_file, QDir(Multiuso::appDirPath() + "/navigateurWeb/favoris").entryList())
+	{
+		if (bookmark_file == "." || bookmark_file == "..")
+			continue;
+
+		QFile file(Multiuso::appDirPath() + "/navigateurWeb/favoris/" + QFileInfo(bookmark_file).fileName());
+			file.open(QIODevice::ReadOnly | QIODevice::Text);
+				text += QFileInfo(bookmark_file).fileName() + "/" + QString(file.readAll()) + "\n";
+			file.close();
+	}
+		
+	text.replace("&", "|0088amp;|");
+	text.replace("#", "|0089n;|");
+
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "bookmarks.php?request=put"
+								"&pseudo=" + pseudo +
+								"&pwd=" + password +
+								"&text=" + text);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	r_put = manager->get(request);
+		connect(r_put, SIGNAL(finished()), this, SLOT(putSafeguardReply()));
+		connect(r_put, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(putSafeguardReply(QNetworkReply::NetworkError)));
+}
+
+void NavigateurWeb::putSafeguardReply()
+{
+	QFile reply(Multiuso::tempPath() + "/reply");
+		reply.open(QIODevice::WriteOnly | QIODevice::Text);
+			reply.write(r_put->readAll());
+		reply.close();
+
+		r_put->deleteLater();
+
+		QTextStream stream(&reply);
+			stream.setCodec("UTF-8");
+
+		reply.open(QIODevice::ReadOnly | QIODevice::Text);
+
+		while (!stream.atEnd())
+		{
+			QString line = stream.readLine();
+
+			if (line.startsWith("ERROR:"))
+			{
+				int error = line.replace(QRegExp("ERROR:([0-9]+)"), "\\1").toInt();
+
+				switch (error)
+				{
+					case 0: QMessageBox::information(this, "Multiuso", "Sauvegarde réussie !"); break;
+					case 1: QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !"); break;
+					default: QMessageBox::critical(this, "Multiuso", "Erreur inconnue !"); break;
+				}
+			}
+		}
+
+	reply.close();
+	reply.remove();
+}
+
+void NavigateurWeb::putSafeguardReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+	{
+		reply->abort();
+		reply->deleteLater();
+	}
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de sauvegarde, réessayez plus tard.");
+}
+
+void NavigateurWeb::getSafeguard()
+{
+	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
+
+	QString pseudo;
+	QString password;
+	bool login = false;
+	
+	if (!settings.value("pseudo").toString().isEmpty()
+		&& !settings.value("password").toString().isEmpty())
+	{
+		pseudo = settings.value("pseudo").toString();
+		password = settings.value("password").toString();
+		login = true;
+	}
+
+	if (!login)
+	{
+		LoginDialog *dialog = new LoginDialog(windowIcon(), this);
+		
+		if (dialog->exec() == QDialog::Rejected)
+		{
+			dialog->deleteLater();
+
+			return;
+		}
+
+		pseudo = dialog->getPseudo();
+		password = dialog->getPassword();
+
+		dialog->deleteLater();
+	}
+	
+	password = QCryptographicHash::hash(password.toAscii(), QCryptographicHash::Sha1).toHex();
+	
+	QNetworkRequest request(QCoreApplication::organizationDomain() + "bookmarks.php?request=get"
+								"&pseudo=" + pseudo +
+								"&pwd=" + password);
+
+	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+	r_get = manager->get(request);
+		connect(r_get, SIGNAL(finished()), this, SLOT(getSafeguardReply()));
+		connect(r_get, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(getSafeguardReply(QNetworkReply::NetworkError)));
+}
+
+void NavigateurWeb::getSafeguardReply()
+{
+	QString text = r_get->readAll();
+		r_get->deleteLater();
+
+	QRegExp rx("^<head>(.+)</head>\n(.+)");
+		rx.setMinimal(true);
+
+	text.replace(rx, "\\2");
+		
+	if (text.startsWith("ERROR:1"))
+	{
+		QMessageBox::critical(this, "Multiuso", "Pseudo ou mot de passe incorrect !");
+
+		return;
+	}
+	
+	text.replace("|0089n;|", "#");
+	text.replace("|0088amp;|", "&");
+	
+	foreach (QString bookmark_file, QDir(Multiuso::appDirPath() + "/navigateurWeb/favoris").entryList())
+	{
+		if (bookmark_file == "." || bookmark_file == "..")
+			continue;
+
+		QFile::remove(Multiuso::appDirPath() + "/navigateurWeb/favoris/" + QFileInfo(bookmark_file).fileName());
+	}
+
+	foreach (QString line, text.split("\n"))
+	{
+		if (line.isEmpty())
+			continue;
+		
+		QString name = line;
+			name.replace(QRegExp("(.+)mltsbookmark(.+)"), "\\1mltsbookmark");
+
+		QString url = line;
+			url.replace(QRegExp("(.+)http(.+)"), "http\\2");
+
+		QFile file(Multiuso::appDirPath() + "/navigateurWeb/favoris/" + name);
+			file.open(QIODevice::WriteOnly | QIODevice::Text);
+
+			QTextStream out(&file);
+				out.setCodec("UTF-8");
+				out << url;
+
+			file.close();
+	}
+
+	actualiserFavoris();
+}
+
+void NavigateurWeb::getSafeguardReply(QNetworkReply::NetworkError)
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+	if (reply != 0)
+	{
+		reply->abort();
+		reply->deleteLater();
+	}
+
+	QMessageBox::critical(this, "Multiuso", "Impossible d'accéder à la page de sauvegarde, réessayez plus tard.");
 }
 
 void NavigateurWeb::slotOuvrirFavori()
