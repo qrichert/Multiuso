@@ -595,7 +595,9 @@ void NavigateurWeb::actualiserFavoris()
 		configurerFavoris->setIcon(QIcon(":/icones/actions/actionPreferences.png"));
 		connect(configurerFavoris, SIGNAL(triggered()), this, SLOT(configurerFavoris()));
 			menuFavoris->addAction(configurerFavoris);
-		
+
+	menuFavoris->addSeparator();
+
 	QAction *actionPut = new QAction("Sauvegarder", this);
 		actionPut->setIcon(QIcon(":/icones/navigateur_web/put.png"));
 		connect(actionPut, SIGNAL(triggered()), this, SLOT(putSafeguard()));
