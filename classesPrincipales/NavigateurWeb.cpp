@@ -330,7 +330,7 @@ void NavigateurWeb::creerActions()
 		connect(actionAccueil, SIGNAL(triggered()), this, SLOT(slotAccueil()));
 
 	barreAdresse = new LineEdit("about:blank");
-//		barreAdresse->setPlaceholderText("Entrez l'adresse d'une page Web."); → Qt 4.7
+		barreAdresse->setPlaceholderText("Entrez l'adresse d'une page Web.");
 		connect(barreAdresse, SIGNAL(returnPressed()), this, SLOT(slotChangerAdresse()));
 
 	actionGo = new QAction("Go !", this);
