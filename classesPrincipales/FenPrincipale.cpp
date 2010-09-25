@@ -337,7 +337,7 @@ FenPrincipale::FenPrincipale()
 
 	verifierMAJ();
 
-	qApp->processEvents();
+	appliquerReglages();
 
 	widgets->openTodayNotes();
 
