@@ -22,6 +22,61 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../CurrentIncludes.h"
 
+class ListWidgetItem : public QListWidgetItem
+{
+	public:
+		ListWidgetItem(QListWidget *parent = 0, int type = Type) : QListWidgetItem(parent, type) {}
+		ListWidgetItem(const QString &text, QListWidget *parent = 0, int type = Type) : QListWidgetItem(text, parent, type) {}
+		ListWidgetItem(const QIcon &icon, const QString &text, QListWidget *parent = 0, int type = Type) : QListWidgetItem(icon, text, parent, type) {}
+		ListWidgetItem(const QListWidgetItem &other) : QListWidgetItem(other) {}
+
+		void setName(QString name)
+		{
+			m_name = name;
+		}
+
+		QString name()
+		{
+			return m_name;
+		}
+
+		void setSize(QString size)
+		{
+			m_size = size;
+		}
+
+		QString size()
+		{
+			return m_size;
+		}
+
+		void setType(QString type)
+		{
+			m_type = type;
+		}
+
+		QString type()
+		{
+			return m_type;
+		}
+
+		void setLastModified(QString lastModified)
+		{
+			m_lastModified = lastModified;
+		}
+
+		QString lastModified()
+		{
+			return m_lastModified;
+		}
+
+	private:
+		QString m_name;
+		QString m_size;
+		QString m_type;
+		QString m_lastModified;
+};
+
 class VueDossier : public QWidget
 {
 	Q_OBJECT
@@ -33,27 +88,22 @@ class VueDossier : public QWidget
 
 		void lister();
 		int folderSize(QDir dir);
-		void vider();
-		void ajouterListe(QList<QStandardItem *> items);
 		QString precedent();
 		QString suivant();
 		void setModifierPosition(bool choix);
 		void setAfficherDossiersCaches(bool choix);
 		bool isAfficherDossiersCaches();
+		QString chemin();
 
 	public slots:
-		void ouvrir(QModelIndex);
+		void ouvrir(QListWidgetItem *item);
 		void ouvrirMenu(QPoint);
 		void menuSupprimer();
 		void menuRenommer();
 		void menuCreerDossier();
 		void menuCreerFichier();
 
-	public slots:
 		void setChemin(QString chemin);
-
-	public slots:
-		QString chemin();
 
 	signals:
 		void debutChargement();
@@ -68,9 +118,7 @@ class VueDossier : public QWidget
 		bool modifierPosition;
 		bool afficherDossiersCaches;
 
-	private:
-		QStandardItemModel *m_modele;
-		QTableView *m_vue;
+		QListWidget *m_vue;
 };
 
 #endif

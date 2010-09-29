@@ -213,7 +213,6 @@ SOURCES += main.cpp \
            quazip/compress.c \
            quazip/crc32.c \
            quazip/deflate.c \
-           quazip/example.c \
            quazip/gzclose.c \
            quazip/gzlib.c \
            quazip/gzread.c \
@@ -224,7 +223,6 @@ SOURCES += main.cpp \
            quazip/inftrees.c \
            quazip/ioapi.c \
            quazip/JlCompress.cpp \
-           quazip/minigzip.c \
            quazip/quaadler32.cpp \
            quazip/quacrc32.cpp \
            quazip/quazip.cpp \
