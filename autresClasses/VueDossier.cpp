@@ -28,7 +28,7 @@ VueDossier::VueDossier()
 		m_vue->setIconSize(QSize(50, 50));
 		m_vue->setResizeMode(QListView::Adjust);
 		m_vue->setMovement(QListView::Snap);
-		m_vue->setGridSize(QSize(150, 100));
+		m_vue->setGridSize(QSize(135, 100));
 		connect(m_vue, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(ouvrir(QListWidgetItem *)));
 		connect(m_vue, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ouvrirMenu(QPoint)));
 
