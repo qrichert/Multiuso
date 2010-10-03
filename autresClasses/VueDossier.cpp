@@ -22,21 +22,14 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 VueDossier::VueDossier()
 {
-	QStringList entetes;
-		entetes << "Nom" << "Taille" << "Type" << "Dernières modifications";
-
-	m_modele = new QStandardItemModel(0, entetes.size());
-		m_modele->setHorizontalHeaderLabels(entetes);
-
-	m_vue = new QTableView;
-		m_vue->setModel(m_modele);
-		m_vue->setShowGrid(false);
+	m_vue = new QListWidget;
 		m_vue->setContextMenuPolicy(Qt::CustomContextMenu);
-		m_vue->verticalHeader()->hide();
-		m_vue->horizontalHeader()->setStretchLastSection(true);
-		m_vue->setSelectionBehavior(QAbstractItemView::SelectRows);
-		m_vue->setSelectionMode(QAbstractItemView::SingleSelection);
-		connect(m_vue, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(ouvrir(QModelIndex)));
+		m_vue->setViewMode(QListView::IconMode);
+		m_vue->setIconSize(QSize(50, 50));
+		m_vue->setResizeMode(QListView::Adjust);
+		m_vue->setMovement(QListView::Snap);
+		m_vue->setGridSize(QSize(135, 100));
+		connect(m_vue, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(ouvrir(QListWidgetItem *)));
 		connect(m_vue, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ouvrirMenu(QPoint)));
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
@@ -58,13 +51,16 @@ VueDossier::VueDossier()
 
 	QShortcut *shortcutNewFile = new QShortcut(QKeySequence("Ctrl+Shift+N"), this);
 		connect(shortcutNewFile, SIGNAL(activated()), this, SLOT(menuCreerFichier()));
+
+	QShortcut *shortcutProperties = new QShortcut(QKeySequence("Alt+Return"), this);
+		connect(shortcutProperties, SIGNAL(activated()), this, SLOT(menuProperties()));
 }
 
 void VueDossier::lister()
 {
 	emit debutChargement();
 
-	m_modele->removeRows(0, m_modele->rowCount());
+	m_vue->clear();
 
 	QStringList fichiers;
 
@@ -92,12 +88,7 @@ void VueDossier::lister()
 
 		if (infosFichier.isHidden())
 			brush.setColor(Qt::darkGray);
-
-		QStandardItem *itemNom = new QStandardItem(infosFichier.fileName());
-			itemNom->setIcon(Multiuso::iconForFile(infosFichier.fileName(), type));
-			itemNom->setEditable(false);
-			itemNom->setForeground(brush);
-
+	
 		QString taille = "";
 
 		if (type != "Dossier")
@@ -106,25 +97,34 @@ void VueDossier::lister()
 		else
 			taille = Multiuso::toSize(folderSize(QDir(infosFichier.canonicalFilePath())));
 
-		QStandardItem *itemTaille = new QStandardItem(taille);
-			itemTaille->setEditable(false);
-			itemTaille->setForeground(brush);
+		QString name = infosFichier.fileName();
 
-		QStandardItem *itemType = new QStandardItem(type);
-			itemType->setEditable(false);
-			itemType->setForeground(brush);
+		if (name.length() > 45)
+			name = name.left(42) + "...";
+		
+		for (int i = 0; i < name.length(); i++)
+		{
+			if (i == 15 || i == 30)
+			{
+				name.insert(i, "\n");
+				i++;
+			}
+		}
 
-		QStandardItem *itemDernieresModifications = new QStandardItem(infosFichier.lastModified().toString());
-			itemDernieresModifications->setEditable(false);
-			itemDernieresModifications->setForeground(brush);
+		ListWidgetItem *newItem = new ListWidgetItem(name);
+			newItem->setTextAlignment(Qt::AlignCenter);
+			newItem->setName(infosFichier.fileName());
+			newItem->setIcon(Multiuso::iconForFile(infosFichier.fileName(), type));
+			newItem->setSize(taille);
+			newItem->setType(type);
+			newItem->setLastModified(infosFichier.lastModified().toString());
 
-		QList<QStandardItem *> nouveauxItems;
-			nouveauxItems << itemNom << itemTaille << itemType << itemDernieresModifications;
+			newItem->setToolTip("Nom : " + infosFichier.fileName() + "\n"
+					+ "Type : " + type + "\n"
+					+ "Taille : " + taille + "\n"
+					+ "Dernières modifications : " + infosFichier.lastModified().toString());
 
-		m_modele->appendRow(nouveauxItems);
-
-		m_vue->resizeColumnsToContents();
-		m_vue->horizontalHeader()->setStretchLastSection(true);
+		m_vue->addItem(newItem);
 	}
 
 	emit finChargement();
@@ -146,19 +146,6 @@ int VueDossier::folderSize(QDir dir)
 	}
 
 	return folderFilesSize;
-}
-
-void VueDossier::vider()
-{
-	m_modele->removeRows(0, m_modele->rowCount());
-}
-
-void VueDossier::ajouterListe(QList<QStandardItem *> items)
-{
-	m_modele->appendRow(items);
-
-	m_vue->resizeColumnsToContents();
-	m_vue->horizontalHeader()->setStretchLastSection(true);
 }
 
 QString VueDossier::precedent()
@@ -192,16 +179,15 @@ bool VueDossier::isAfficherDossiersCaches()
 	return afficherDossiersCaches;
 }
 
-void VueDossier::ouvrir(QModelIndex)
+void VueDossier::ouvrir(QListWidgetItem *item)
 {
-	QModelIndex index;
-		index = m_modele->sibling(m_vue->currentIndex().row(), 2, index);
+	ListWidgetItem *clickedItem = static_cast<ListWidgetItem *>(item);
 
-	QString type = index.data().toString();
+	if (clickedItem == 0)
+		return;
 
-		index = m_modele->sibling(m_vue->currentIndex().row(), 0, index);
-
-	QString nom = index.data().toString();
+	QString nom = clickedItem->name();
+	QString type = clickedItem->type();
 
 	if (type == "Dossier" || type == "Disque")
 	{
@@ -218,10 +204,12 @@ void VueDossier::ouvrir(QModelIndex)
 
 void VueDossier::ouvrirMenu(QPoint)
 {
-	QModelIndex index;
-		index = m_modele->sibling(m_vue->currentIndex().row(), 2, index);
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
 
-	QString type = index.data().toString();
+	if (item == 0)
+		return;
+
+	QString type = item->type();
 
 	if (type == "Disque")
 		return;
@@ -252,15 +240,27 @@ void VueDossier::ouvrirMenu(QPoint)
 		connect(creerFichier, SIGNAL(triggered()), this, SLOT(menuCreerFichier()));
 		menu.addAction(creerFichier);
 
+
+	menu.addSeparator();
+
+
+	QAction *properties = new QAction("Propriétés", this);
+		properties->setIcon(QIcon(":/icones/nav_fichiers/properties.png"));
+		connect(properties, SIGNAL(triggered()), this, SLOT(menuProperties()));
+		menu.addAction(properties);
+
+
 	menu.exec(QCursor::pos());
 }
 
 void VueDossier::menuSupprimer()
 {
-	QModelIndex index;
-		index = m_modele->sibling(m_vue->currentIndex().row(), 0, index);
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
 
-	QFile fichier(chemin() + index.data().toString());
+	if (item == 0)
+		return;
+
+	QFile fichier(chemin() + item->name());
 
 	if (QFileInfo(fichier).fileName().isEmpty())
 		return;
@@ -282,19 +282,18 @@ void VueDossier::menuSupprimer()
 
 void VueDossier::menuRenommer()
 {
-	QModelIndex index;
-		index = m_modele->sibling(m_vue->currentIndex().row(), 0, index);
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
 
-	if (index.data().toString().isEmpty())
+	if (item == 0)
 		return;
 
 	QString nouveauNom = QInputDialog::getText(this, "Multiuso", "Veuillez saisir le nouveau nom de « " +
-			Multiuso::htmlspecialchars(index.data().toString()) + " » :",
-			QLineEdit::Normal, index.data().toString());
+			Multiuso::htmlspecialchars(item->name()) + " » :",
+			QLineEdit::Normal, item->name());
 
 	if (!nouveauNom.isEmpty())
 	{
-		QFile::rename(chemin() + index.data().toString(), chemin() + nouveauNom);
+		QFile::rename(chemin() + item->name(), chemin() + nouveauNom);
 
 		lister();
 	}
@@ -326,6 +325,43 @@ void VueDossier::menuCreerFichier()
 
 		lister();
 	}
+}
+
+void VueDossier::menuProperties()
+{
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	QIcon icon = Multiuso::iconForFile(Multiuso::takeSlash(chemin()) + "/" + item->name(), item->type());
+
+	QLabel *pixmap = new QLabel;
+		pixmap->setPixmap(icon.pixmap(icon.actualSize(QSize(42, 42))));
+
+	QLabel *label = new QLabel("Nom : " + item->name() + "\n"
+					+ "Type : " + item->type() + "\n"
+					+ "Taille : " + item->size() + "\n"
+					+ "\n"
+					+ "Emplacement : " + chemin() + "\n"
+					+ "\n"
+					+ "Dernières modifications : " + item->lastModified());
+
+	QHBoxLayout *layout = new QHBoxLayout;
+		layout->addWidget(pixmap);
+		layout->addWidget(label);
+
+	QDialog *dialog = new QDialog(this);
+		dialog->setWindowTitle("Propriétés de « " + item->name() + " »");
+		dialog->setWindowIcon(QIcon(":/icones/nav_fichiers/properties.png"));
+
+			QVBoxLayout *mainLayout = new QVBoxLayout;
+				mainLayout->addLayout(layout);
+				mainLayout->addWidget(Multiuso::closeButton(dialog));
+
+		dialog->setLayout(mainLayout);
+		dialog->exec();
+		dialog->deleteLater();
 }
 
 void VueDossier::setChemin(QString chemin)

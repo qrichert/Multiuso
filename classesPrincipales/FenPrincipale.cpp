@@ -1153,7 +1153,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 		textesFormates << "mltshtml";
 
 	QStringList textes;
-		textes << "mltstxt" << "txt" << "c" << "h" << "cpp" << "hpp" << "css" << "jar" << "js" << "tex" << "php" << "sql" << "xml";
+		textes << "" << "mltstxt" << "txt" << "c" << "h" << "cpp" << "hpp" << "css" << "jar" << "js" << "tex" << "php" << "sql" << "xml";
 
 	QStringList navigateurWeb;
 		navigateurWeb << "html" << "htm";
@@ -1215,11 +1215,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 
 	else
 	{
-		int reponse = QMessageBox::question(this, "Multiuso", "Désolé, Multiuso ne gère pas ce type de fichier.\n"
-				"Voulez-vous l'ouvrir avec l'application par défaut ?", QMessageBox::Yes | QMessageBox::No);
-
-		if (reponse == QMessageBox::Yes)
-			QDesktopServices::openUrl(QUrl::fromLocalFile(fichier));
+		QDesktopServices::openUrl(QUrl::fromLocalFile(fichier));
 	}
 }
 
