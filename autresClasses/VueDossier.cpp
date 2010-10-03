@@ -29,6 +29,11 @@ VueDossier::VueDossier()
 		m_vue->setResizeMode(QListView::Adjust);
 		m_vue->setMovement(QListView::Snap);
 		m_vue->setGridSize(QSize(135, 100));
+
+		m_vue->setDragEnabled(true);
+		m_vue->viewport()->setAcceptDrops(true);
+		m_vue->setDropIndicatorShown(true);
+
 		connect(m_vue, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(ouvrir(QListWidgetItem *)));
 		connect(m_vue, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ouvrirMenu(QPoint)));
 
@@ -118,6 +123,7 @@ void VueDossier::lister()
 			newItem->setIcon(Multiuso::iconForFile(infosFichier.fileName(), type));
 			newItem->setSize(taille);
 			newItem->setType(type);
+			newItem->setPath(chemin());
 			newItem->setLastModified(infosFichier.lastModified().toString());
 
 			newItem->setToolTip("Nom : " + infosFichier.fileName() + "\n"
@@ -335,7 +341,7 @@ void VueDossier::menuProperties()
 	if (item == 0)
 		return;
 
-	QIcon icon = Multiuso::iconForFile(Multiuso::takeSlash(chemin()) + "/" + item->name(), item->type());
+	QIcon icon = Multiuso::iconForFile(Multiuso::addSlash(item->path()) +  item->name(), item->type());
 
 	QLabel *pixmap = new QLabel;
 		pixmap->setPixmap(icon.pixmap(icon.actualSize(QSize(42, 42))));
@@ -344,7 +350,7 @@ void VueDossier::menuProperties()
 					+ "Type : " + item->type() + "\n"
 					+ "Taille : " + item->size() + "\n"
 					+ "\n"
-					+ "Emplacement : " + chemin() + "\n"
+					+ "Emplacement : " + item->path() + "\n"
 					+ "\n"
 					+ "Dernières modifications : " + item->lastModified());
 

@@ -22,13 +22,17 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../CurrentIncludes.h"
 
-class ListWidgetItem : public QListWidgetItem
+class ListWidgetItem : public QListWidgetItem, public QWidget
 {
 	public:
-		ListWidgetItem(QListWidget *parent = 0, int type = Type) : QListWidgetItem(parent, type) {}
-		ListWidgetItem(const QString &text, QListWidget *parent = 0, int type = Type) : QListWidgetItem(text, parent, type) {}
-		ListWidgetItem(const QIcon &icon, const QString &text, QListWidget *parent = 0, int type = Type) : QListWidgetItem(icon, text, parent, type) {}
-		ListWidgetItem(const QListWidgetItem &other) : QListWidgetItem(other) {}
+		ListWidgetItem(QListWidget *parent = 0, int type = Type) : QListWidgetItem(parent, type) { initialize(); }
+		ListWidgetItem(const QString &text, QListWidget *parent = 0, int type = Type) : QListWidgetItem(text, parent, type) { initialize(); }
+		ListWidgetItem(const QIcon &icon, const QString &text, QListWidget *parent = 0, int type = Type) : QListWidgetItem(icon, text, parent, type) { initialize(); }
+		ListWidgetItem(const QListWidgetItem &other) : QListWidgetItem(other) { initialize(); }
+
+		void initialize()
+		{
+		}
 
 		void setName(QString name)
 		{
@@ -60,6 +64,16 @@ class ListWidgetItem : public QListWidgetItem
 			return m_type;
 		}
 
+		void setPath(QString path)
+		{
+			m_path = path;
+		}
+
+		QString path()
+		{
+			return m_path;
+		}
+
 		void setLastModified(QString lastModified)
 		{
 			m_lastModified = lastModified;
@@ -70,10 +84,16 @@ class ListWidgetItem : public QListWidgetItem
 			return m_lastModified;
 		}
 
+		void setToolTip(const QString &toolTip)
+		{
+			QListWidgetItem::setToolTip(toolTip);
+		}
+	
 	private:
 		QString m_name;
 		QString m_size;
 		QString m_type;
+		QString m_path;
 		QString m_lastModified;
 };
 
