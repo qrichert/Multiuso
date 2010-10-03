@@ -102,6 +102,7 @@ class VueDossier : public QWidget
 		void menuRenommer();
 		void menuCreerDossier();
 		void menuCreerFichier();
+		void menuProperties();
 
 		void setChemin(QString chemin);
 

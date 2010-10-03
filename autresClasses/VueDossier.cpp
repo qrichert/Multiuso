@@ -29,7 +29,7 @@ VueDossier::VueDossier()
 		m_vue->setResizeMode(QListView::Adjust);
 		m_vue->setMovement(QListView::Snap);
 		m_vue->setGridSize(QSize(135, 100));
-		connect(m_vue, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(ouvrir(QListWidgetItem *)));
+		connect(m_vue, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(ouvrir(QListWidgetItem *)));
 		connect(m_vue, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ouvrirMenu(QPoint)));
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
@@ -51,6 +51,9 @@ VueDossier::VueDossier()
 
 	QShortcut *shortcutNewFile = new QShortcut(QKeySequence("Ctrl+Shift+N"), this);
 		connect(shortcutNewFile, SIGNAL(activated()), this, SLOT(menuCreerFichier()));
+
+	QShortcut *shortcutProperties = new QShortcut(QKeySequence("Alt+Return"), this);
+		connect(shortcutProperties, SIGNAL(activated()), this, SLOT(menuProperties()));
 }
 
 void VueDossier::lister()
@@ -237,6 +240,16 @@ void VueDossier::ouvrirMenu(QPoint)
 		connect(creerFichier, SIGNAL(triggered()), this, SLOT(menuCreerFichier()));
 		menu.addAction(creerFichier);
 
+
+	menu.addSeparator();
+
+
+	QAction *properties = new QAction("Propriétés", this);
+		properties->setIcon(QIcon(":/icones/nav_fichiers/properties.png"));
+		connect(properties, SIGNAL(triggered()), this, SLOT(menuProperties()));
+		menu.addAction(properties);
+
+
 	menu.exec(QCursor::pos());
 }
 
@@ -312,6 +325,43 @@ void VueDossier::menuCreerFichier()
 
 		lister();
 	}
+}
+
+void VueDossier::menuProperties()
+{
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	QIcon icon = Multiuso::iconForFile(Multiuso::takeSlash(chemin()) + "/" + item->name(), item->type());
+
+	QLabel *pixmap = new QLabel;
+		pixmap->setPixmap(icon.pixmap(icon.actualSize(QSize(42, 42))));
+
+	QLabel *label = new QLabel("Nom : " + item->name() + "\n"
+					+ "Type : " + item->type() + "\n"
+					+ "Taille : " + item->size() + "\n"
+					+ "\n"
+					+ "Emplacement : " + chemin() + "\n"
+					+ "\n"
+					+ "Dernières modifications : " + item->lastModified());
+
+	QHBoxLayout *layout = new QHBoxLayout;
+		layout->addWidget(pixmap);
+		layout->addWidget(label);
+
+	QDialog *dialog = new QDialog(this);
+		dialog->setWindowTitle("Propriétés de « " + item->name() + " »");
+		dialog->setWindowIcon(QIcon(":/icones/nav_fichiers/properties.png"));
+
+			QVBoxLayout *mainLayout = new QVBoxLayout;
+				mainLayout->addLayout(layout);
+				mainLayout->addWidget(Multiuso::closeButton(dialog));
+
+		dialog->setLayout(mainLayout);
+		dialog->exec();
+		dialog->deleteLater();
 }
 
 void VueDossier::setChemin(QString chemin)
