@@ -113,6 +113,7 @@ void VueDossier::lister()
 
 		ListWidgetItem *newItem = new ListWidgetItem(name);
 			newItem->setTextAlignment(Qt::AlignCenter);
+			newItem->setForeground(brush);
 			newItem->setName(infosFichier.fileName());
 			newItem->setIcon(Multiuso::iconForFile(infosFichier.fileName(), type));
 			newItem->setSize(taille);
