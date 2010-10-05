@@ -22,20 +22,11 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 VueDossier::VueDossier()
 {
-	m_vue = new QListWidget;
-		m_vue->setContextMenuPolicy(Qt::CustomContextMenu);
-		m_vue->setViewMode(QListView::IconMode);
-		m_vue->setIconSize(QSize(50, 50));
-		m_vue->setResizeMode(QListView::Adjust);
-		m_vue->setMovement(QListView::Snap);
-		m_vue->setGridSize(QSize(135, 100));
-
-		m_vue->setDragEnabled(true);
-		m_vue->viewport()->setAcceptDrops(true);
-		m_vue->setDropIndicatorShown(true);
-
+	m_vue = new ListWidget;	
 		connect(m_vue, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(ouvrir(QListWidgetItem *)));
 		connect(m_vue, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ouvrirMenu(QPoint)));
+		connect(m_vue, SIGNAL(copyRequested(int, QString)), this, SLOT(copyFile(int, QString)));
+		connect(m_vue, SIGNAL(moveRequested(int, QString)), this, SLOT(moveFile(int, QString)));
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 		layout->addWidget(m_vue);
@@ -377,6 +368,16 @@ void VueDossier::setChemin(QString chemin)
 
 	if (!m_chemin.endsWith("/"))
 		m_chemin += "/";
+}
+
+void VueDossier::copyFile(int index, QString file)
+{
+	qDebug() << index << " " << file;
+}
+
+void VueDossier::moveFile(int index, QString file)
+{
+	qDebug() << index << " " << file;
 }
 
 QString VueDossier::chemin()

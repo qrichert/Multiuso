@@ -97,6 +97,66 @@ class ListWidgetItem : public QListWidgetItem, public QWidget
 		QString m_lastModified;
 };
 
+class ListWidget : public QListWidget
+{
+	Q_OBJECT
+
+	public:
+		ListWidget(QWidget *parent = 0) : QListWidget(parent)
+		{
+			setContextMenuPolicy(Qt::CustomContextMenu);
+			setViewMode(QListView::IconMode);
+			setIconSize(QSize(50, 50));
+			setResizeMode(QListView::Adjust);
+			setMovement(QListView::Snap);
+			setGridSize(QSize(135, 100));
+
+			setDragEnabled(true);
+			setAcceptDrops(true);
+			viewport()->setAcceptDrops(true);
+			setDropIndicatorShown(true);
+		}
+	
+	protected:
+		void dragEnterEvent(QDragEnterEvent *event)
+		{
+			event->acceptProposedAction();
+		}
+
+		void dropEvent(QDropEvent *event)
+		{
+			qDebug() << "iji";
+		
+			const QMimeData *data = event->mimeData();
+			int index = 36;
+			Qt::DropAction action = Qt::MoveAction;
+		
+			if (!data->hasUrls())
+				return;
+
+			foreach (QUrl url, data->urls())
+			{
+				QCoreApplication::processEvents();
+
+				QString s_url = url.path();
+
+				if (Multiuso::currentOS() == "windows")
+					s_url = s_url.right(s_url.length() - 1);
+
+				if (action == Qt::CopyAction)
+					emit copyRequested(index, s_url);
+
+				else if (action == Qt::MoveAction)
+					emit moveRequested(index, s_url);
+			}
+
+		}
+
+	signals:
+		void copyRequested(int index, QString file);
+		void moveRequested(int index, QString file);
+};
+
 class VueDossier : public QWidget
 {
 	Q_OBJECT
@@ -126,6 +186,9 @@ class VueDossier : public QWidget
 
 		void setChemin(QString chemin);
 
+		void copyFile(int index, QString file);
+		void moveFile(int index, QString file);
+
 	signals:
 		void debutChargement();
 		void finChargement();
@@ -139,7 +202,7 @@ class VueDossier : public QWidget
 		bool modifierPosition;
 		bool afficherDossiersCaches;
 
-		QListWidget *m_vue;
+		ListWidget *m_vue;
 };
 
 #endif
