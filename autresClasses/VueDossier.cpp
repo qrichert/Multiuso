@@ -25,8 +25,7 @@ VueDossier::VueDossier()
 	m_vue = new ListWidget;	
 		connect(m_vue, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(ouvrir(QListWidgetItem *)));
 		connect(m_vue, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ouvrirMenu(QPoint)));
-		connect(m_vue, SIGNAL(copyRequested(int, QString)), this, SLOT(copyFile(int, QString)));
-		connect(m_vue, SIGNAL(moveRequested(int, QString)), this, SLOT(moveFile(int, QString)));
+		connect(m_vue, SIGNAL(moveRequested(QString, QPoint)), this, SLOT(moveFile(QString, QPoint)));
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 		layout->addWidget(m_vue);
@@ -370,14 +369,23 @@ void VueDossier::setChemin(QString chemin)
 		m_chemin += "/";
 }
 
-void VueDossier::copyFile(int index, QString file)
+void VueDossier::moveFile(QString file, QPoint pos)
 {
-	qDebug() << index << " " << file;
-}
+	qDebug() << "jk";
+	QListWidgetItem *itemAtPos = m_vue->itemAt(pos);
 
-void VueDossier::moveFile(int index, QString file)
-{
-	qDebug() << index << " " << file;
+	if (!itemAtPos)
+		return;
+
+	m_vue->setCurrentItem(itemAtPos);
+
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	if (item->type() != "Dossier")
+		return;
 }
 
 QString VueDossier::chemin()

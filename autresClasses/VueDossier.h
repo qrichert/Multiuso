@@ -111,13 +111,60 @@ class ListWidget : public QListWidget
 			setMovement(QListView::Snap);
 			setGridSize(QSize(135, 100));
 
+			setSelectionMode(QAbstractItemView::SingleSelection);
 			setDragEnabled(true);
-			setAcceptDrops(true);
 			viewport()->setAcceptDrops(true);
 			setDropIndicatorShown(true);
 		}
 	
 	protected:
+		void mousePressEvent(QMouseEvent *event)
+		{
+			if (event->button() == Qt::LeftButton)
+				dragStartPos = event->pos();
+			
+			QListWidget::mousePressEvent(event);
+		}
+
+		void mouseMoveEvent(QMouseEvent *event)
+		{
+			if (!(event->buttons() & Qt::LeftButton) || !(itemAt(dragStartPos)))
+			{
+				QListWidget::mouseMoveEvent(event);
+
+				return;
+			}
+
+			if ((event->pos() - dragStartPos).manhattanLength() < QApplication::startDragDistance())
+				return;
+
+			QDrag *drag = new QDrag(this);
+
+				ListWidgetItem *item = static_cast<ListWidgetItem *>(currentItem());
+
+				if (item == 0)
+					return;
+
+				QIcon icon = Multiuso::iconForFile(Multiuso::addSlash(item->path()) +  item->name(), item->type());
+
+				drag->setPixmap(icon.pixmap(icon.actualSize(QSize(42, 42))));
+
+				QString slashToAdd = "";
+
+				if (Multiuso::currentOS() == "windows")
+					slashToAdd = "/";
+				
+				QList<QUrl> allUrls;
+			       		allUrls << QUrl("file://" + slashToAdd + Multiuso::addSlash(item->path()) + item->name());
+
+				QMimeData *data = new QMimeData;
+					data->setUrls(allUrls);
+
+				drag->setMimeData(data);
+
+			drag->exec(Qt::MoveAction, Qt::MoveAction);
+		}
+
 		void dragEnterEvent(QDragEnterEvent *event)
 		{
 			event->acceptProposedAction();
@@ -125,13 +172,11 @@ class ListWidget : public QListWidget
 
 		void dropEvent(QDropEvent *event)
 		{
-			qDebug() << "iji";
-		
 			const QMimeData *data = event->mimeData();
-			int index = 36;
-			Qt::DropAction action = Qt::MoveAction;
+			
+			Qt::DropAction action = event->dropAction();
 		
-			if (!data->hasUrls())
+			if (!data->hasUrls() || action != Qt::MoveAction)
 				return;
 
 			foreach (QUrl url, data->urls())
@@ -142,19 +187,16 @@ class ListWidget : public QListWidget
 
 				if (Multiuso::currentOS() == "windows")
 					s_url = s_url.right(s_url.length() - 1);
-
-				if (action == Qt::CopyAction)
-					emit copyRequested(index, s_url);
-
-				else if (action == Qt::MoveAction)
-					emit moveRequested(index, s_url);
+	
+				emit moveRequested(s_url, event->pos());
 			}
-
 		}
 
 	signals:
-		void copyRequested(int index, QString file);
-		void moveRequested(int index, QString file);
+		void moveRequested(QString file, QPoint pos);
+
+	private:
+		QPoint dragStartPos;
 };
 
 class VueDossier : public QWidget
@@ -186,8 +228,7 @@ class VueDossier : public QWidget
 
 		void setChemin(QString chemin);
 
-		void copyFile(int index, QString file);
-		void moveFile(int index, QString file);
+		void moveFile(QString file, QPoint pos);
 
 	signals:
 		void debutChargement();
