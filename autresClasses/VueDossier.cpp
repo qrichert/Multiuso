@@ -35,6 +35,8 @@ VueDossier::VueDossier()
 	modifierPosition = true;
 	afficherDossiersCaches = false;
 
+	copyCutObject = new CopyCutObject;
+
 	QShortcut *shortcutRename = new QShortcut(QKeySequence("F2"), this);
 		connect(shortcutRename, SIGNAL(activated()), this, SLOT(menuRenommer()));
 
@@ -227,6 +229,25 @@ void VueDossier::ouvrirMenu(QPoint)
 	menu.addSeparator();
 
 
+	QAction *copy = new QAction("Copier", this);
+		copy->setIcon(QIcon(":/icones/nav_fichiers/copier.png"));
+		connect(copy, SIGNAL(triggered()), this, SLOT(menuCopier()));
+		menu.addAction(copy);
+
+	QAction *cut = new QAction("Couper", this);
+		cut->setIcon(QIcon(":/icones/nav_fichiers/couper.png"));
+		connect(cut, SIGNAL(triggered()), this, SLOT(menuCouper()));
+		menu.addAction(cut);
+		
+	QAction *paste = new QAction("Coller", this);
+		paste->setIcon(QIcon(":/icones/nav_fichiers/coller.png"));
+		connect(paste, SIGNAL(triggered()), this, SLOT(menuColler()));
+		menu.addAction(paste);
+
+
+	menu.addSeparator();
+
+
 	QAction *creerDossier = new QAction("Créer un dossier", this);
 		creerDossier->setIcon(QIcon(":/icones/nav_fichiers/creerDossier.png"));
 		connect(creerDossier, SIGNAL(triggered()), this, SLOT(menuCreerDossier()));
@@ -294,6 +315,179 @@ void VueDossier::menuRenommer()
 
 		lister();
 	}
+}
+
+void VueDossier::menuCouper()
+{
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	copyCutObject->setCurrentAction(CUT);
+	copyCutObject->setFileLink(Multiuso::addSlash(item->path()) + item->name());
+	copyCutObject->setFileType(item->type());
+}
+
+void VueDossier::menuCopier()
+{
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	copyCutObject->setCurrentAction(COPY);
+	copyCutObject->setFileLink(Multiuso::addSlash(item->path()) + item->name());
+	copyCutObject->setFileType(item->type());
+}
+
+void VueDossier::menuColler()
+{
+	if (copyCutObject->currentAction() == COPY)
+	{
+		if (copyCutObject->fileType() == "Dossier")
+		{
+			QFile file(copyCutObject->fileLink());
+
+			QFile tmpFile(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+			
+			if (QFileInfo(file).absoluteFilePath() == QFileInfo(tmpFile).absoluteFilePath())
+				return;
+
+			if (!tmpFile.exists())
+			{
+				if (!Multiuso::copyDirectory(copyCutObject->fileLink(), chemin()))
+					QMessageBox::critical(this, "Multiuso", "Erreur lors de la copie !");
+			}
+
+			else
+			{
+				int answer = QMessageBox::warning(this, "Multiuso", "Le dossier « " + QFileInfo(file).fileName() + " » existe déjà."
+						+ "<br />Voulez-vous le remplaçer ?", QMessageBox::Yes | QMessageBox::No);
+
+				if (answer == QMessageBox::Yes)
+				{
+					Multiuso::removeDirectory(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+
+					if (!Multiuso::copyDirectory(copyCutObject->fileLink(), chemin()))
+						QMessageBox::critical(this, "Multiuso", "Erreur lors de la copie !");
+				}
+			}
+		}
+
+		else
+		{
+			QFile file(copyCutObject->fileLink());
+
+			QFile tmpFile(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+
+			if (QFileInfo(file).absoluteFilePath() == QFileInfo(tmpFile).absoluteFilePath())
+				return;
+
+			if (!tmpFile.exists())
+			{
+				if (!file.copy(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName()))
+					QMessageBox::critical(this, "Multiuso", "Erreur lors de la copie !");
+			}
+
+			else
+			{
+				int answer = QMessageBox::warning(this, "Multiuso", "Le fichier « " + QFileInfo(file).fileName() + " » existe déjà."
+						+ "<br />Voulez-vous le remplaçer ?", QMessageBox::Yes | QMessageBox::No);
+
+				if (answer == QMessageBox::Yes)
+				{
+					tmpFile.remove();
+
+					if (!file.copy(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName()))
+						QMessageBox::critical(this, "Multiuso", "Erreur lors de la copie !");
+				}
+			}
+		}
+	}
+
+	else if (copyCutObject->currentAction() == CUT)
+	{
+		if (copyCutObject->fileType() == "Dossier")
+		{
+			QFile file(copyCutObject->fileLink());
+
+			QFile tmpFile(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+			
+			if (QFileInfo(file).absoluteFilePath() == QFileInfo(tmpFile).absoluteFilePath())
+				return;
+
+			if (!tmpFile.exists())
+			{
+				if (!Multiuso::copyDirectory(copyCutObject->fileLink(), chemin()))
+					QMessageBox::critical(this, "Multiuso", "Erreur lors de la copie !");
+	
+				else
+					Multiuso::removeDirectory(copyCutObject->fileLink());
+			}
+
+			else
+			{
+				int answer = QMessageBox::warning(this, "Multiuso", "Le dossier « " + QFileInfo(file).fileName() + " » existe déjà."
+						+ "<br />Voulez-vous le remplaçer ?", QMessageBox::Yes | QMessageBox::No);
+
+				if (answer == QMessageBox::Yes)
+				{
+					Multiuso::removeDirectory(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+
+					if (!Multiuso::copyDirectory(copyCutObject->fileLink(), chemin()))
+						QMessageBox::critical(this, "Multiuso", "Erreur lors de la copie !");
+
+					else
+						Multiuso::removeDirectory(copyCutObject->fileLink());
+				}
+			}
+		}
+
+		else
+		{
+			QFile file(copyCutObject->fileLink());
+
+			QFile tmpFile(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+
+			if (QFileInfo(file).absoluteFilePath() == QFileInfo(tmpFile).absoluteFilePath())
+				return;
+
+			if (!tmpFile.exists())
+			{
+				if (!file.copy(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName()))
+					QMessageBox::critical(this, "Multiuso", "Erreur lors du déplacement !");
+
+				else
+					file.remove();
+			}
+
+			else
+			{
+				int answer = QMessageBox::warning(this, "Multiuso", "Le fichier « " + QFileInfo(file).fileName() + " » existe déjà."
+						+ "<br />Voulez-vous le remplaçer ?", QMessageBox::Yes | QMessageBox::No);
+
+				if (answer == QMessageBox::Yes)
+				{
+					tmpFile.remove();
+
+					if (!file.copy(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName()))
+						QMessageBox::critical(this, "Multiuso", "Erreur lors du déplacement !");
+
+					else
+						file.remove();
+				}
+			}
+
+		}
+	}
+
+	else
+	{
+		return;
+	}
+
+	lister();
 }
 
 void VueDossier::menuCreerDossier()

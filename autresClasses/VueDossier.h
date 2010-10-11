@@ -22,6 +22,57 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../CurrentIncludes.h"
 
+enum CopyCutAction
+{
+	COPY, CUT, NONE
+};
+
+class CopyCutObject
+{
+	public:
+		CopyCutObject()
+		{
+			m_currentAction = NONE;
+			m_fileLink = "";
+			m_fileType = "";
+		}
+
+		void setCurrentAction(CopyCutAction currentAction)
+		{
+			m_currentAction = currentAction;
+		}
+
+		CopyCutAction currentAction()
+		{
+			return m_currentAction;
+		}
+
+		void setFileLink(QString fileLink)
+		{
+			m_fileLink = fileLink;
+		}
+
+		QString fileLink()
+		{
+			return m_fileLink;
+		}
+		
+		void setFileType(QString fileType)
+		{
+			m_fileType = fileType;
+		}
+
+		QString fileType()
+		{
+			return m_fileType;
+		}
+
+	private:
+		CopyCutAction m_currentAction;
+		QString m_fileLink;
+		QString m_fileType;
+};
+
 class ListWidgetItem : public QListWidgetItem, public QWidget
 {
 	public:
@@ -222,6 +273,9 @@ class VueDossier : public QWidget
 		void ouvrirMenu(QPoint);
 		void menuSupprimer();
 		void menuRenommer();
+		void menuCouper();
+		void menuCopier();
+		void menuColler();
 		void menuCreerDossier();
 		void menuCreerFichier();
 		void menuProperties();
@@ -242,6 +296,8 @@ class VueDossier : public QWidget
 		int position;
 		bool modifierPosition;
 		bool afficherDossiersCaches;
+
+		CopyCutObject *copyCutObject;
 
 		ListWidget *m_vue;
 };
