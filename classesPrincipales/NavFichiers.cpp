@@ -52,6 +52,8 @@ NavFichiers::NavFichiers(QWidget *parent) : QMainWindow(parent)
 
 	p_fenPrincipale = parent;
 	p_navigateurWeb = NULL;
+	
+	m_copyCutObject = new CopyCutObject;
 }
 
 void NavFichiers::creerActions()
@@ -170,7 +172,7 @@ QWidget *NavFichiers::nouvelOnglet()
 	if (!QDir(welcomeFolder).exists())
 		welcomeFolder = QDir::homePath();
 
-	VueDossier *vue = new VueDossier;
+	VueDossier *vue = new VueDossier(this);
 		connect(vue, SIGNAL(debutChargement()), this, SLOT(slotDebutChargement()));
 		connect(vue, SIGNAL(finChargement()), this, SLOT(slotFinChargement()));
 		connect(vue, SIGNAL(demandeUpdate()), this, SLOT(slotUpdateAffichage()));

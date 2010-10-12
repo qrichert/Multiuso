@@ -21,57 +21,9 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #define HEADER_VUEDOSSIER
 
 #include "../CurrentIncludes.h"
+#include "autresClasses/CopyCut.h"
 
-enum CopyCutAction
-{
-	COPY, CUT, NONE
-};
-
-class CopyCutObject
-{
-	public:
-		CopyCutObject()
-		{
-			m_currentAction = NONE;
-			m_fileLink = "";
-			m_fileType = "";
-		}
-
-		void setCurrentAction(CopyCutAction currentAction)
-		{
-			m_currentAction = currentAction;
-		}
-
-		CopyCutAction currentAction()
-		{
-			return m_currentAction;
-		}
-
-		void setFileLink(QString fileLink)
-		{
-			m_fileLink = fileLink;
-		}
-
-		QString fileLink()
-		{
-			return m_fileLink;
-		}
-		
-		void setFileType(QString fileType)
-		{
-			m_fileType = fileType;
-		}
-
-		QString fileType()
-		{
-			return m_fileType;
-		}
-
-	private:
-		CopyCutAction m_currentAction;
-		QString m_fileLink;
-		QString m_fileType;
-};
+class NavFichiers;
 
 class ListWidgetItem : public QListWidgetItem, public QWidget
 {
@@ -255,7 +207,7 @@ class VueDossier : public QWidget
 	Q_OBJECT
 
 	public:
-		VueDossier();
+		VueDossier(NavFichiers *parent);
 
 		void setFenPrincipale(QWidget *FP);
 
@@ -297,6 +249,7 @@ class VueDossier : public QWidget
 		bool modifierPosition;
 		bool afficherDossiersCaches;
 
+		NavFichiers *m_parent;
 		CopyCutObject *copyCutObject;
 
 		ListWidget *m_vue;

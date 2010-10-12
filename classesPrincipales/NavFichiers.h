@@ -24,6 +24,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "autresClasses/VueDossier.h"
 #include "autresClasses/LineEdit.h"
 #include "classesPrincipales/NavigateurWeb.h"
+#include "autresClasses/CopyCut.h"
 
 class NavFichiers : public QMainWindow
 {
@@ -35,6 +36,18 @@ class NavFichiers : public QMainWindow
 		void creerActions();
 		VueDossier *pageActuelle();
 		void setNavigateurWeb(NavigateurWeb *widget);
+
+		void setCopyCutObject(CopyCutObject *copyCutObject)
+		{
+			m_copyCutObject->setCurrentAction(copyCutObject->currentAction());
+			m_copyCutObject->setFileLink(copyCutObject->fileLink());
+			m_copyCutObject->setFileType(copyCutObject->fileType());
+		}
+		
+		CopyCutObject *copyCutObject()
+		{
+			return m_copyCutObject;
+		}
 
 	public slots:
 		void ajouterOnglet();
@@ -53,7 +66,6 @@ class NavFichiers : public QMainWindow
 		void sauvegarderEtat();
 		void slotOpenFile(QString file);
 
-	public slots:
 		void slotDossierPersonnel();
 		void slotDossierTelechargements();
 		void slotDossiersCaches();
@@ -80,6 +92,8 @@ class NavFichiers : public QMainWindow
 		QAction *actionGo;
 		QAction *actionNouvelOnglet;
 		QAction *actionFermerOnglet;
+
+		CopyCutObject *m_copyCutObject;
 };
 
 #endif

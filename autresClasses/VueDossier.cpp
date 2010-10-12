@@ -20,7 +20,7 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 #include "VueDossier.h"
 #include "classesPrincipales/FenPrincipale.h"
 
-VueDossier::VueDossier()
+VueDossier::VueDossier(NavFichiers *parent) : m_parent(parent)
 {
 	m_vue = new ListWidget;	
 		connect(m_vue, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(ouvrir(QListWidgetItem *)));
@@ -327,6 +327,8 @@ void VueDossier::menuCouper()
 	copyCutObject->setCurrentAction(CUT);
 	copyCutObject->setFileLink(Multiuso::addSlash(item->path()) + item->name());
 	copyCutObject->setFileType(item->type());
+	
+	m_parent->setCopyCutObject(copyCutObject);
 }
 
 void VueDossier::menuCopier()
@@ -339,10 +341,16 @@ void VueDossier::menuCopier()
 	copyCutObject->setCurrentAction(COPY);
 	copyCutObject->setFileLink(Multiuso::addSlash(item->path()) + item->name());
 	copyCutObject->setFileType(item->type());
+	
+	m_parent->setCopyCutObject(copyCutObject);
 }
 
 void VueDossier::menuColler()
 {
+	copyCutObject->setCurrentAction(m_parent->copyCutObject()->currentAction());
+	copyCutObject->setFileLink(m_parent->copyCutObject()->fileLink());
+	copyCutObject->setFileType(m_parent->copyCutObject()->fileType());
+
 	if (copyCutObject->currentAction() == COPY)
 	{
 		if (copyCutObject->fileType() == "Dossier")
