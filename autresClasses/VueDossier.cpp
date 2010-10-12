@@ -205,68 +205,68 @@ void VueDossier::ouvrirMenu(QPoint)
 {
 	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
 
-	if (item == 0)
-		return;
+	if (item != 0)
+	{
+		QString type = item->type();
 
-	QString type = item->type();
-
-	if (type == "Disque")
-		return;
+		if (type == "Disque")
+			return;
+	}
 
 	QMenu menu(this);
 
-	QAction *supprimer = new QAction("Supprimer", this);
-		supprimer->setIcon(QIcon(":/icones/nav_fichiers/supprimer.png"));
-		connect(supprimer, SIGNAL(triggered()), this, SLOT(menuSupprimer()));
-		menu.addAction(supprimer);
+	if (item != 0)
+	{
+		QAction *supprimer = new QAction("Supprimer", this);
+			supprimer->setIcon(QIcon(":/icones/nav_fichiers/supprimer.png"));
+			connect(supprimer, SIGNAL(triggered()), this, SLOT(menuSupprimer()));
+			menu.addAction(supprimer);
 
-	QAction *renommer = new QAction("Renommer", this);
-		renommer->setIcon(QIcon(":/icones/nav_fichiers/renommer.png"));
-		connect(renommer, SIGNAL(triggered()), this, SLOT(menuRenommer()));
-		menu.addAction(renommer);
-
-
-	menu.addSeparator();
-
-
-	QAction *copy = new QAction("Copier", this);
-		copy->setIcon(QIcon(":/icones/nav_fichiers/copier.png"));
-		connect(copy, SIGNAL(triggered()), this, SLOT(menuCopier()));
-		menu.addAction(copy);
-
-	QAction *cut = new QAction("Couper", this);
-		cut->setIcon(QIcon(":/icones/nav_fichiers/couper.png"));
-		connect(cut, SIGNAL(triggered()), this, SLOT(menuCouper()));
-		menu.addAction(cut);
-		
-	QAction *paste = new QAction("Coller", this);
-		paste->setIcon(QIcon(":/icones/nav_fichiers/coller.png"));
-		connect(paste, SIGNAL(triggered()), this, SLOT(menuColler()));
-		menu.addAction(paste);
+		QAction *renommer = new QAction("Renommer", this);
+			renommer->setIcon(QIcon(":/icones/nav_fichiers/renommer.png"));
+			connect(renommer, SIGNAL(triggered()), this, SLOT(menuRenommer()));
+			menu.addAction(renommer);
 
 
-	menu.addSeparator();
+		menu.addSeparator();
 
 
-	QAction *creerDossier = new QAction("Créer un dossier", this);
-		creerDossier->setIcon(QIcon(":/icones/nav_fichiers/creerDossier.png"));
-		connect(creerDossier, SIGNAL(triggered()), this, SLOT(menuCreerDossier()));
-		menu.addAction(creerDossier);
+		QAction *copy = new QAction("Copier", this);
+			connect(copy, SIGNAL(triggered()), this, SLOT(menuCopier()));
+			menu.addAction(copy);
 
-	QAction *creerFichier = new QAction("Créer un fichier", this);
-		creerFichier->setIcon(QIcon(":/icones/nav_fichiers/creerFichier.png"));
-		connect(creerFichier, SIGNAL(triggered()), this, SLOT(menuCreerFichier()));
-		menu.addAction(creerFichier);
+		QAction *cut = new QAction("Couper", this);
+			connect(cut, SIGNAL(triggered()), this, SLOT(menuCouper()));
+			menu.addAction(cut);
+	}
+		QAction *paste = new QAction("Coller", this);
+			connect(paste, SIGNAL(triggered()), this, SLOT(menuColler()));
+			menu.addAction(paste);
+	
+	if (item != 0)
+	{
+		menu.addSeparator();
 
 
-	menu.addSeparator();
+		QAction *creerDossier = new QAction("Créer un dossier", this);
+			creerDossier->setIcon(QIcon(":/icones/nav_fichiers/creerDossier.png"));
+			connect(creerDossier, SIGNAL(triggered()), this, SLOT(menuCreerDossier()));
+			menu.addAction(creerDossier);
+
+		QAction *creerFichier = new QAction("Créer un fichier", this);
+			creerFichier->setIcon(QIcon(":/icones/nav_fichiers/creerFichier.png"));
+			connect(creerFichier, SIGNAL(triggered()), this, SLOT(menuCreerFichier()));
+			menu.addAction(creerFichier);
 
 
-	QAction *properties = new QAction("Propriétés", this);
-		properties->setIcon(QIcon(":/icones/nav_fichiers/properties.png"));
-		connect(properties, SIGNAL(triggered()), this, SLOT(menuProperties()));
-		menu.addAction(properties);
+		menu.addSeparator();
 
+
+		QAction *properties = new QAction("Propriétés", this);
+			properties->setIcon(QIcon(":/icones/nav_fichiers/properties.png"));
+			connect(properties, SIGNAL(triggered()), this, SLOT(menuProperties()));
+			menu.addAction(properties);
+	}
 
 	menu.exec(QCursor::pos());
 }
