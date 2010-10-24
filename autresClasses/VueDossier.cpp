@@ -243,8 +243,7 @@ void VueDossier::ouvrirMenu(QPoint)
 			connect(paste, SIGNAL(triggered()), this, SLOT(menuColler()));
 			menu.addAction(paste);
 	
-	if (item != 0)
-	{
+
 		menu.addSeparator();
 
 
@@ -258,7 +257,8 @@ void VueDossier::ouvrirMenu(QPoint)
 			connect(creerFichier, SIGNAL(triggered()), this, SLOT(menuCreerFichier()));
 			menu.addAction(creerFichier);
 
-
+	if (item != 0)
+	{
 		menu.addSeparator();
 
 
