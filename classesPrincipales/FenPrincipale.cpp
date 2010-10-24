@@ -500,12 +500,12 @@ void FenPrincipale::creerActions()
 
 	actionPlusOuMoins = new QAction("&Plus ou Moins", this);
 		actionPlusOuMoins->setIcon(QIcon(":/icones/actions/actionPlusOuMoins.png"));
-		actionPlusOuMoins->setStatusTip("Jouer au célèbre Plus + ou -");
+		actionPlusOuMoins->setStatusTip("Jouer au célèbre Plus ou Moins");
 		connect(actionPlusOuMoins, SIGNAL(triggered()), this, SLOT(slotPlusOuMoins()));
 
 	actionCreerReadme = new QAction("Créer un &README", this);
 		actionCreerReadme->setIcon(QIcon(":/icones/actions/actionCreerReadme.png"));
-		actionCreerReadme->setStatusTip("Créer un README");
+		actionCreerReadme->setStatusTip("Créer un fichier README");
 		connect(actionCreerReadme, SIGNAL(triggered()), this, SLOT(slotCreerReadme()));
 
 	actionSurLeWeb = new QAction("Sur le &Web...", this);
