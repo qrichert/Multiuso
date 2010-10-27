@@ -230,6 +230,8 @@ class VueDossier : public QWidget
 		void menuColler();
 		void menuCreerDossier();
 		void menuCreerFichier();
+		void menuCompresserFichier();
+		void menuExtraireFichier();
 		void menuProperties();
 
 		void setChemin(QString chemin);

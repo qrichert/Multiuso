@@ -262,6 +262,21 @@ void VueDossier::ouvrirMenu(QPoint)
 		menu.addSeparator();
 
 
+		QAction *compresserFichier = new QAction("Compresser...", this);
+			connect(compresserFichier, SIGNAL(triggered()), this, SLOT(menuCompresserFichier()));
+			menu.addAction(compresserFichier);
+
+		if (item->name().endsWith(".zip"))
+		{
+			QAction *extraireFichier = new QAction("Extraire ici", this);
+			connect(extraireFichier, SIGNAL(triggered()), this, SLOT(menuExtraireFichier()));
+			menu.addAction(extraireFichier);
+		}
+
+
+		menu.addSeparator();
+
+
 		QAction *properties = new QAction("Propriétés", this);
 			properties->setIcon(QIcon(":/icones/nav_fichiers/properties.png"));
 			connect(properties, SIGNAL(triggered()), this, SLOT(menuProperties()));
@@ -526,6 +541,42 @@ void VueDossier::menuCreerFichier()
 	}
 }
 
+void VueDossier::menuCompresserFichier()
+{
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	QString name = QInputDialog::getText(this, "Multiuso", "Entrez le nom de l'archive :");
+
+	if (name.isEmpty())
+		return;
+
+	if (!Multiuso::zip(Multiuso::addSlash(item->path()) + name + ".zip",
+		QStringList() << Multiuso::addSlash(item->path()) + item->name()))
+			QMessageBox::critical(this, "Multiuso", "Erreur lors de la compression !");
+
+	lister();
+}
+
+void VueDossier::menuExtraireFichier()
+{
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	if (!Multiuso::unzip(Multiuso::addSlash(item->path()) + item->name(), chemin()))
+	{
+		QMessageBox::critical(this, "Multiuso", "Impossible d'extraire l'archive !");
+
+		return;
+	}
+
+	lister();
+}
+
 void VueDossier::menuProperties()
 {
 	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
@@ -533,7 +584,7 @@ void VueDossier::menuProperties()
 	if (item == 0)
 		return;
 
-	QIcon icon = Multiuso::iconForFile(Multiuso::addSlash(item->path()) +  item->name(), item->type());
+	QIcon icon = Multiuso::iconForFile(Multiuso::addSlash(item->path()) + item->name(), item->type());
 
 	QLabel *pixmap = new QLabel;
 		pixmap->setPixmap(icon.pixmap(icon.actualSize(QSize(42, 42))));
