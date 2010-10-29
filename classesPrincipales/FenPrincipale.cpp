@@ -1153,13 +1153,16 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 		textesFormates << "mltshtml";
 
 	QStringList textes;
-		textes << "" << "mltstxt" << "txt" << "c" << "h" << "cpp" << "hpp" << "css" << "jar" << "js" << "tex" << "php" << "sql" << "xml";
+		textes << "" << "mltstxt" << "txt" << "c" << "h" << "cpp" << "hpp" << "css"
+			<< "jar" << "js" << "tex" << "php" << "sql" << "xml" << "pro" << "html"
+			<< "htm";
 
-	QStringList navigateurWeb;
-		navigateurWeb << "html" << "htm";
+	/*QStringList navigateurWeb;
+		navigateurWeb << "html" << "htm";*/
 
 	QStringList images;
-		images << "png" << "jpg" << "jpeg" << "bmp" << "gif" << "pbm" << "pgm" << "ppm" << "xbm" << "xpm" << "svg";
+		images << "png" << "jpg" << "jpeg" << "bmp" << "gif" << "pbm" << "pgm" << "ppm"
+			<< "xbm" << "xpm" << "svg";
 
 	QFileInfo infos(fichier);
 
@@ -1186,7 +1189,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 		setTabIndex(Multiuso::tabIndexOf("Éditeur de code", pagesDuProgramme));
 	}
 
-	else if (navigateurWeb.contains(suffixe.toLower()))
+	/*else if (navigateurWeb.contains(suffixe.toLower()))
 	{
 		navigateur->slotNouvelOnglet();
 		navigateur->slotOuvrirFichier(fichier);
@@ -1195,7 +1198,7 @@ void FenPrincipale::ouvrirFichier(QString fichier)
 			accueil->openTab("Navigateur Web");
 
 		setTabIndex(Multiuso::tabIndexOf("Navigateur Web", pagesDuProgramme));
-	}
+	}*/
 
 	else if (images.contains(suffixe.toLower()))
 	{
