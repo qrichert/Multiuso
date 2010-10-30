@@ -548,14 +548,19 @@ void VueDossier::menuCompresserFichier()
 	if (item == 0)
 		return;
 
-	QString name = QInputDialog::getText(this, "Multiuso", "Entrez le nom de l'archive :");
+	QString name = QInputDialog::getText(this, "Multiuso", "Entrez le nom de l'archive :",
+						QLineEdit::Normal, QFileInfo(item->name()).baseName());
 
 	if (name.isEmpty())
 		return;
 
-	if (!Multiuso::zip(Multiuso::addSlash(item->path()) + name + ".zip",
-		QStringList() << Multiuso::addSlash(item->path()) + item->name()))
-			QMessageBox::critical(this, "Multiuso", "Erreur lors de la compression !");
+	QString zippedFile = Multiuso::addSlash(item->path()) + name + ".zip";
+
+	QStringList files;
+		files << Multiuso::addSlash(item->path()) + item->name();
+
+	if (!Multiuso::zip(zippedFile, files))
+		QMessageBox::critical(this, "Multiuso", "Erreur lors de la compression !");
 
 	lister();
 }
