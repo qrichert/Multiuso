@@ -306,10 +306,12 @@ class Multiuso
 			}
 
 			QStringList pictures;
-				pictures << "png" << "jpg" << "jpeg" << "bmp" << "gif" << "pbm" << "pgm" << "ppm" << "xbm" << "xpm" << "tiff";
+				pictures << "png" << "jpg" << "jpeg" << "bmp" << "gif" << "pbm" << "pgm"
+					<< "ppm" << "xbm" << "xpm" << "tiff";
 
 			QStringList movies;
-				movies << "avi" << "mp4" << "mpg" << "mpeg" << "3gp" << "mov" << "mkv" << "flv" << "ogv";
+				movies << "avi" << "mp4" << "mpg" << "mpeg" << "3gp" << "mov" << "mkv"
+					<< "flv" << "ogv";
 
 			QStringList sounds;
 				sounds << "mp3" << "flac" << "aac" << "wav" << "wma";
@@ -318,10 +320,12 @@ class Multiuso
 				web << "html" << "htm" << "js" << "aspx" << "xml" << "sql";
 
 			QStringList texts;
-				texts << "mltstxt" << "mltshtml" << "txt" << "odt" << "odf" << "rtf" << "docx";
+				texts << "mltstxt" << "mltshtml" << "txt" << "odt" << "odf" << "rtf"
+					<< "docx";
 
 			QStringList compressed;
-				compressed << "ar" << "bz2" << "cbz" << "gz" << "lzma" << "tar" << "bz2" << "zip" << "7z" << "gzip" << "bzip2" << "rar";
+				compressed << "ar" << "bz2" << "cbz" << "gz" << "lzma" << "tar" << "bz2"
+					<< "zip" << "7z" << "gzip" << "bzip2" << "rar";
 
 			QStringList shell;
 				shell << "sh" << "bat" << "cmd";
@@ -360,7 +364,7 @@ class Multiuso
 			else if (extension == "tar") { icon.addFile(":/icones/mime/tar.png"); }
 			else if (extension == "tex") { icon.addFile(":/icones/mime/tex.png"); }
 			else if (extension == "tmp") { icon.addFile(":/icones/mime/tmp.png"); }
-			else if (extension == "ttf") { icon.addFile(":/icones/mime/ttfpng"); }
+			else if (extension == "ttf") { icon.addFile(":/icones/mime/ttf.png"); }
 			else if (extension == "y") { icon.addFile(":/icones/mime/y.png"); }
 			else { icon.addFile(":/icones/mime/fichier.png"); }
 
