@@ -62,6 +62,11 @@ void VueDossier::lister()
 	emit debutChargement();
 
 	m_vue->clear();
+	m_vue->setDisabled(true);
+	m_vue->setCursor(Qt::WaitCursor);
+
+	allItems.clear();
+
 	loadProgress->show(); // Showing progress bar
 
 	QStringList fichiers;
@@ -76,8 +81,6 @@ void VueDossier::lister()
 		fichiers.removeOne("..");
 
 	loadProgress->setRange(0, fichiers.size()); // Set the maximum to the files count
-
-	QList<ListWidgetItem *> allItems;
 
 	for (int i = 0; i < fichiers.size(); i++)
 	{
@@ -152,8 +155,11 @@ void VueDossier::lister()
 		if (!item->type().startsWith("Dossier"))
 			m_vue->addItem(item);
 	}
+	
+	m_vue->setDisabled(false);
+	m_vue->setCursor(Qt::ArrowCursor);
 
-	loadProgress->hide(); // Hiding progress bar
+	loadProgress->hide(); // Hidding progress bar
 
 	emit finChargement();
 
