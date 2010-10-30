@@ -31,6 +31,10 @@ VueDossier::VueDossier(NavFichiers *parent) : m_parent(parent)
 		layout->addWidget(m_vue);
 		layout->setContentsMargins(0, 0, 0, 0);
 
+	loadProgress = new QProgressBar(this);
+		loadProgress->setGeometry(10, 10, 175, 25);
+		loadProgress->hide();
+
 	m_chemin = "";
 	modifierPosition = true;
 	afficherDossiersCaches = false;
@@ -58,6 +62,7 @@ void VueDossier::lister()
 	emit debutChargement();
 
 	m_vue->clear();
+	loadProgress->show(); // Showing progress bar
 
 	QStringList fichiers;
 
@@ -70,9 +75,15 @@ void VueDossier::lister()
 		fichiers.removeOne(".");
 		fichiers.removeOne("..");
 
+	loadProgress->setRange(0, fichiers.size()); // Set the maximum to the files count
+
+	QList<ListWidgetItem *> allItems;
+
 	for (int i = 0; i < fichiers.size(); i++)
 	{
 		QCoreApplication::processEvents();
+
+		loadProgress->setValue(i); // Updating progress bar
 
 		QFileInfo infosFichier(chemin() + fichiers.value(i));
 
@@ -123,8 +134,26 @@ void VueDossier::lister()
 					+ "Taille : " + taille + "\n"
 					+ "Dernières modifications : " + infosFichier.lastModified().toString());
 
-		m_vue->addItem(newItem);
+		allItems << newItem;
 	}
+
+	foreach (ListWidgetItem *item, allItems)
+	{
+		QCoreApplication::processEvents();
+
+		if (item->type().startsWith("Dossier"))
+			m_vue->addItem(item);
+	}
+
+	foreach (ListWidgetItem *item, allItems)
+	{
+		QCoreApplication::processEvents();
+
+		if (!item->type().startsWith("Dossier"))
+			m_vue->addItem(item);
+	}
+
+	loadProgress->hide(); // Hiding progress bar
 
 	emit finChargement();
 
