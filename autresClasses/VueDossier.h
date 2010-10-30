@@ -255,6 +255,8 @@ class VueDossier : public QWidget
 		CopyCutObject *copyCutObject;
 
 		ListWidget *m_vue;
+
+		QProgressBar *loadProgress;
 };
 
 #endif
