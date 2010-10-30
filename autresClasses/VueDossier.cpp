@@ -38,6 +38,7 @@ VueDossier::VueDossier(NavFichiers *parent) : m_parent(parent)
 	m_chemin = "";
 	modifierPosition = true;
 	afficherDossiersCaches = false;
+	loadInProgress = false;
 
 	copyCutObject = new CopyCutObject;
 
@@ -59,6 +60,7 @@ VueDossier::VueDossier(NavFichiers *parent) : m_parent(parent)
 
 void VueDossier::lister()
 {
+	loadInProgress = true;
 	emit debutChargement();
 
 	m_vue->clear();
@@ -161,12 +163,15 @@ void VueDossier::lister()
 
 	loadProgress->hide(); // Hidding progress bar
 
-	emit finChargement();
-
 	m_historique << chemin();
 
 	if (modifierPosition)
 		position = m_historique.size() - 1;
+
+	loadInProgress = false;
+	emit finChargement();
+	
+	emit demandeUpdate();
 }
 
 int VueDossier::folderSize(QDir dir)
@@ -227,7 +232,6 @@ void VueDossier::ouvrir(QListWidgetItem *item)
 	{
 		setChemin(chemin() + nom);
 		lister();
-		emit demandeUpdate();
 	}
 
 	else if (type.startsWith("Fichier"))
@@ -684,4 +688,9 @@ void VueDossier::moveFile(QString file, QPoint pos)
 QString VueDossier::chemin()
 {
 	return m_chemin;
+}
+
+bool VueDossier::isLoadInProgress()
+{
+	return loadInProgress;
 }

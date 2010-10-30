@@ -93,6 +93,9 @@ class NavFichiers : public QMainWindow
 		QAction *actionNouvelOnglet;
 		QAction *actionFermerOnglet;
 
+		QToolBar *toolBar;
+		QToolBar *toolBar2;
+
 		CopyCutObject *m_copyCutObject;
 };
 

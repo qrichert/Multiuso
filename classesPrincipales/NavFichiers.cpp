@@ -58,7 +58,7 @@ NavFichiers::NavFichiers(QWidget *parent) : QMainWindow(parent)
 
 void NavFichiers::creerActions()
 {
-	QToolBar *toolBar = addToolBar("Raccourcis");
+	toolBar = addToolBar("Raccourcis");
 		toolBar->setObjectName("Raccourcis");
 		toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
@@ -115,7 +115,7 @@ void NavFichiers::creerActions()
 	addToolBarBreak();
 
 
-	QToolBar *toolBar2 = addToolBar("Adresse");
+	toolBar2 = addToolBar("Adresse");
 		toolBar2->setObjectName("Adresse");
 
 	afficherCheminActuel = new LineEdit;
@@ -212,23 +212,39 @@ void NavFichiers::slotFermerOnglet(int onglet)
 
 void NavFichiers::slotOngletChange(int)
 {
+	if (!pageActuelle())
+		return;
+
+	toolBar->setDisabled(pageActuelle()->isLoadInProgress());
 	afficherCheminActuel->setText(pageActuelle()->chemin());
 }
 
 void NavFichiers::slotDebutChargement()
 {
-	actionActualiser->setEnabled(false);
+	if (!pageActuelle())
+		return;
+
+	if (pageActuelle() == qobject_cast<VueDossier *>(sender()))
+		toolBar->setDisabled(pageActuelle()->isLoadInProgress());
 }
 
 void NavFichiers::slotFinChargement()
 {
-	actionActualiser->setEnabled(true);
+	if (!pageActuelle())
+		return;
+
+	if (pageActuelle() == qobject_cast<VueDossier *>(sender()))
+		toolBar->setDisabled(pageActuelle()->isLoadInProgress());
 }
 
 void NavFichiers::slotUpdateAffichage()
 {
-	afficherCheminActuel->setText(pageActuelle()->chemin());
-	onglets->setTabText(onglets->currentIndex(), QDir(pageActuelle()->chemin()).dirName());
+	VueDossier *widget = qobject_cast<VueDossier *>(sender());
+
+	if (pageActuelle() == widget)
+		afficherCheminActuel->setText(widget->chemin());
+
+	onglets->setTabText(onglets->indexOf(widget->parentWidget()), QDir(widget->chemin()).dirName());
 }
 
 void NavFichiers::slotPrecedent()

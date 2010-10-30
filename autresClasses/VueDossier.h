@@ -219,6 +219,7 @@ class VueDossier : public QWidget
 		void setAfficherDossiersCaches(bool choix);
 		bool isAfficherDossiersCaches();
 		QString chemin();
+		bool isLoadInProgress();
 
 	public slots:
 		void ouvrir(QListWidgetItem *item);
@@ -250,6 +251,7 @@ class VueDossier : public QWidget
 		int position;
 		bool modifierPosition;
 		bool afficherDossiersCaches;
+		bool loadInProgress;
 
 		NavFichiers *m_parent;
 		CopyCutObject *copyCutObject;

@@ -30,7 +30,7 @@ class EasterEggMatrix : public QObject
 		EasterEggMatrix(QObject *parent) : QObject(parent)
 		{
 			m_userName = QDir::home().dirName();
-				m_userName = Multiuso::firstLetterToUpper(m_userName);
+				m_userName = Multiuso::toName(m_userName);
 		}
 		
 		void start()
@@ -96,28 +96,28 @@ class EasterEggMatrix : public QObject
 
 				std::cout << "Wake up, " + m_userName.toStdString() + "...\n";
 				
-				QTimer::singleShot(15000, this, SLOT(showText()));
+				QTimer::singleShot(3500, this, SLOT(showText()));
 			}
 			
 			else if (step == 2)
 			{
 				std::cout << "The Matrix has you...\n";
 				
-				QTimer::singleShot(7000, this, SLOT(showText()));
+				QTimer::singleShot(4000, this, SLOT(showText()));
 			}
 			
 			else if (step == 3)
 			{
 				std::cout << "Follow the white rabbit.\n";
 
-				QTimer::singleShot(8000, this, SLOT(showText()));
+				QTimer::singleShot(4500, this, SLOT(showText()));
 			}
 			
 			else if (step == 4)
 			{
 				std::cout << "Knock, knock, " + m_userName.toStdString() + ".\n";
 
-				QTimer::singleShot(10000, this, SLOT(showText()));
+				QTimer::singleShot(5000, this, SLOT(showText()));
 			}
 			
 			else if (step == 5)
