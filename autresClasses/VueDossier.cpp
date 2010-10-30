@@ -70,6 +70,8 @@ void VueDossier::lister()
 		fichiers.removeOne(".");
 		fichiers.removeOne("..");
 
+	QList<ListWidgetItem *> allItems;
+
 	for (int i = 0; i < fichiers.size(); i++)
 	{
 		QCoreApplication::processEvents();
@@ -123,7 +125,23 @@ void VueDossier::lister()
 					+ "Taille : " + taille + "\n"
 					+ "Dernières modifications : " + infosFichier.lastModified().toString());
 
-		m_vue->addItem(newItem);
+		allItems << newItem;
+	}
+
+	foreach (ListWidgetItem *item, allItems)
+	{
+		QCoreApplication::processEvents();
+
+		if (item->type().startsWith("Dossier"))
+			m_vue->addItem(item);
+	}
+
+	foreach (ListWidgetItem *item, allItems)
+	{
+		QCoreApplication::processEvents();
+
+		if (!item->type().startsWith("Dossier"))
+			m_vue->addItem(item);
 	}
 
 	emit finChargement();
