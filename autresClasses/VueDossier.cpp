@@ -31,6 +31,10 @@ VueDossier::VueDossier(NavFichiers *parent) : m_parent(parent)
 		layout->addWidget(m_vue);
 		layout->setContentsMargins(0, 0, 0, 0);
 
+	loadProgress = new QProgressBar(this);
+		loadProgress->setGeometry(10, 10, 175, 25);
+		loadProgress->hide();
+
 	m_chemin = "";
 	modifierPosition = true;
 	afficherDossiersCaches = false;
@@ -58,6 +62,7 @@ void VueDossier::lister()
 	emit debutChargement();
 
 	m_vue->clear();
+	loadProgress->show(); // Showing progress bar
 
 	QStringList fichiers;
 
@@ -70,9 +75,15 @@ void VueDossier::lister()
 		fichiers.removeOne(".");
 		fichiers.removeOne("..");
 
+	loadProgress->setRange(0, fichiers.size()); // Set the maximum to the files count
+
+	QList<ListWidgetItem *> allItems;
+
 	for (int i = 0; i < fichiers.size(); i++)
 	{
 		QCoreApplication::processEvents();
+
+		loadProgress->setValue(i); // Updating progress bar
 
 		QFileInfo infosFichier(chemin() + fichiers.value(i));
 
@@ -123,8 +134,26 @@ void VueDossier::lister()
 					+ "Taille : " + taille + "\n"
 					+ "Dernières modifications : " + infosFichier.lastModified().toString());
 
-		m_vue->addItem(newItem);
+		allItems << newItem;
 	}
+
+	foreach (ListWidgetItem *item, allItems)
+	{
+		QCoreApplication::processEvents();
+
+		if (item->type().startsWith("Dossier"))
+			m_vue->addItem(item);
+	}
+
+	foreach (ListWidgetItem *item, allItems)
+	{
+		QCoreApplication::processEvents();
+
+		if (!item->type().startsWith("Dossier"))
+			m_vue->addItem(item);
+	}
+
+	loadProgress->hide(); // Hiding progress bar
 
 	emit finChargement();
 
@@ -259,6 +288,21 @@ void VueDossier::ouvrirMenu(QPoint)
 
 	if (item != 0)
 	{
+		menu.addSeparator();
+
+
+		QAction *compresserFichier = new QAction("Compresser...", this);
+			connect(compresserFichier, SIGNAL(triggered()), this, SLOT(menuCompresserFichier()));
+			menu.addAction(compresserFichier);
+
+		if (item->name().endsWith(".zip"))
+		{
+			QAction *extraireFichier = new QAction("Extraire ici", this);
+			connect(extraireFichier, SIGNAL(triggered()), this, SLOT(menuExtraireFichier()));
+			menu.addAction(extraireFichier);
+		}
+
+
 		menu.addSeparator();
 
 
@@ -526,6 +570,47 @@ void VueDossier::menuCreerFichier()
 	}
 }
 
+void VueDossier::menuCompresserFichier()
+{
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	QString name = QInputDialog::getText(this, "Multiuso", "Entrez le nom de l'archive :",
+						QLineEdit::Normal, QFileInfo(item->name()).baseName());
+
+	if (name.isEmpty())
+		return;
+
+	QString zippedFile = Multiuso::addSlash(item->path()) + name + ".zip";
+
+	QStringList files;
+		files << Multiuso::addSlash(item->path()) + item->name();
+
+	if (!Multiuso::zip(zippedFile, files))
+		QMessageBox::critical(this, "Multiuso", "Erreur lors de la compression !");
+
+	lister();
+}
+
+void VueDossier::menuExtraireFichier()
+{
+	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+
+	if (item == 0)
+		return;
+
+	if (!Multiuso::unzip(Multiuso::addSlash(item->path()) + item->name(), chemin()))
+	{
+		QMessageBox::critical(this, "Multiuso", "Impossible d'extraire l'archive !");
+
+		return;
+	}
+
+	lister();
+}
+
 void VueDossier::menuProperties()
 {
 	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
@@ -533,7 +618,7 @@ void VueDossier::menuProperties()
 	if (item == 0)
 		return;
 
-	QIcon icon = Multiuso::iconForFile(Multiuso::addSlash(item->path()) +  item->name(), item->type());
+	QIcon icon = Multiuso::iconForFile(Multiuso::addSlash(item->path()) + item->name(), item->type());
 
 	QLabel *pixmap = new QLabel;
 		pixmap->setPixmap(icon.pixmap(icon.actualSize(QSize(42, 42))));
