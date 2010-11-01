@@ -666,23 +666,92 @@ void VueDossier::setChemin(QString chemin)
 		m_chemin += "/";
 }
 
-void VueDossier::moveFile(QString file, QPoint pos)
+void VueDossier::moveFile(QString fileToMove, QPoint pos)
 {
-	qDebug() << "jk";
-	QListWidgetItem *itemAtPos = m_vue->itemAt(pos);
+	QString pathToMoveIn = chemin();
 
-	if (!itemAtPos)
-		return;
+	ListWidgetItem *itemAtPos = static_cast<ListWidgetItem *>(m_vue->itemAt(pos));
 
-	m_vue->setCurrentItem(itemAtPos);
+	if (itemAtPos && itemAtPos->type() == "Dossier")
+	{
+		pathToMoveIn = Multiuso::addSlash(chemin()) + itemAtPos->name();
 
-	ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->currentItem());
+		m_vue->setCurrentItem(itemAtPos);
+	}
 
-	if (item == 0)
-		return;
+	if (QFileInfo(fileToMove).isDir())
+	{
+		QFile file(fileToMove);
 
-	if (item->type() != "Dossier")
-		return;
+		QFile tmpFile(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+
+		if (QFileInfo(file).absoluteFilePath() == QFileInfo(tmpFile).absoluteFilePath())
+			return;
+
+		if (!tmpFile.exists())
+		{
+			if (!Multiuso::copyDirectory(fileToMove, chemin()))
+				QMessageBox::critical(this, "Multiuso", "Erreur lors de la copie !");
+
+			else
+				Multiuso::removeDirectory(fileToMove);
+		}
+
+		else
+		{
+			int answer = QMessageBox::warning(this, "Multiuso", "Le dossier « " + QFileInfo(file).fileName() + " » existe déjà."
+					+ "<br />Voulez-vous le remplaçer ?", QMessageBox::Yes | QMessageBox::No);
+
+			if (answer == QMessageBox::Yes)
+			{
+				Multiuso::removeDirectory(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+
+				if (!Multiuso::copyDirectory(fileToMove, chemin()))
+					QMessageBox::critical(this, "Multiuso", "Erreur lors de la copie !");
+
+				else
+					Multiuso::removeDirectory(fileToMove);
+			}
+		}
+	}
+
+	else
+	{
+		QFile file(fileToMove);
+
+		QFile tmpFile(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName());
+
+		if (QFileInfo(file).absoluteFilePath() == QFileInfo(tmpFile).absoluteFilePath())
+			return;
+
+		if (!tmpFile.exists())
+		{
+			if (!file.copy(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName()))
+				QMessageBox::critical(this, "Multiuso", "Erreur lors du déplacement !");
+
+			else
+				file.remove();
+		}
+
+		else
+		{
+			int answer = QMessageBox::warning(this, "Multiuso", "Le fichier « " + QFileInfo(file).fileName() + " » existe déjà."
+					+ "<br />Voulez-vous le remplaçer ?", QMessageBox::Yes | QMessageBox::No);
+
+			if (answer == QMessageBox::Yes)
+			{
+				tmpFile.remove();
+
+				if (!file.copy(Multiuso::addSlash(chemin()) + QFileInfo(file).fileName()))
+					QMessageBox::critical(this, "Multiuso", "Erreur lors du déplacement !");
+
+				else
+					file.remove();
+			}
+		}
+	}
+
+	lister();
 }
 
 QString VueDossier::chemin()

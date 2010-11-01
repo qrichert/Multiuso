@@ -173,13 +173,21 @@ class ListWidget : public QListWidget
 			event->acceptProposedAction();
 		}
 
+		void dragMoveEvent(QDragMoveEvent *event)
+		{
+			event->acceptProposedAction();
+		}
+
+		void dragLeaveEvent(QDragLeaveEvent *event)
+		{
+			event->accept();
+		}
+
 		void dropEvent(QDropEvent *event)
 		{
 			const QMimeData *data = event->mimeData();
 			
-			Qt::DropAction action = event->dropAction();
-		
-			if (!data->hasUrls() || action != Qt::MoveAction)
+			if (!data->hasUrls())
 				return;
 
 			foreach (QUrl url, data->urls())

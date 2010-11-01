@@ -133,6 +133,8 @@ class Multiuso
 			
 			foreach (QString fileName, from.entryList())
 			{
+				QCoreApplication::processEvents();
+
 				if (fileName == "." || fileName == "..")
 					continue;
 
@@ -486,6 +488,8 @@ class Multiuso
 
 			for (int i = 0; i < filesList.size(); i++)
 			{
+				QCoreApplication::processEvents();
+
 				if (QFileInfo(dir.absolutePath() + "/" + filesList.value(i)).isFile())
 					QFile::remove(dir.absolutePath() + "/" + filesList.value(i));
 
@@ -533,6 +537,8 @@ class Multiuso
 		{
 			for (int i = 0; i < tabWidget->count(); i++)
 			{
+				QCoreApplication::processEvents();
+
 				if (tabWidget->tabText(i) == text)
 					return i;
 			}
@@ -646,6 +652,8 @@ class Multiuso
 
 				for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile())
 				{
+					QCoreApplication::processEvents();
+
 					if (!zip.getCurrentFileInfo(&info))
 						return false;
 
@@ -673,6 +681,8 @@ class Multiuso
 
 					while (file.getChar(&c))
 					{
+						QCoreApplication::processEvents();
+
 						buf[len++] = c;
 
 						if (len >= 4096)
@@ -722,6 +732,8 @@ class Multiuso
 
 				foreach (QString fileToCheck, files)
 				{
+					QCoreApplication::processEvents();
+
 					QFileInfo file(fileToCheck);
 
 					if (!file.isFile() || file.fileName() == zippedFile)
