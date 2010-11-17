@@ -736,7 +736,7 @@ class Multiuso
 
 					QFileInfo file(fileToCheck);
 
-					if (!file.isFile() || file.fileName() == zippedFile)
+					if (file.fileName() == zippedFile)
 						continue;
 
 					inFile.setFileName(file.fileName());
