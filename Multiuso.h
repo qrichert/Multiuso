@@ -77,6 +77,46 @@ class Multiuso
 
 			return dir.path();
 		}
+
+		static bool checkIfConneted(QWidget *parent)
+		{
+			QSettings settings(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
+
+			if (!settings.value("reseau/internet").toBool())
+			{
+				QMessageBox *msgBox = new QMessageBox(parent);
+					msgBox->setIcon(QMessageBox::Warning);
+					msgBox->setWindowTitle("Multiuso");
+					msgBox->setText("Multiuso a détecté que vous n'êtes pas connecté à Internet !<br />"
+						"Voulez-vous malgré tout continuer ?");
+					msgBox->addButton(QMessageBox::Yes);
+					msgBox->addButton(QMessageBox::No);
+					msgBox->addButton("Je suis connecté à Internet !", QMessageBox::ActionRole);
+
+				int answer = msgBox->exec();
+
+				msgBox->deleteLater();
+				msgBox = 0;
+
+				switch (answer)
+				{
+					case QMessageBox::Yes:
+						return true;
+					break;
+
+					case QMessageBox::No:
+						return false;
+					break;
+
+					case QMessageBox::ActionRole:
+						settings.setValue("reseau/internet", true);
+						return true;
+					break;
+				}
+			}
+
+			return true;
+		}
 		
 		static QString cleanStr(QString str)
 		{
