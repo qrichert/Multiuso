@@ -35,6 +35,27 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 // </Easter Egg>
 
+class WebPage : public QWebPage
+{
+	public:
+		WebPage(QObject *parent = 0) : QWebPage(parent)
+		{
+		}
+
+	protected:
+		virtual QString userAgentForUrl(const QUrl &url) const
+		{
+			Q_UNUSED(url);
+
+			QString userAgent = "Multiuso/"
+						+ QCoreApplication::applicationVersion()
+			 		      	+ " (" + Multiuso::toName(Multiuso::currentOS()) + "; "
+						+ "QtWebKit)";
+
+			return userAgent;
+		}
+};
+
 class NavigateurWeb : public QMainWindow
 {
 	Q_OBJECT

@@ -442,7 +442,28 @@ QWidget *NavigateurWeb::nouvelOnglet()
 
 	QSettings reglages(Multiuso::appDirPath() + "/ini/navigateur.ini", QSettings::IniFormat);
 
+	WebPage *page = new WebPage;
+		page->setContentEditable(reglages.value("contenu_editable").toBool());
+		page->setForwardUnsupportedContent(true);
+		page->networkAccessManager()->setCookieJar(new Cookies(this));
+
+		page->settings()->setAttribute(QWebSettings::JavascriptEnabled, reglages.value("settings/javascript").toBool());
+		page->settings()->setAttribute(QWebSettings::JavaEnabled, reglages.value("settings/java").toBool());
+		page->settings()->setAttribute(QWebSettings::PluginsEnabled, reglages.value("settings/flash").toBool());
+		page->settings()->setAttribute(QWebSettings::ZoomTextOnly, reglages.value("settings/zoom_text_only").toBool());
+		page->settings()->setAttribute(QWebSettings::PrintElementBackgrounds, reglages.value("settings/imprimer_elements_fond").toBool());
+		page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+
+		connect(page, SIGNAL(unsupportedContent(QNetworkReply *)), this, SLOT(telechargerFichierAuto(QNetworkReply *)));
+		connect(page, SIGNAL(downloadRequested(QNetworkRequest)), this, SLOT(telechargerFichier(QNetworkRequest)));
+		connect(page, SIGNAL(linkHovered(QString, QString, QString)), this, SLOT(survolLien(QString, QString, QString)));
+		connect(page, SIGNAL(printRequested(QWebFrame *)), this, SLOT(slotImprimer(QWebFrame *)));
+		connect(page, SIGNAL(databaseQuotaExceeded(QWebFrame *, QString)), this, SLOT(slotDatabaseQuotaExceeded(QWebFrame *, QString)));
+		connect(page->networkAccessManager(), SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)), this, SLOT(authenticationRequired(QNetworkReply *, QAuthenticator *)));
+		connect(page->networkAccessManager(), SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)), this, SLOT(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)));
+
 	QWebView *pageWeb = new QWebView;
+		pageWeb->setPage(page);
 		pageWeb->setContextMenuPolicy(Qt::CustomContextMenu);
 
 		if (!connecteReseau.value("reseau/internet").toBool())
@@ -450,17 +471,6 @@ QWidget *NavigateurWeb::nouvelOnglet()
 
 		else
 			pageWeb->load(QUrl(reglages.value("page_accueil").toString()));
-
-		pageWeb->page()->setContentEditable(reglages.value("contenu_editable").toBool());
-		pageWeb->page()->setForwardUnsupportedContent(true);
-		pageWeb->page()->networkAccessManager()->setCookieJar(new Cookies(this));
-
-		pageWeb->page()->settings()->setAttribute(QWebSettings::JavascriptEnabled, reglages.value("settings/javascript").toBool());
-		pageWeb->page()->settings()->setAttribute(QWebSettings::JavaEnabled, reglages.value("settings/java").toBool());
-		pageWeb->page()->settings()->setAttribute(QWebSettings::PluginsEnabled, reglages.value("settings/flash").toBool());
-		pageWeb->page()->settings()->setAttribute(QWebSettings::ZoomTextOnly, reglages.value("settings/zoom_text_only").toBool());
-		pageWeb->page()->settings()->setAttribute(QWebSettings::PrintElementBackgrounds, reglages.value("settings/imprimer_elements_fond").toBool());
-		pageWeb->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 
 		connect(pageWeb, SIGNAL(iconChanged()), this, SLOT(changementIcone()));
 		connect(pageWeb, SIGNAL(loadFinished(bool)), this, SLOT(chargementFini(bool)));
@@ -470,13 +480,6 @@ QWidget *NavigateurWeb::nouvelOnglet()
 		connect(pageWeb, SIGNAL(urlChanged(QUrl)), this, SLOT(changementUrl(QUrl)));
 		connect(pageWeb, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slotMenuPage(QPoint)));
 		connect(pageWeb, SIGNAL(linkClicked(QUrl)), this, SLOT(slotLinkClicked(QUrl)));
-		connect(pageWeb->page(), SIGNAL(unsupportedContent(QNetworkReply *)), this, SLOT(telechargerFichierAuto(QNetworkReply *)));
-		connect(pageWeb->page(), SIGNAL(downloadRequested(QNetworkRequest)), this, SLOT(telechargerFichier(QNetworkRequest)));
-		connect(pageWeb->page(), SIGNAL(linkHovered(QString, QString, QString)), this, SLOT(survolLien(QString, QString, QString)));
-		connect(pageWeb->page(), SIGNAL(printRequested(QWebFrame *)), this, SLOT(slotImprimer(QWebFrame *)));
-		connect(pageWeb->page(), SIGNAL(databaseQuotaExceeded(QWebFrame *, QString)), this, SLOT(slotDatabaseQuotaExceeded(QWebFrame *, QString)));
-		connect(pageWeb->page()->networkAccessManager(), SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)), this, SLOT(authenticationRequired(QNetworkReply *, QAuthenticator *)));
-		connect(pageWeb->page()->networkAccessManager(), SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)), this, SLOT(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)));
 
 		QUrl url = barreAdresse->text();
 
@@ -499,10 +502,10 @@ QWidget *NavigateurWeb::nouvelOnglet()
 		layout->addWidget(pageWeb);
 		layout->setContentsMargins(0, 0, 0, 0);
 
-	QWidget *page = new QWidget;
-		page->setLayout(layout);
+	QWidget *completePage = new QWidget;
+		completePage->setLayout(layout);
 
-	return page;
+	return completePage;
 }
 
 QIcon NavigateurWeb::faviconUrl(QString url)
