@@ -1326,11 +1326,40 @@ void FenPrincipale::verifError(QNetworkReply::NetworkError)
 
 void FenPrincipale::newVersionAvailable()
 {
-	int answer = QMessageBox::question(this, "Multiuso", "La version <strong>" + newVersion + "</strong> de Multiuso est disponible,<br />"
-			"Voulez-vous la télécharger ?", QMessageBox::Yes | QMessageBox::No);
+	QSettings settings(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
-	if (answer == QMessageBox::No)
+	if (!settings.value("confirmation/do_not_ask_for_update").toBool() || verifPerformedByUser)
+	{
+		QMessageBox msgBox(this);
+			msgBox.setIcon(QMessageBox::Question);
+			msgBox.setWindowTitle("Multiuso");
+			msgBox.setText("La version <strong>" + newVersion + "</strong> de Multiuso est disponible,<br />"
+				"Voulez-vous la télécharger ?");
+			msgBox.addButton(QMessageBox::Yes);
+			msgBox.addButton(QMessageBox::No);
+
+			QAbstractButton *button = msgBox.addButton("Ne plus me demander !", QMessageBox::ActionRole);
+
+		int answer = msgBox.exec();
+		QAbstractButton *testButton = msgBox.clickedButton();
+
+		if (answer == QMessageBox::No)
+		{
+			return;
+		}
+
+		else if (testButton == button)
+		{
+			settings.setValue("confirmation/do_not_ask_for_update", true);
+
+			return;
+		}
+	}
+
+	else
+	{
 		return;
+	}
 
 	d_verifMajProgress = new QProgressDialog("Téléchargement de la nouvelle version en cours...", "Annuler", 0, 100, this);
 		d_verifMajProgress->setWindowTitle("Multiuso");
