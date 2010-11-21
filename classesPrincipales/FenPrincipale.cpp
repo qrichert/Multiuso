@@ -1004,6 +1004,9 @@ void FenPrincipale::slotOrganisateur()
 
 void FenPrincipale::slotMessagerie()
 {
+	if (!Multiuso::checkIfConnected(this))
+		return;
+
 	Messagerie *fenMessagerie = new Messagerie(this);
 		fenMessagerie->exec();
 		fenMessagerie->deleteLater();

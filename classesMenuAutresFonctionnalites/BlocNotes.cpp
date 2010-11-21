@@ -205,6 +205,9 @@ void BlocNotes::saveText()
 
 void BlocNotes::putSafeguard()
 {
+	if (!Multiuso::checkIfConnected(this))
+		return;
+
 	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
 
 	QString pseudo;
@@ -313,6 +316,9 @@ void BlocNotes::putSafeguardReply(QNetworkReply::NetworkError)
 
 void BlocNotes::getSafeguard()
 {
+	if (!Multiuso::checkIfConnected(this))
+		return;
+
 	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
 
 	QString pseudo;

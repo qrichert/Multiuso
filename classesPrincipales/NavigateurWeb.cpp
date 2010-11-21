@@ -623,6 +623,9 @@ QPixmap NavigateurWeb::capturerPage()
 
 void NavigateurWeb::putSafeguard()
 {
+	if (!Multiuso::checkIfConnected(this))
+		return;
+
 	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
 
 	QString pseudo;
@@ -734,6 +737,9 @@ void NavigateurWeb::putSafeguardReply(QNetworkReply::NetworkError)
 
 void NavigateurWeb::getSafeguard()
 {
+	if (!Multiuso::checkIfConnected(this))
+		return;
+
 	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
 
 	QString pseudo;

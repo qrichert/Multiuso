@@ -394,6 +394,9 @@ void Organisateur::slotShowTask(QTableWidgetItem *item)
 
 void Organisateur::putSafeguard()
 {
+	if (!Multiuso::checkIfConnected(this))
+		return;
+
 	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
 
 	QString pseudo;
@@ -502,6 +505,9 @@ void Organisateur::putSafeguardReply(QNetworkReply::NetworkError)
 
 void Organisateur::getSafeguard()
 {
+	if (!Multiuso::checkIfConnected(this))
+		return;
+
 	QSettings settings(Multiuso::appDirPath() + "/ini/user.ini", QSettings::IniFormat);
 
 	QString pseudo;

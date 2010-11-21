@@ -78,40 +78,40 @@ class Multiuso
 			return dir.path();
 		}
 
-		static bool checkIfConneted(QWidget *parent)
+		static bool checkIfConnected(QWidget *parent)
 		{
 			QSettings settings(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 			if (!settings.value("reseau/internet").toBool())
 			{
-				QMessageBox *msgBox = new QMessageBox(parent);
-					msgBox->setIcon(QMessageBox::Warning);
-					msgBox->setWindowTitle("Multiuso");
-					msgBox->setText("Multiuso a détecté que vous n'êtes pas connecté à Internet !<br />"
-						"Voulez-vous malgré tout continuer ?");
-					msgBox->addButton(QMessageBox::Yes);
-					msgBox->addButton(QMessageBox::No);
-					msgBox->addButton("Je suis connecté à Internet !", QMessageBox::ActionRole);
+				QMessageBox msgBox(parent);
+					msgBox.setIcon(QMessageBox::Warning);
+					msgBox.setWindowTitle("Multiuso");
+					msgBox.setText("Multiuso a détecté que vous n'êtes pas connecté à Internet !<br />"
+						"Voulez-vous continuer malgré tout ?");
+					msgBox.addButton(QMessageBox::Yes);
+					msgBox.addButton(QMessageBox::No);
 
-				int answer = msgBox->exec();
+					QAbstractButton *connected = msgBox.addButton("Je suis connecté à Internet !", QMessageBox::ActionRole);
 
-				msgBox->deleteLater();
-				msgBox = 0;
+				int answer = msgBox.exec();
+				QAbstractButton *button = msgBox.clickedButton();
 
-				switch (answer)
+				if (answer == QMessageBox::Yes)
 				{
-					case QMessageBox::Yes:
-						return true;
-					break;
+					return true;
+				}
 
-					case QMessageBox::No:
-						return false;
-					break;
+				else if (answer == QMessageBox::No)
+				{
+					return false;
+				}
 
-					case QMessageBox::ActionRole:
-						settings.setValue("reseau/internet", true);
-						return true;
-					break;
+				else if (button == connected)
+				{
+					settings.setValue("reseau/internet", true);
+
+					return true;
 				}
 			}
 
