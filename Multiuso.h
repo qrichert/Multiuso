@@ -787,7 +787,7 @@ class Multiuso
 					if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(inFile.fileName(), inFile.fileName())))
 						return false;
 
-					while (inFile.getChar(&c) && outFile.putChar(c));
+					while (inFile.getChar(&c) && outFile.putChar(c)) {}
 
 					if (outFile.getZipError() != UNZ_OK)
 						return false;

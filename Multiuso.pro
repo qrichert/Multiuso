@@ -7,6 +7,7 @@ QT += network webkit
 CONFIG += release
 TARGET = Multiuso
 win32:RC_FILE += ressources/windows.rc
+macx:ICON = ressources/icones/application/iconeApplication.icns
 DEPENDPATH += . \
               autresClasses \
               classesHighlighters \
