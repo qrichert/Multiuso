@@ -107,13 +107,11 @@ class ListWidget : public QListWidget
 	public:
 		ListWidget(QWidget *parent = 0) : QListWidget(parent)
 		{
-			setContextMenuPolicy(Qt::CustomContextMenu);
-			setViewMode(QListView::IconMode);
-			setIconSize(QSize(50, 50));
 			setResizeMode(QListView::Adjust);
+			setIconSize(QSize(50, 50));
 			setMovement(QListView::Snap);
-			setGridSize(QSize(135, 100));
 
+			setContextMenuPolicy(Qt::CustomContextMenu);
 			setSelectionMode(QAbstractItemView::SingleSelection);
 			setDragEnabled(true);
 			viewport()->setAcceptDrops(true);
@@ -228,6 +226,17 @@ class VueDossier : public QWidget
 		bool isAfficherDossiersCaches();
 		QString chemin();
 		bool isLoadInProgress();
+		void setViewMode(QString view);
+
+		Qt::Alignment viewAlignment()
+		{
+			return m_alignment;
+		}
+
+		QString viewViewMode()
+		{
+			return m_viewMode;
+		}
 
 	public slots:
 		void ouvrir(QListWidgetItem *item);
@@ -260,6 +269,9 @@ class VueDossier : public QWidget
 		bool modifierPosition;
 		bool afficherDossiersCaches;
 		bool loadInProgress;
+
+		Qt::Alignment m_alignment;
+		QString m_viewMode;
 
 		NavFichiers *m_parent;
 		CopyCutObject *copyCutObject;

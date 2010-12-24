@@ -22,6 +22,20 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 
 NavFichiers::NavFichiers(QWidget *parent) : QMainWindow(parent)
 {
+	QSettings settings(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
+
+	if (settings.value("view_type").toString().isEmpty())
+		settings.setValue("view_type", "Tableau");
+
+	selectView = new QComboBox;
+		selectView->addItems(QStringList() << "Tableau" << "Liste");
+		selectView->setCurrentIndex(selectView->findText(settings.value("view_type").toString()));
+			connect(selectView, SIGNAL(currentIndexChanged(QString)), this, SLOT(viewChanged(QString)));
+
+	status = statusBar();
+		status->addPermanentWidget(new QLabel("Vue : "));
+		status->addPermanentWidget(selectView);
+
 	creerActions();
 
 	QToolButton *buttonNewTab = new QToolButton;
@@ -37,10 +51,11 @@ NavFichiers::NavFichiers(QWidget *parent) : QMainWindow(parent)
 		onglets->setDocumentMode(true);
 		onglets->setCornerWidget(buttonNewTab, Qt::BottomLeftCorner);
 		onglets->setCornerWidget(buttonCloseTab, Qt::BottomRightCorner);
-		connect(onglets, SIGNAL(tabCloseRequested(int)), this, SLOT(slotFermerOnglet(int)));
-		connect(onglets, SIGNAL(currentChanged(int)), this, SLOT(slotOngletChange(int)));
-		ajouterOnglet();
-		onglets->setTabsClosable(false);
+			connect(onglets, SIGNAL(tabCloseRequested(int)), this, SLOT(slotFermerOnglet(int)));
+			connect(onglets, SIGNAL(currentChanged(int)), this, SLOT(slotOngletChange(int)));
+
+	ajouterOnglet();
+	onglets->setTabsClosable(false);
 
 	setCentralWidget(onglets);
 
@@ -149,6 +164,14 @@ void NavFichiers::setNavigateurWeb(NavigateurWeb *widget)
 	p_navigateurWeb = widget;
 }
 
+void NavFichiers::viewChanged(QString view)
+{
+	pageActuelle()->setViewMode(view);
+
+	QSettings settings(Multiuso::appDirPath() + "/ini/nav_fichiers.ini", QSettings::IniFormat);
+		settings.setValue("view_type", view);
+}
+
 void NavFichiers::ajouterOnglet()
 {
 	onglets->addTab(nouvelOnglet(), QDir::home().dirName());
@@ -178,6 +201,7 @@ QWidget *NavFichiers::nouvelOnglet()
 		connect(vue, SIGNAL(demandeUpdate()), this, SLOT(slotUpdateAffichage()));
 		connect(vue, SIGNAL(openFileRequested(QString)), this, SLOT(slotOpenFile(QString)));
 		vue->setChemin(welcomeFolder);
+		vue->setViewMode(selectView->currentText());
 		vue->lister();
 
 	QVBoxLayout *layout = new QVBoxLayout;
@@ -217,6 +241,7 @@ void NavFichiers::slotOngletChange(int)
 
 	toolBar->setDisabled(pageActuelle()->isLoadInProgress());
 	afficherCheminActuel->setText(pageActuelle()->chemin());
+	selectView->setCurrentIndex(selectView->findText(pageActuelle()->viewViewMode()));
 }
 
 void NavFichiers::slotDebutChargement()

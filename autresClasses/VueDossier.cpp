@@ -56,6 +56,8 @@ VueDossier::VueDossier(NavFichiers *parent) : m_parent(parent)
 
 	QShortcut *shortcutProperties = new QShortcut(QKeySequence("Alt+Return"), this);
 		connect(shortcutProperties, SIGNAL(activated()), this, SLOT(menuProperties()));
+
+	m_alignment = Qt::AlignCenter;
 }
 
 void VueDossier::lister()
@@ -115,17 +117,20 @@ void VueDossier::lister()
 		if (name.length() > 45)
 			name = name.left(42) + "...";
 		
-		for (int i = 0; i < name.length(); i++)
+		if (m_viewMode == "Tableau")
 		{
-			if (i == 15 || i == 30)
+			for (int i = 0; i < name.length(); i++)
 			{
-				name.insert(i, "\n");
-				i++;
+				if (i == 15 || i == 30)
+				{
+					name.insert(i, "\n");
+					i++;
+				}
 			}
 		}
 
 		ListWidgetItem *newItem = new ListWidgetItem(name);
-			newItem->setTextAlignment(Qt::AlignCenter);
+			newItem->setTextAlignment(m_alignment);
 			newItem->setForeground(brush);
 			newItem->setName(infosFichier.fileName());
 			newItem->setIcon(Multiuso::iconForFile(infosFichier.fileName(), type));
@@ -762,4 +767,50 @@ QString VueDossier::chemin()
 bool VueDossier::isLoadInProgress()
 {
 	return loadInProgress;
+}
+
+void VueDossier::setViewMode(QString view)
+{
+	if (view == "Tableau")
+	{
+		m_vue->setViewMode(QListView::IconMode);
+		m_vue->setGridSize(QSize(135, 100));
+
+		m_alignment = Qt::AlignCenter;
+		m_viewMode = view;
+	}
+
+	else
+	{
+		m_vue->setViewMode(QListView::ListMode);
+		m_vue->setGridSize(QSize(0, 55));
+
+		m_alignment = Qt::AlignLeft;
+		m_viewMode = view;
+	}
+
+	for (int i = 0; i < m_vue->count(); i++)
+	{
+		ListWidgetItem *item = static_cast<ListWidgetItem *>(m_vue->item(i));
+
+		QString name = item->name();
+
+		if (name.length() > 45)
+			name = name.left(42) + "...";
+
+		if (m_viewMode == "Tableau")
+		{
+			for (int i = 0; i < name.length(); i++)
+			{
+				if (i == 15 || i == 30)
+				{
+					name.insert(i, "\n");
+					i++;
+				}
+			}
+		}
+
+		item->setTextAlignment(m_alignment);
+		item->setText(name);
+	}
 }

@@ -50,6 +50,7 @@ class NavFichiers : public QMainWindow
 		}
 
 	public slots:
+		void viewChanged(QString view);
 		void ajouterOnglet();
 		QWidget *nouvelOnglet();
 		void slotFermerOnglet();
@@ -76,6 +77,8 @@ class NavFichiers : public QMainWindow
 	private:
 		QWidget *p_fenPrincipale;
 		NavigateurWeb *p_navigateurWeb;
+		QComboBox *selectView;
+		QStatusBar *status;
 
 		QTabWidget *onglets;
 
