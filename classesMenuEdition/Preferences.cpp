@@ -58,9 +58,14 @@ Preferences::Preferences(FenPrincipale *parent = 0) : QDialog(parent)
 		layoutGeneral->addRow("\"Multiuso - Téléchargements\" se trouve dans :", layoutParcourirDossierDL);
 		layoutGeneral->addRow("Protéger vos données avec un mot de passe :", choixUtiliserMdp);
 
+	randomBackground = new QCheckBox;
 	fondScreenshot = new QCheckBox;
 
+	connect(randomBackground, SIGNAL(stateChanged(int)), this, SLOT(randomBackgroundStateChanged(int)));
+	connect(fondScreenshot, SIGNAL(stateChanged(int)), this, SLOT(screenshotBackgroundStateChanged(int)));
+
 	layoutAccueil = new QFormLayout;
+		layoutAccueil->addRow("Fond aléatoire (change à chaque démarrage) : ", randomBackground);
 		layoutAccueil->addRow("Utiliser une capture d'écran comme fond pour l'Accueil :", fondScreenshot);
 
 	welcomeFolder = new QLineEdit;
@@ -401,6 +406,9 @@ void Preferences::afficherPreferences()
 
 		dossierTelechargements->setText(reglagesFenetre.value("telechargements/dossier").toString());
 
+		if (reglagesFenetre.value("accueil/fond_aleatoire").toBool())
+			randomBackground->setCheckState(Qt::Checked);
+
 		if (reglagesFenetre.value("accueil/fond_screenshot").toBool())
 			fondScreenshot->setCheckState(Qt::Checked);
 
@@ -502,6 +510,7 @@ void Preferences::enregistrerPreferences()
 		reglagesFenetre.setValue("ouverture/agrandi", choixOuvertureFenetre->isChecked());
 		reglagesFenetre.setValue("deplacements/effets", choixEffetsDeDeplacement->isChecked());
 		reglagesFenetre.setValue("telechargements/dossier", dossierTelechargements->text());
+		reglagesFenetre.setValue("accueil/fond_aleatoire", randomBackground->isChecked());
 		reglagesFenetre.setValue("accueil/fond_screenshot", fondScreenshot->isChecked());
 		reglagesFenetre.setValue("splash_screen/utiliser", choixUtiliserSplashScreen->isChecked());
 		reglagesFenetre.setValue("remise_a_zero/restart", choixRedemarrerApresRemiseAZero->isChecked());
@@ -570,6 +579,7 @@ void Preferences::reglagesParDefaut()
 
 	styleDeBase->setChecked(true);
 
+	randomBackground->setCheckState(Qt::Unchecked);
 	fondScreenshot->setCheckState(Qt::Unchecked);
 
 	welcomeFolder->setText(QDir::homePath());
@@ -804,3 +814,15 @@ void Preferences::checkUsePassword(bool toogled)
 		}
 	}
 // </Stalker (www.siteduzero.com)>
+
+void Preferences::randomBackgroundStateChanged(int)
+{
+	if (randomBackground->isChecked())
+		fondScreenshot->setCheckState(Qt::Unchecked);
+}
+
+void Preferences::screenshotBackgroundStateChanged(int)
+{
+	if (fondScreenshot->isChecked())
+		randomBackground->setCheckState(Qt::Unchecked);
+}

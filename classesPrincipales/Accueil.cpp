@@ -133,21 +133,7 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 	aireCentrale = new QMdiArea;
 		aireCentrale->setLayout(layoutCentralArea);
 
-	QSettings optionsAccueil(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
-
-		if (optionsAccueil.value("accueil/fond_screenshot").toBool())
-		{
-			aireCentrale->setBackground(QPixmap::grabWindow(QApplication::desktop()->winId()));
-		}
-
-		else
-		{
-			if (QFile::exists(Multiuso::appDirPath() + "/extensions/images/fond_accueil.png"))
-				aireCentrale->setBackground(QPixmap(Multiuso::appDirPath() + "/extensions/images/fond_accueil.png"));
-
-			else
-				aireCentrale->setBackground(Qt::black);
-		}
+	actualiserFond();
 
 	showPictureButton = new QPushButton(aireCentrale);
 		showPictureButton->move(10, 10);
@@ -162,6 +148,8 @@ Accueil::Accueil(QWidget *parent = 0) : QWidget(parent)
 		layoutPrincipal->setContentsMargins(0, 0, 0, 0);
 
 	transitionInProgress = false;
+	
+	QSettings optionsAccueil(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
 	if (optionsAccueil.value("ouverture/page").toInt() == 0)
 	{
@@ -264,7 +252,16 @@ void Accueil::actualiserFond()
 {
 	QSettings optionsAccueil(Multiuso::appDirPath() + "/ini/config.ini", QSettings::IniFormat);
 
-		if (optionsAccueil.value("accueil/fond_screenshot").toBool())
+		if (optionsAccueil.value("accueil/fond_aleatoire").toBool())
+		{
+			QDir dir(":/fonds_aleatoires/");
+
+			int picture = Multiuso::randomNumber(1, dir.count());
+
+			aireCentrale->setBackground(QPixmap(":/fonds_aleatoires/" + QString::number(picture) + ".png"));
+		}
+
+		else if (optionsAccueil.value("accueil/fond_screenshot").toBool())
 		{
 			aireCentrale->setBackground(QPixmap::grabWindow(QApplication::desktop()->winId()));
 		}

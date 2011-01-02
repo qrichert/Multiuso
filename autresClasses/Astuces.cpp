@@ -18,7 +18,6 @@ along with Multiuso.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Astuces.h"
-#include "time.h"
 
 Astuces::Astuces(QWidget *parent) : QDialog(parent)
 {
@@ -92,8 +91,7 @@ void Astuces::selectionnerAstuce()
 
 	nombreDeFichiers = MAX;
 
-	srand(time(NULL));
-	astuceActuelle = (rand() % (MAX - MIN + 1)) + MIN;
+	astuceActuelle = Multiuso::randomNumber(MIN, MAX);
 
 	QFile fichier(":/astuces/astuce" + QString::number(astuceActuelle) + ".mltsastuce");
 

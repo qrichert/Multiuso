@@ -38,7 +38,6 @@ class Preferences : public QDialog
 		void enregistrerPreferences();
 		void reglagesParDefaut();
 
-	public slots:
 		void slotParcourirDossierDL();
 		void slotEditerStyle();
 		void slotParcourirStyle();
@@ -48,10 +47,12 @@ class Preferences : public QDialog
 		void slotViderCache();
 		void slotEffacerCookies();
 
-	public slots:
 		void changementMoteurDeRecherche(QString newOne);
 		void changementEtatStyle(bool);
 		void checkUsePassword(bool toggled);
+
+		void randomBackgroundStateChanged(int);
+		void screenshotBackgroundStateChanged(int);
 		
 	// <Stalker (www.siteduzero.com)>
 		private slots:
@@ -74,6 +75,7 @@ class Preferences : public QDialog
 		QFormLayout *layoutGeneral;
 
 	// Accueil
+		QCheckBox *randomBackground;
 		QCheckBox *fondScreenshot;
 
 		QFormLayout *layoutAccueil;
